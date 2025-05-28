@@ -61,6 +61,10 @@ jobs:
         # Disable Windows code signing too
         WIN_CSC_LINK: ""
         WIN_CSC_KEY_PASSWORD: ""
+        # Disable publishing to GitHub releases
+        ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+        EP_DRAFT: false
+        EP_PRE_RELEASE: false
       continue-on-error: true
 
     - name: Upload build artifacts

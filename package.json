@@ -118,6 +118,7 @@
   "build": {
     "appId": "com.jsb2010.dropsentinel",
     "productName": "DropSentinel",
+    "publish": null,
     "directories": {
       "output": "dist"
     },
