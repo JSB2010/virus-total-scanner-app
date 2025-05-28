@@ -49,28 +49,18 @@ jobs:
     - name: Build application
       run: npm run build
 
-    - name: Prepare for app notarization (macOS)
-      if: startsWith(matrix.os, 'macos')
-      run: |
-        mkdir -p ~/private_keys/
-        echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-      continue-on-error: true
-
     - name: Build Electron app
       run: npm run electron-pack
       env:
-        # macOS notarization API key (optional for development builds)
-        APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-        APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-        APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        # Code signing certificates (optional for development builds)
-        CSC_LINK: ${{ secrets.CSC_LINK }}
-        CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        # Windows code signing (optional for development builds)
-        WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-        WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-        # Disable code signing for CI builds if no certificates are provided
+        # Completely disable code signing for CI builds
         CSC_IDENTITY_AUTO_DISCOVERY: false
+        CSC_LINK: ""
+        CSC_KEY_PASSWORD: ""
+        # Skip notarization for CI builds
+        SKIP_NOTARIZATION: true
+        # Disable Windows code signing too
+        WIN_CSC_LINK: ""
+        WIN_CSC_KEY_PASSWORD: ""
       continue-on-error: true
 
     - name: Upload build artifacts
