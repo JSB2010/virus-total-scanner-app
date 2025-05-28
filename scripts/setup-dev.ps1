@@ -78,7 +78,7 @@ foreach ($dir in $directories) {
 # Windows-specific configuration
 Write-Host "🪟 Windows Configuration:" -ForegroundColor Blue
 Write-Host "   • Downloads monitoring: $env:USERPROFILE\Downloads" -ForegroundColor Cyan
-Write-Host "   • Quarantine storage: $env:LOCALAPPDATA\SentinelGuard\quarantine" -ForegroundColor Cyan
+Write-Host "   • Quarantine storage: $env:LOCALAPPDATA\DropSentinel\quarantine" -ForegroundColor Cyan
 Write-Host "   • App will request necessary permissions on first run" -ForegroundColor Cyan
 
 # Check if VirusTotal API key is configured

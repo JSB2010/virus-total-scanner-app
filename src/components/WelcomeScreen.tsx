@@ -21,17 +21,21 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
   const steps = [
     {
-      title: "Welcome to Sentinel Guard",
-      description: "Advanced file security with real-time protection",
+      title: "Welcome to DropSentinel",
+      description: "Advanced file security with drag-and-drop protection",
       content: (
         <div className="text-center space-y-6">
-          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <Shield className="w-12 h-12 text-white" />
+          <div className="mx-auto w-24 h-24 flex items-center justify-center">
+            <img
+              src="/dropsentinel_logo.svg"
+              alt="DropSentinel Logo"
+              className="w-24 h-24"
+            />
           </div>
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Protect Your Downloads</h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Automatically scan files in your Downloads folder using VirusTotal's powerful threat detection engine.
+              Automatically scan files with drag-and-drop convenience and real-time monitoring using VirusTotal's powerful threat detection engine.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
               <div className="text-center space-y-2">

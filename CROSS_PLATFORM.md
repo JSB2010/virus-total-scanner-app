@@ -1,6 +1,6 @@
 # 🌍 Cross-Platform Compatibility Guide
 
-This document outlines the cross-platform features and compatibility of Sentinel Guard across Windows, macOS, and Linux.
+This document outlines the cross-platform features and compatibility of DropSentinel across Windows, macOS, and Linux.
 
 ## 🖥️ Supported Platforms
 
@@ -27,9 +27,9 @@ This document outlines the cross-platform features and compatibility of Sentinel
 - **Linux**: `~/Downloads`
 
 ### Quarantine Storage
-- **Windows**: `%LOCALAPPDATA%\SentinelGuard\quarantine`
-- **macOS**: `~/Library/Application Support/SentinelGuard/quarantine`
-- **Linux**: `~/.local/share/SentinelGuard/quarantine` (XDG compliant)
+- **Windows**: `%LOCALAPPDATA%\DropSentinel\quarantine`
+- **macOS**: `~/Library/Application Support/DropSentinel/quarantine`
+- **Linux**: `~/.local/share/DropSentinel/quarantine` (XDG compliant)
 
 ## 🔍 File Type Detection
 

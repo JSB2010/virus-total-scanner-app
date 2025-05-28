@@ -599,7 +599,7 @@ function showFileDetectedDialog(filePath) {
         buttons: ['Scan Now', 'Skip'],
         defaultId: 0,
         cancelId: 1,
-        title: 'New File Detected - Sentinel Guard',
+        title: 'New File Detected - DropSentinel',
         message: `A new file has been detected:\n\n${fileName}`,
         detail: `File path: ${filePath}\nFile size: ${formatFileSize(fileStats.size)}\n\nWould you like to scan this file for threats?`,
         icon: getIconPath("app-icon.png") || undefined,
@@ -1103,21 +1103,21 @@ function getQuarantineDir() {
   switch (platform) {
     case 'win32':
       // Windows: Use AppData/Local
-      return path.join(homeDir, 'AppData', 'Local', 'SentinelGuard', 'quarantine')
+      return path.join(homeDir, 'AppData', 'Local', 'DropSentinel', 'quarantine')
 
     case 'darwin':
       // macOS: Use Application Support
-      return path.join(homeDir, 'Library', 'Application Support', 'SentinelGuard', 'quarantine')
+      return path.join(homeDir, 'Library', 'Application Support', 'DropSentinel', 'quarantine')
 
     case 'linux': {
       // Linux: Use XDG data directory
       const xdgDataHome = process.env.XDG_DATA_HOME || path.join(homeDir, '.local', 'share')
-      return path.join(xdgDataHome, 'SentinelGuard', 'quarantine')
+      return path.join(xdgDataHome, 'DropSentinel', 'quarantine')
     }
 
     default:
       // Fallback for other platforms
-      return path.join(homeDir, '.sentinel-guard', 'quarantine')
+      return path.join(homeDir, '.dropsentinel', 'quarantine')
   }
 }
 

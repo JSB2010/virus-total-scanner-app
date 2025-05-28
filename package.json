@@ -1,7 +1,7 @@
 {
-  "name": "sentinel-guard",
+  "name": "dropsentinel",
   "version": "0.1.0",
-  "description": "Advanced file security scanner with real-time protection",
+  "description": "Advanced file security scanner with real-time protection and drag-and-drop scanning",
   "private": true,
   "author": {
     "name": "JSB2010",
@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JSB2010/sentinel-guard.git"
+    "url": "https://github.com/JSB2010/virus-total-scanner-app.git"
   },
   "bugs": {
-    "url": "https://github.com/JSB2010/sentinel-guard/issues"
+    "url": "https://github.com/JSB2010/virus-total-scanner-app/issues"
   },
-  "homepage": "https://github.com/JSB2010/sentinel-guard#readme",
+  "homepage": "https://github.com/JSB2010/virus-total-scanner-app#readme",
   "keywords": [
     "virus-scanner",
     "security",
@@ -26,7 +26,9 @@
     "typescript",
     "real-time-protection",
     "virustotal",
-    "quarantine"
+    "quarantine",
+    "drag-and-drop",
+    "dropsentinel"
   ],
   "license": "MIT",
   "engines": {
@@ -114,8 +116,8 @@
   },
   "main": "public/electron.js",
   "build": {
-    "appId": "com.jsb2010.sentinel-guard",
-    "productName": "Sentinel Guard",
+    "appId": "com.jsb2010.dropsentinel",
+    "productName": "DropSentinel",
     "directories": {
       "output": "dist"
     },
@@ -129,7 +131,9 @@
       {
         "from": "public/assets",
         "to": "assets",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
@@ -142,11 +146,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ]
     },
@@ -157,11 +167,17 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ]
     },
@@ -171,15 +187,24 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "tar.gz",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ]
     },

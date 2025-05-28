@@ -1,6 +1,6 @@
-# 🛡️ Sentinel Guard
+# 🛡️ DropSentinel
 
-**Advanced file security scanner with real-time protection**
+**Advanced file security scanner with drag-and-drop protection**
 
 [![CI](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml)
@@ -26,20 +26,20 @@
 
 ## 🖥️ Platform Support
 
-Sentinel Guard is designed to work seamlessly across all major operating systems:
+DropSentinel is designed to work seamlessly across all major operating systems:
 
 ### Windows 🪟
 - **Supported Versions**: Windows 10, Windows 11
 - **Architectures**: x64, ARM64
 - **Downloads Monitoring**: `%USERPROFILE%\Downloads`
-- **Quarantine Storage**: `%LOCALAPPDATA%\SentinelGuard\quarantine`
+- **Quarantine Storage**: `%LOCALAPPDATA%\DropSentinel\quarantine`
 - **File Types**: Comprehensive Windows executable detection (.exe, .msi, .bat, .cmd, .scr, .pif, .com, .vbs, .ps1)
 
 ### macOS 🍎
 - **Supported Versions**: macOS 10.15 (Catalina) and later
 - **Architectures**: Intel (x64), Apple Silicon (ARM64)
 - **Downloads Monitoring**: `~/Downloads`
-- **Quarantine Storage**: `~/Library/Application Support/SentinelGuard/quarantine`
+- **Quarantine Storage**: `~/Library/Application Support/DropSentinel/quarantine`
 - **File Types**: macOS-specific detection (.dmg, .pkg, .app, .command, .workflow)
 - **Security**: Full compatibility with macOS security features and notarization
 
@@ -47,7 +47,7 @@ Sentinel Guard is designed to work seamlessly across all major operating systems
 - **Supported Distributions**: Ubuntu, Debian, CentOS, RHEL, Arch, and more
 - **Architectures**: x64, ARM64
 - **Downloads Monitoring**: `~/Downloads`
-- **Quarantine Storage**: `~/.local/share/SentinelGuard/quarantine` (XDG compliant)
+- **Quarantine Storage**: `~/.local/share/DropSentinel/quarantine` (XDG compliant)
 - **File Types**: Linux executable detection (.deb, .rpm, .appimage, .snap, .flatpak, .sh, .run)
 
 ## 🚀 Quick Start
@@ -223,9 +223,9 @@ For security concerns, please see our [Security Policy](SECURITY.md).
 
 ## 📞 Support
 
-- 📧 **Email**: support@sentinelguard.dev
-- 🐛 **Issues**: [GitHub Issues](https://github.com/JSB2010/sentinel-guard/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/JSB2010/sentinel-guard/discussions)
+- 📧 **Email**: support@dropsentinel.dev
+- 🐛 **Issues**: [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
 
 ## 🙏 Acknowledgments
 

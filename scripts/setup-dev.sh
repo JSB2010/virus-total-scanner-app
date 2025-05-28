@@ -122,13 +122,13 @@ case $PLATFORM in
     "macOS")
         echo -e "${BLUE}🍎 macOS Configuration:${NC}"
         echo -e "${CYAN}   • Downloads monitoring: ~/Downloads${NC}"
-        echo -e "${CYAN}   • Quarantine storage: ~/Library/Application Support/SentinelGuard/${NC}"
+        echo -e "${CYAN}   • Quarantine storage: ~/Library/Application Support/DropSentinel/${NC}"
         echo -e "${CYAN}   • App will request necessary permissions on first run${NC}"
         ;;
     "Linux")
         echo -e "${BLUE}🐧 Linux Configuration:${NC}"
         echo -e "${CYAN}   • Downloads monitoring: ~/Downloads${NC}"
-        echo -e "${CYAN}   • Quarantine storage: ~/.local/share/SentinelGuard/${NC}"
+        echo -e "${CYAN}   • Quarantine storage: ~/.local/share/DropSentinel/${NC}"
         echo -e "${CYAN}   • Ensure your user has access to Downloads folder${NC}"
         ;;
     *)

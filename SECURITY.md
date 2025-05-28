@@ -2,7 +2,7 @@
 
 ## 🔒 Reporting Security Vulnerabilities
 
-We take the security of Sentinel Guard seriously. If you discover a security vulnerability, please follow these guidelines:
+We take the security of DropSentinel seriously. If you discover a security vulnerability, please follow these guidelines:
 
 ### ⚠️ Please DO NOT:
 - Open a public GitHub issue for security vulnerabilities
@@ -10,7 +10,7 @@ We take the security of Sentinel Guard seriously. If you discover a security vul
 - Attempt to exploit the vulnerability on systems you don't own
 
 ### ✅ Please DO:
-- Report the vulnerability privately via email to: **security@sentinelguard.dev**
+- Report the vulnerability privately via email to: **security@dropsentinel.dev**
 - Provide detailed information about the vulnerability
 - Allow reasonable time for us to address the issue before public disclosure
 
@@ -26,7 +26,7 @@ When reporting a security vulnerability, please include:
 
 ### Example Report Format:
 ```
-Subject: [SECURITY] Vulnerability in Sentinel Guard
+Subject: [SECURITY] Vulnerability in DropSentinel
 
 Description:
 [Detailed description of the vulnerability]
@@ -100,7 +100,7 @@ We provide security updates for the following versions:
 
 ### System Security
 - **Keep the application updated** to the latest version
-- **Use antivirus software** alongside Sentinel Guard
+- **Use antivirus software** alongside DropSentinel
 - **Regular system updates** for your operating system
 
 ## 🤝 Security Community
@@ -113,7 +113,7 @@ We welcome security researchers and encourage responsible disclosure. Contributo
 
 ## 📋 Security Checklist for Developers
 
-If you're contributing to Sentinel Guard, please ensure:
+If you're contributing to DropSentinel, please ensure:
 
 - [ ] No hardcoded secrets or API keys
 - [ ] Input validation for all user inputs
@@ -124,8 +124,8 @@ If you're contributing to Sentinel Guard, please ensure:
 
 ## 📞 Contact Information
 
-- **Security Email**: security@sentinelguard.dev
-- **General Contact**: support@sentinelguard.dev
+- **Security Email**: security@dropsentinel.dev
+- **General Contact**: support@dropsentinel.dev
 - **GitHub Issues**: For non-security related issues only
 
 ## 📄 Legal
@@ -143,4 +143,4 @@ We commit to:
 
 ---
 
-**Thank you for helping keep Sentinel Guard and our users safe!** 🛡️
+**Thank you for helping keep DropSentinel and our users safe!** 🛡️

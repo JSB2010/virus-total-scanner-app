@@ -439,11 +439,15 @@ export function MainDashboard({
               <div className="flex items-center gap-6">
                 <div className="relative">
                   <motion.div
-                    className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 flex items-center justify-center shadow-2xl"
+                    className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/20"
                     whileHover={{ scale: 1.05, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Shield className="w-8 h-8 text-white" />
+                    <img
+                      src="/dropsentinel_logo.svg"
+                      alt="DropSentinel Logo"
+                      className="w-10 h-10"
+                    />
                   </motion.div>
                   <motion.div
                     className={`absolute -top-2 -right-2 w-6 h-6 rounded-full ${isMonitoring ? "bg-green-500" : "bg-red-500"} flex items-center justify-center shadow-lg border-2 border-white`}
@@ -463,7 +467,7 @@ export function MainDashboard({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    Sentinel Guard
+                    DropSentinel
                   </motion.h1>
                   <motion.div
                     className="flex flex-wrap items-center gap-3 mt-3"

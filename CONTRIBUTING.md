@@ -1,6 +1,6 @@
-# Contributing to Sentinel Guard
+# Contributing to DropSentinel
 
-Thank you for your interest in contributing to Sentinel Guard! We welcome contributions from the community and are grateful for any help you can provide.
+Thank you for your interest in contributing to DropSentinel! We welcome contributions from the community and are grateful for any help you can provide.
 
 ## 🤝 Code of Conduct
 
@@ -59,8 +59,8 @@ Enhancement suggestions are welcome! Please provide:
 
 1. **Clone your fork**
    ```bash
-   git clone https://github.com/JSB2010/sentinel-guard.git
-   cd sentinel-guard
+   git clone https://github.com/JSB2010/virus-total-scanner-app.git
+   cd virus-total-scanner-app
    ```
 
 2. **Install dependencies**
@@ -134,7 +134,7 @@ docs: update installation instructions
 ## 🏗️ Project Structure
 
 ```
-sentinel-guard/
+dropsentinel/
 ├── src/                    # Source code
 │   ├── components/         # React components
 │   ├── hooks/             # Custom hooks
@@ -173,13 +173,13 @@ We especially welcome contributions in these areas:
 
 If you need help with contributing:
 
-- Check existing [Issues](https://github.com/JSB2010/sentinel-guard/issues)
-- Start a [Discussion](https://github.com/JSB2010/sentinel-guard/discussions)
+- Check existing [Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
+- Start a [Discussion](https://github.com/JSB2010/virus-total-scanner-app/discussions)
 - Reach out to maintainers
 
 ## 📄 License
 
-By contributing to Sentinel Guard, you agree that your contributions will be licensed under the MIT License.
+By contributing to DropSentinel, you agree that your contributions will be licensed under the MIT License.
 
 ## 🙏 Recognition
 
@@ -187,4 +187,4 @@ Contributors will be recognized in our README and release notes. We appreciate a
 
 ---
 
-Thank you for contributing to Sentinel Guard! 🛡️
+Thank you for contributing to DropSentinel! 🛡️

@@ -12,8 +12,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Sentinel Guard Version
-      description: What version of Sentinel Guard are you running?
+      label: DropSentinel Version
+      description: What version of DropSentinel are you running?
       placeholder: e.g., v0.1.0
     validations:
       required: true

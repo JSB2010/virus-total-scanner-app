@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Sentinel Guard',
-  description: 'Advanced file security scanner with real-time protection',
+  title: 'DropSentinel',
+  description: 'Advanced file security scanner with drag-and-drop protection',
 }
 
 export default function RootLayout({
