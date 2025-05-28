@@ -2,6 +2,8 @@
 
 **Advanced file security scanner with real-time protection**
 
+[![CI](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -72,6 +74,16 @@
    # or
    pnpm electron-dev
    ```
+
+## 📦 Download Pre-built Packages
+
+Pre-built packages for Windows and macOS are automatically generated for every commit to the main branch. You can download them from the [GitHub Actions artifacts](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/build-packages.yml) without waiting for a formal release.
+
+1. Go to the [Build Packages workflow](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/build-packages.yml)
+2. Click on the latest successful run
+3. Download the artifact for your platform:
+   - `windows-latest-build` for Windows
+   - `macos-latest-build` for macOS
 
 ## 🏗️ Building for Production
 
