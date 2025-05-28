@@ -1,0 +1,39 @@
+name: 📋 General Issue
+description: For questions, discussions, or other issues
+title: "[General]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for general questions, discussions, or issues that don't fit the bug report or feature request categories.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Issue Type
+      description: What type of issue is this?
+      options:
+        - Question
+        - Documentation
+        - Performance
+        - Security Concern
+        - Installation Help
+        - Configuration Help
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please provide a clear and detailed description of your issue or question.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or information that might be helpful.
