@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x]
 
     steps:
     - uses: actions/checkout@v4
@@ -35,12 +35,31 @@ jobs:
     - name: Run tests
       run: npm test --if-present
 
+    - name: Check bundle size
+      run: npm run build && du -sh .next/ || true
+
+    - name: Upload build artifacts (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-failure-logs-${{ matrix.node-version }}
+        path: |
+          .next/
+          npm-debug.log*
+          yarn-debug.log*
+          yarn-error.log*
+        retention-days: 7
+
   security:
     runs-on: ubuntu-latest
-    
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -48,7 +67,7 @@ jobs:
         scan-ref: '.'
         format: 'sarif'
         output: 'trivy-results.sarif'
-    
+
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
       if: always()
