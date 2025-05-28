@@ -3,24 +3,30 @@
 # Sentinel Guard Development Setup Script
 # This script sets up the development environment for Sentinel Guard
 
-Write-Host "🛡️  Setting up Sentinel Guard Development Environment..." -ForegroundColor Green
+Write-Host "🛡️  Setting up Sentinel Guard Development Environment for Windows..." -ForegroundColor Green
+
+# Windows-specific setup information
+Write-Host "🪟 Detected platform: Windows" -ForegroundColor Cyan
 
 # Check if Node.js is installed
 Write-Host "Checking Node.js installation..." -ForegroundColor Yellow
 try {
     $nodeVersion = node --version
     Write-Host "✅ Node.js is installed: $nodeVersion" -ForegroundColor Green
-    
+
     # Check if version is >= 18
     $versionNumber = $nodeVersion -replace 'v', ''
     $majorVersion = [int]($versionNumber.Split('.')[0])
-    
+
     if ($majorVersion -lt 18) {
         Write-Host "❌ Node.js version $nodeVersion is too old. Please install Node.js 18 or higher." -ForegroundColor Red
         exit 1
     }
 } catch {
-    Write-Host "❌ Node.js is not installed. Please install Node.js 18 or higher from https://nodejs.org/" -ForegroundColor Red
+    Write-Host "❌ Node.js is not installed." -ForegroundColor Red
+    Write-Host "   Download from: https://nodejs.org/" -ForegroundColor Cyan
+    Write-Host "   Or install via Chocolatey: choco install nodejs" -ForegroundColor Cyan
+    Write-Host "   Or install via Winget: winget install OpenJS.NodeJS" -ForegroundColor Cyan
     exit 1
 }
 
@@ -30,7 +36,10 @@ try {
     $gitVersion = git --version
     Write-Host "✅ Git is installed: $gitVersion" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Git is not installed. Please install Git from https://git-scm.com/" -ForegroundColor Red
+    Write-Host "❌ Git is not installed." -ForegroundColor Red
+    Write-Host "   Download from: https://git-scm.com/" -ForegroundColor Cyan
+    Write-Host "   Or install via Chocolatey: choco install git" -ForegroundColor Cyan
+    Write-Host "   Or install via Winget: winget install Git.Git" -ForegroundColor Cyan
     exit 1
 }
 
@@ -55,7 +64,8 @@ if (-not (Test-Path ".env.local")) {
 }
 
 # Create necessary directories
-$directories = @("quarantine", "logs", "app-data", "user-data")
+Write-Host "Creating necessary directories..." -ForegroundColor Yellow
+$directories = @("public\assets", "build", "dist", "src\types")
 foreach ($dir in $directories) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
@@ -64,6 +74,12 @@ foreach ($dir in $directories) {
         Write-Host "✅ Directory already exists: $dir" -ForegroundColor Green
     }
 }
+
+# Windows-specific configuration
+Write-Host "🪟 Windows Configuration:" -ForegroundColor Blue
+Write-Host "   • Downloads monitoring: $env:USERPROFILE\Downloads" -ForegroundColor Cyan
+Write-Host "   • Quarantine storage: $env:LOCALAPPDATA\SentinelGuard\quarantine" -ForegroundColor Cyan
+Write-Host "   • App will request necessary permissions on first run" -ForegroundColor Cyan
 
 # Check if VirusTotal API key is configured
 Write-Host "Checking VirusTotal API key configuration..." -ForegroundColor Yellow
@@ -78,10 +94,12 @@ if ($envContent -match "VIRUSTOTAL_API_KEY=your_virustotal_api_key_here" -or $en
 }
 
 Write-Host ""
-Write-Host "🎉 Setup complete! You can now:" -ForegroundColor Green
+Write-Host "🎉 Windows setup complete! You can now:" -ForegroundColor Green
 Write-Host "   • Run 'npm run dev' to start the Next.js development server" -ForegroundColor Cyan
 Write-Host "   • Run 'npm run electron-dev' to start the Electron app in development mode" -ForegroundColor Cyan
 Write-Host "   • Run 'npm run build' to build for production" -ForegroundColor Cyan
+Write-Host "   • Run 'npm run electron-pack' to package the app for Windows" -ForegroundColor Cyan
 Write-Host "   • Run 'npm run lint' to check code quality" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "📚 For more information, check the README.md file" -ForegroundColor Blue
+Write-Host "🔧 Platform: Windows" -ForegroundColor Blue

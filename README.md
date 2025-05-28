@@ -22,6 +22,33 @@
 - **⚡ High Performance** - Built with Next.js and optimized for speed
 - **🔔 System Notifications** - Native system notifications for scan results
 - **⚙️ Customizable Settings** - Flexible configuration options for all user needs
+- **🌍 Cross-Platform** - Full compatibility with Windows, macOS, and Linux
+
+## 🖥️ Platform Support
+
+Sentinel Guard is designed to work seamlessly across all major operating systems:
+
+### Windows 🪟
+- **Supported Versions**: Windows 10, Windows 11
+- **Architectures**: x64, ARM64
+- **Downloads Monitoring**: `%USERPROFILE%\Downloads`
+- **Quarantine Storage**: `%LOCALAPPDATA%\SentinelGuard\quarantine`
+- **File Types**: Comprehensive Windows executable detection (.exe, .msi, .bat, .cmd, .scr, .pif, .com, .vbs, .ps1)
+
+### macOS 🍎
+- **Supported Versions**: macOS 10.15 (Catalina) and later
+- **Architectures**: Intel (x64), Apple Silicon (ARM64)
+- **Downloads Monitoring**: `~/Downloads`
+- **Quarantine Storage**: `~/Library/Application Support/SentinelGuard/quarantine`
+- **File Types**: macOS-specific detection (.dmg, .pkg, .app, .command, .workflow)
+- **Security**: Full compatibility with macOS security features and notarization
+
+### Linux 🐧
+- **Supported Distributions**: Ubuntu, Debian, CentOS, RHEL, Arch, and more
+- **Architectures**: x64, ARM64
+- **Downloads Monitoring**: `~/Downloads`
+- **Quarantine Storage**: `~/.local/share/SentinelGuard/quarantine` (XDG compliant)
+- **File Types**: Linux executable detection (.deb, .rpm, .appimage, .snap, .flatpak, .sh, .run)
 
 ## 🚀 Quick Start
 
@@ -33,10 +60,30 @@
 
 ### Installation
 
+#### Automated Setup (Recommended)
+
+**For macOS and Linux:**
+```bash
+git clone https://github.com/JSB2010/virus-total-scanner-app.git
+cd virus-total-scanner-app
+chmod +x scripts/setup-dev.sh
+./scripts/setup-dev.sh
+```
+
+**For Windows (PowerShell):**
+```powershell
+git clone https://github.com/JSB2010/virus-total-scanner-app.git
+cd virus-total-scanner-app
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\scripts\setup-dev.ps1
+```
+
+#### Manual Setup
+
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/JSB2010/sentinel-guard.git
-   cd sentinel-guard
+   git clone https://github.com/JSB2010/virus-total-scanner-app.git
+   cd virus-total-scanner-app
    ```
 
 2. **Install dependencies**
@@ -94,11 +141,35 @@ npm start
 ```
 
 ### Desktop Application
+
+#### Build for Current Platform
 ```bash
 npm run electron-pack
 ```
 
-The built application will be available in the `dist_electron/` directory.
+#### Cross-Platform Builds
+
+**Build for Windows (from any platform):**
+```bash
+npm run electron-pack -- --win
+```
+
+**Build for macOS (from macOS only):**
+```bash
+npm run electron-pack -- --mac
+```
+
+**Build for Linux (from Linux/macOS):**
+```bash
+npm run electron-pack -- --linux
+```
+
+**Build for All Platforms (from macOS):**
+```bash
+npm run electron-pack -- --mac --win --linux
+```
+
+The built applications will be available in the `dist/` directory with platform-specific subdirectories.
 
 ## 🛠️ Technology Stack
 

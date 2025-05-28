@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   AlertTriangle,
-  FileText,
   Shield,
   Scan,
   X,
@@ -47,27 +46,54 @@ export function FileDetectedDialog({
 
   const getFileIcon = (fileName: string) => {
     const ext = fileName.toLowerCase().split('.').pop()
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']
-    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm']
-    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg']
-    const archiveExts = ['zip', 'rar', '7z', 'tar', 'gz']
-    const executableExts = ['exe', 'msi', 'dmg', 'pkg', 'deb', 'rpm']
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'ico', 'heic', 'heif']
+    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp', 'ogv']
+    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma', 'opus']
+    const archiveExts = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'lzma', 'cab', 'iso']
+    const executableExts = [
+      // Windows executables
+      'exe', 'msi', 'bat', 'cmd', 'com', 'scr', 'pif', 'vbs', 'ps1',
+      // macOS executables
+      'dmg', 'pkg', 'app', 'command',
+      // Linux executables
+      'deb', 'rpm', 'appimage', 'snap', 'flatpak', 'run', 'sh'
+    ]
 
-    if (imageExts.includes(ext || '')) return '🖼️'
-    if (videoExts.includes(ext || '')) return '🎥'
-    if (audioExts.includes(ext || '')) return '🎵'
-    if (archiveExts.includes(ext || '')) return '📦'
-    if (executableExts.includes(ext || '')) return '⚙️'
+    if (imageExts.includes(ext ?? '')) return '🖼️'
+    if (videoExts.includes(ext ?? '')) return '🎥'
+    if (audioExts.includes(ext ?? '')) return '🎵'
+    if (archiveExts.includes(ext ?? '')) return '📦'
+    if (executableExts.includes(ext ?? '')) return '⚙️'
     return '📄'
   }
 
   const getRiskLevel = (fileName: string) => {
     const ext = fileName.toLowerCase().split('.').pop()
-    const highRisk = ['exe', 'bat', 'cmd', 'scr', 'pif', 'com', 'msi']
-    const mediumRisk = ['zip', 'rar', '7z', 'tar', 'gz', 'dmg', 'pkg']
 
-    if (highRisk.includes(ext || '')) return { level: 'high', color: 'bg-red-100 text-red-800 border-red-200' }
-    if (mediumRisk.includes(ext || '')) return { level: 'medium', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }
+    // High risk: Executable files across all platforms
+    const highRisk = [
+      // Windows high-risk
+      'exe', 'bat', 'cmd', 'scr', 'pif', 'com', 'msi', 'vbs', 'ps1', 'reg', 'hta',
+      // macOS high-risk
+      'app', 'command', 'workflow',
+      // Linux high-risk
+      'sh', 'run', 'bin',
+      // Cross-platform scripts
+      'jar', 'py', 'rb', 'pl', 'php'
+    ]
+
+    // Medium risk: Archives and installers
+    const mediumRisk = [
+      // Archives
+      'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'cab', 'iso',
+      // Platform installers
+      'dmg', 'pkg', 'deb', 'rpm', 'appimage', 'snap', 'flatpak',
+      // Documents with macros
+      'docm', 'xlsm', 'pptm'
+    ]
+
+    if (highRisk.includes(ext ?? '')) return { level: 'high', color: 'bg-red-100 text-red-800 border-red-200' }
+    if (mediumRisk.includes(ext ?? '')) return { level: 'medium', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }
     return { level: 'low', color: 'bg-green-100 text-green-800 border-green-200' }
   }
 

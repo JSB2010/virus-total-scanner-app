@@ -7,6 +7,18 @@ set -e
 
 echo "🛡️  Setting up Sentinel Guard Development Environment..."
 
+# Detect platform
+PLATFORM="unknown"
+case "$(uname -s)" in
+    Darwin*)    PLATFORM="macOS";;
+    Linux*)     PLATFORM="Linux";;
+    CYGWIN*)    PLATFORM="Windows (Cygwin)";;
+    MINGW*)     PLATFORM="Windows (MinGW)";;
+    MSYS*)      PLATFORM="Windows (MSYS)";;
+esac
+
+echo "🖥️  Detected platform: $PLATFORM"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -20,7 +32,7 @@ echo -e "${YELLOW}Checking Node.js installation...${NC}"
 if command -v node >/dev/null 2>&1; then
     NODE_VERSION=$(node --version)
     echo -e "${GREEN}✅ Node.js is installed: $NODE_VERSION${NC}"
-    
+
     # Check if version is >= 18
     NODE_MAJOR_VERSION=$(echo $NODE_VERSION | sed 's/v//' | cut -d. -f1)
     if [ "$NODE_MAJOR_VERSION" -lt 18 ]; then
@@ -28,7 +40,23 @@ if command -v node >/dev/null 2>&1; then
         exit 1
     fi
 else
-    echo -e "${RED}❌ Node.js is not installed. Please install Node.js 18 or higher from https://nodejs.org/${NC}"
+    echo -e "${RED}❌ Node.js is not installed.${NC}"
+    case $PLATFORM in
+        "macOS")
+            echo -e "${CYAN}   Install via Homebrew: brew install node${NC}"
+            echo -e "${CYAN}   Or download from: https://nodejs.org/${NC}"
+            ;;
+        "Linux")
+            echo -e "${CYAN}   Install via package manager:${NC}"
+            echo -e "${CYAN}   Ubuntu/Debian: sudo apt update && sudo apt install nodejs npm${NC}"
+            echo -e "${CYAN}   CentOS/RHEL: sudo yum install nodejs npm${NC}"
+            echo -e "${CYAN}   Arch: sudo pacman -S nodejs npm${NC}"
+            echo -e "${CYAN}   Or download from: https://nodejs.org/${NC}"
+            ;;
+        *)
+            echo -e "${CYAN}   Download from: https://nodejs.org/${NC}"
+            ;;
+    esac
     exit 1
 fi
 
@@ -38,7 +66,22 @@ if command -v git >/dev/null 2>&1; then
     GIT_VERSION=$(git --version)
     echo -e "${GREEN}✅ Git is installed: $GIT_VERSION${NC}"
 else
-    echo -e "${RED}❌ Git is not installed. Please install Git from https://git-scm.com/${NC}"
+    echo -e "${RED}❌ Git is not installed.${NC}"
+    case $PLATFORM in
+        "macOS")
+            echo -e "${CYAN}   Install via Xcode Command Line Tools: xcode-select --install${NC}"
+            echo -e "${CYAN}   Or via Homebrew: brew install git${NC}"
+            ;;
+        "Linux")
+            echo -e "${CYAN}   Install via package manager:${NC}"
+            echo -e "${CYAN}   Ubuntu/Debian: sudo apt install git${NC}"
+            echo -e "${CYAN}   CentOS/RHEL: sudo yum install git${NC}"
+            echo -e "${CYAN}   Arch: sudo pacman -S git${NC}"
+            ;;
+        *)
+            echo -e "${CYAN}   Download from: https://git-scm.com/${NC}"
+            ;;
+    esac
     exit 1
 fi
 
@@ -62,7 +105,8 @@ else
 fi
 
 # Create necessary directories
-DIRECTORIES=("quarantine" "logs" "app-data" "user-data")
+echo -e "${YELLOW}Creating necessary directories...${NC}"
+DIRECTORIES=("public/assets" "build" "dist" "src/types")
 for dir in "${DIRECTORIES[@]}"; do
     if [ ! -d "$dir" ]; then
         mkdir -p "$dir"
@@ -71,6 +115,28 @@ for dir in "${DIRECTORIES[@]}"; do
         echo -e "${GREEN}✅ Directory already exists: $dir${NC}"
     fi
 done
+
+# Platform-specific setup information
+echo -e "${YELLOW}Platform-specific setup...${NC}"
+case $PLATFORM in
+    "macOS")
+        echo -e "${BLUE}🍎 macOS Configuration:${NC}"
+        echo -e "${CYAN}   • Downloads monitoring: ~/Downloads${NC}"
+        echo -e "${CYAN}   • Quarantine storage: ~/Library/Application Support/SentinelGuard/${NC}"
+        echo -e "${CYAN}   • App will request necessary permissions on first run${NC}"
+        ;;
+    "Linux")
+        echo -e "${BLUE}🐧 Linux Configuration:${NC}"
+        echo -e "${CYAN}   • Downloads monitoring: ~/Downloads${NC}"
+        echo -e "${CYAN}   • Quarantine storage: ~/.local/share/SentinelGuard/${NC}"
+        echo -e "${CYAN}   • Ensure your user has access to Downloads folder${NC}"
+        ;;
+    *)
+        echo -e "${BLUE}🖥️  Cross-platform Configuration:${NC}"
+        echo -e "${CYAN}   • Downloads monitoring: ~/Downloads${NC}"
+        echo -e "${CYAN}   • Quarantine storage: Platform-specific location${NC}"
+        ;;
+esac
 
 # Check if VirusTotal API key is configured
 echo -e "${YELLOW}Checking VirusTotal API key configuration...${NC}"
@@ -84,10 +150,12 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}🎉 Setup complete! You can now:${NC}"
+echo -e "${GREEN}🎉 Cross-platform setup complete! You can now:${NC}"
 echo -e "${CYAN}   • Run 'npm run dev' to start the Next.js development server${NC}"
 echo -e "${CYAN}   • Run 'npm run electron-dev' to start the Electron app in development mode${NC}"
 echo -e "${CYAN}   • Run 'npm run build' to build for production${NC}"
+echo -e "${CYAN}   • Run 'npm run electron-pack' to package the app for $PLATFORM${NC}"
 echo -e "${CYAN}   • Run 'npm run lint' to check code quality${NC}"
 echo ""
 echo -e "${BLUE}📚 For more information, check the README.md file${NC}"
+echo -e "${BLUE}🔧 Platform: $PLATFORM${NC}"

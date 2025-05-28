@@ -1,4 +1,4 @@
-name: Build Packages
+name: Build Cross-Platform Packages
 
 on:
   push:
@@ -10,11 +10,18 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
-        
+        include:
+          - os: macos-latest
+            platform: mac
+            arch: universal
+          - os: windows-latest
+            platform: windows
+            arch: x64
+
     steps:
     - name: Check out Git repository
       uses: actions/checkout@v4
@@ -27,6 +34,17 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Create required directories
+      run: |
+        mkdir -p public/assets
+        mkdir -p build
+        mkdir -p dist
+      shell: bash
+
+    - name: Run linting
+      run: npm run lint
+      continue-on-error: true
 
     - name: Build application
       run: npm run build
@@ -58,7 +76,7 @@ jobs:
         name: ${{ matrix.os }}-build
         path: dist/
         retention-days: 30
-        
+
     - name: Create build summary
       run: |
         echo "## Build Summary for ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY

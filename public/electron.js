@@ -47,6 +47,7 @@ async function uploadFileToVirusTotal(filePath, apiKey, progressCallback) {
             reject(new Error(result.error?.message || `HTTP ${res.statusCode}`))
           }
         } catch (error) {
+          console.error('[VIRUSTOTAL] Error parsing response:', error)
           reject(new Error('Invalid response from VirusTotal'))
         }
       })
@@ -119,6 +120,7 @@ async function getAnalysisResult(analysisId, apiKey) {
             reject(new Error(result.error?.message || `HTTP ${res.statusCode}`))
           }
         } catch (error) {
+          console.error('[VIRUSTOTAL] Error parsing analysis response:', error)
           reject(new Error('Invalid response from VirusTotal'))
         }
       })
@@ -186,10 +188,37 @@ function showSettings() {
   }
 }
 
+// Get platform-appropriate icon path with fallbacks
+function getIconPath(iconName) {
+  const assetsDir = path.join(__dirname, "assets")
+  const iconPath = path.join(assetsDir, iconName)
+
+  // Check if custom icon exists
+  if (fs.existsSync(iconPath)) {
+    return iconPath
+  }
+
+  // Fallback to placeholder icons
+  const fallbackPath = path.join(__dirname, "placeholder-logo.png")
+  if (fs.existsSync(fallbackPath)) {
+    return fallbackPath
+  }
+
+  // Create a simple icon if nothing exists
+  return null
+}
+
 // Create enhanced tray icon with dynamic status
 function createTray() {
-  const iconPath = path.join(__dirname, "assets", "tray-icon.png")
-  const trayIcon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 })
+  const iconPath = getIconPath("tray-icon.png")
+
+  let trayIcon
+  if (iconPath) {
+    trayIcon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 })
+  } else {
+    // Create a simple tray icon programmatically
+    trayIcon = nativeImage.createEmpty()
+  }
 
   tray = new Tray(trayIcon)
 
@@ -228,7 +257,7 @@ function updateTrayMenu() {
     {
       label: "Sentinel Guard",
       enabled: false,
-      icon: nativeImage.createFromPath(path.join(__dirname, "assets", "app-icon.png")).resize({ width: 16, height: 16 })
+      icon: iconPath ? nativeImage.createFromPath(getIconPath("app-icon.png")).resize({ width: 16, height: 16 }) : undefined
     },
     { type: "separator" },
     {
@@ -376,6 +405,8 @@ function showAboutDialog() {
 }
 
 function createWindow() {
+  const appIconPath = getIconPath("app-icon.png")
+
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -385,7 +416,7 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "assets", "app-icon.png"),
+    icon: appIconPath || undefined,
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     show: false,
   })
@@ -416,12 +447,64 @@ function createWindow() {
   })
 }
 
+function getDownloadsPath() {
+  // Get platform-specific Downloads folder
+  const platform = process.platform
+  const homeDir = os.homedir()
+
+  switch (platform) {
+    case 'win32': {
+      // Windows: Try multiple possible locations
+      const winDownloads = [
+        path.join(homeDir, 'Downloads'),
+        path.join(homeDir, 'Desktop'),
+        path.join(os.tmpdir(), 'Downloads')
+      ]
+      for (const downloadPath of winDownloads) {
+        if (fs.existsSync(downloadPath)) {
+          return downloadPath
+        }
+      }
+      return winDownloads[0] // Default to first option
+    }
+
+    case 'darwin':
+      // macOS: Standard Downloads folder
+      return path.join(homeDir, 'Downloads')
+
+    case 'linux': {
+      // Linux: Try XDG user dirs first, then fallback
+      const xdgDownloads = path.join(homeDir, 'Downloads')
+      if (fs.existsSync(xdgDownloads)) {
+        return xdgDownloads
+      }
+      return path.join(homeDir, 'Desktop')
+    }
+
+    default:
+      return path.join(homeDir, 'Downloads')
+  }
+}
+
 function startFileWatcher() {
   if (fileWatcher) {
     fileWatcher.close()
   }
 
-  const downloadsPath = path.join(os.homedir(), "Downloads")
+  const downloadsPath = getDownloadsPath()
+  console.log(`[FILE WATCHER] Monitoring downloads folder: ${downloadsPath}`)
+
+  // Ensure the downloads directory exists
+  if (!fs.existsSync(downloadsPath)) {
+    console.log(`[FILE WATCHER] Downloads folder does not exist: ${downloadsPath}`)
+    try {
+      fs.mkdirSync(downloadsPath, { recursive: true })
+      console.log(`[FILE WATCHER] Created downloads folder: ${downloadsPath}`)
+    } catch (error) {
+      console.error(`[FILE WATCHER] Failed to create downloads folder:`, error)
+      return
+    }
+  }
 
   fileWatcher = chokidar.watch(downloadsPath, {
     ignored: [
@@ -429,7 +512,11 @@ function startFileWatcher() {
       /node_modules/, // ignore node_modules
       /\.git/, // ignore git directories
       /\.tmp$/, // ignore temp files
-      /\.crdownload$/, // ignore chrome downloads
+      /\.crdownload$/, // ignore chrome downloads (Chrome)
+      /\.part$/, // ignore partial downloads (Firefox)
+      /\.download$/, // ignore Safari downloads
+      /\.opdownload$/, // ignore Opera downloads
+      /~.*\.tmp$/, // ignore IE temp files
     ],
     persistent: true,
     ignoreInitial: true,
@@ -515,7 +602,7 @@ function showFileDetectedDialog(filePath) {
         title: 'New File Detected - Sentinel Guard',
         message: `A new file has been detected:\n\n${fileName}`,
         detail: `File path: ${filePath}\nFile size: ${formatFileSize(fileStats.size)}\n\nWould you like to scan this file for threats?`,
-        icon: path.join(__dirname, "assets", "app-icon.png"),
+        icon: getIconPath("app-icon.png") || undefined,
         noLink: true,
         alwaysOnTop: true
       })
@@ -619,7 +706,7 @@ function showNotification(title, body, onClick = null) {
     const notification = new Notification({
       title: title,
       body: body,
-      icon: path.join(__dirname, "assets", "app-icon.png"),
+      icon: getIconPath("app-icon.png") || undefined,
       silent: false
     })
 
@@ -865,6 +952,7 @@ ipcMain.handle("delete-file", async (event, filePath) => {
     await fs.promises.unlink(filePath)
     return true
   } catch (error) {
+    console.error(`[DELETE-FILE] Failed to delete file: ${filePath}`, error)
     return false
   }
 })
@@ -879,9 +967,29 @@ ipcMain.handle("select-files", async () => {
     properties: ['openFile', 'multiSelections'],
     filters: [
       { name: 'All Files', extensions: ['*'] },
-      { name: 'Executables', extensions: ['exe', 'msi', 'dmg', 'pkg'] },
-      { name: 'Archives', extensions: ['zip', 'rar', '7z', 'tar', 'gz'] },
-      { name: 'Documents', extensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx'] }
+      {
+        name: 'Executables',
+        extensions: [
+          // Windows
+          'exe', 'msi', 'bat', 'cmd', 'com', 'scr', 'pif',
+          // macOS
+          'dmg', 'pkg', 'app', 'command',
+          // Linux
+          'deb', 'rpm', 'appimage', 'snap', 'flatpak', 'run', 'sh'
+        ]
+      },
+      {
+        name: 'Archives',
+        extensions: ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'cab', 'iso']
+      },
+      {
+        name: 'Documents',
+        extensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf']
+      },
+      {
+        name: 'Scripts',
+        extensions: ['js', 'py', 'rb', 'pl', 'php', 'jar', 'vbs', 'ps1']
+      }
     ]
   })
 
@@ -919,7 +1027,7 @@ ipcMain.handle("show-notification", async (event, options) => {
       const notification = new Notification({
         title: options.title,
         body: options.body,
-        icon: options.icon || path.join(__dirname, "assets", "app-icon.png"),
+        icon: options.icon || getIconPath("app-icon.png") || undefined,
         silent: false,
         urgency: options.urgency || 'normal'
       })
@@ -957,7 +1065,7 @@ ipcMain.handle("show-file-detection-dialog", async (event, options) => {
       title: options.title || 'New File Detected - Sentinel Guard',
       message: options.message,
       detail: 'Would you like to scan this file for threats?',
-      icon: options.icon ? path.join(__dirname, options.icon) : path.join(__dirname, "assets", "app-icon.png"),
+      icon: options.icon ? path.join(__dirname, options.icon) : getIconPath("app-icon.png") || undefined,
       noLink: true,
       alwaysOnTop: true
     })
@@ -987,8 +1095,33 @@ ipcMain.handle("show-file-detection-dialog", async (event, options) => {
   }
 })
 
-// Quarantine functionality
-const quarantineDir = path.join(os.homedir(), '.sentinel-guard', 'quarantine')
+// Quarantine functionality - Cross-platform data directory
+function getQuarantineDir() {
+  const platform = process.platform
+  const homeDir = os.homedir()
+
+  switch (platform) {
+    case 'win32':
+      // Windows: Use AppData/Local
+      return path.join(homeDir, 'AppData', 'Local', 'SentinelGuard', 'quarantine')
+
+    case 'darwin':
+      // macOS: Use Application Support
+      return path.join(homeDir, 'Library', 'Application Support', 'SentinelGuard', 'quarantine')
+
+    case 'linux': {
+      // Linux: Use XDG data directory
+      const xdgDataHome = process.env.XDG_DATA_HOME || path.join(homeDir, '.local', 'share')
+      return path.join(xdgDataHome, 'SentinelGuard', 'quarantine')
+    }
+
+    default:
+      // Fallback for other platforms
+      return path.join(homeDir, '.sentinel-guard', 'quarantine')
+  }
+}
+
+const quarantineDir = getQuarantineDir()
 
 // Ensure quarantine directory exists
 function ensureQuarantineDir() {
