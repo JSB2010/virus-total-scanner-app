@@ -115,7 +115,7 @@ dist
 dist_electron/
 
 # Electron directories
-app/
+dist_electron/app/
 release/
 
 # macOS

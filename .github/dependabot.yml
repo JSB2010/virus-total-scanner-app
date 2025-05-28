@@ -30,15 +30,3 @@ updates:
     labels:
       - "github-actions"
       - "automated"
-
-  # Enable version updates for Docker (if used in future)
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    commit-message:
-      prefix: "docker"
-      include: "scope"
-    labels:
-      - "docker"
-      - "automated"
