@@ -21,7 +21,43 @@ Publisher: Unknown publisher
 
 ## 🛡️ Solutions (Ordered by Effectiveness)
 
-### Option 1: Code Signing Certificate (RECOMMENDED)
+### Option 1: FREE SignPath Foundation Certificate (BEST FOR OPEN SOURCE) 🆓
+**Cost:** FREE | **Effectiveness:** 100% | **Professional:** ✅ | **Timeline:** 2-4 weeks
+
+#### What is SignPath Foundation?
+- **Completely FREE** code signing for qualifying open source projects
+- **Real certificates** issued by SignPath Foundation (trusted CA)
+- **No SmartScreen warnings** - fully eliminates the problem
+- **Used by major projects**: VSCodium, Git Extensions, Vim, NETworkManager
+
+#### Requirements for DropSentinel:
+- ✅ **Open Source**: Your project is already on GitHub
+- ✅ **Public Repository**: Already public
+- ⚠️ **Project Maturity**: Need some GitHub activity/stars (usually 50+ stars)
+- ✅ **Automated Builds**: You already have GitHub Actions
+- ✅ **Legitimate Project**: DropSentinel is a real security tool
+
+#### How to Apply:
+1. **Email**: oss-support@signpath.org
+2. **Subject**: "OSS Code Signing Application - DropSentinel"
+3. **Include**: GitHub repo link, project description, build process info
+
+### Option 2: GitHub Student Pack + Cheap Certificate
+**Cost:** $50-100/year | **Effectiveness:** 100% | **Professional:** ✅
+
+#### GitHub Student Developer Pack Benefits:
+- ✅ **Free .me domain** + SSL certificate (Name.com)
+- ✅ **DigitalOcean credits** for hosting
+- ✅ **Various development tools**
+- ❌ **No code signing certificates** (only SSL certificates)
+
+#### Cheapest Real Code Signing Options:
+- **SSL.com**: $75/year (cheapest found)
+- **Sectigo**: $85/year
+- **Comodo**: $90/year
+- **GoGetSSL**: $95/year (reseller)
+
+### Option 3: Standard Code Signing Certificate
 **Cost:** $200-400/year | **Effectiveness:** 100% | **Professional:** ✅
 
 #### Extended Validation (EV) Code Signing Certificate
@@ -30,7 +66,7 @@ Publisher: Unknown publisher
 - **Cost**: $300-400/year
 - **Providers**: DigiCert, Sectigo, GlobalSign
 
-#### Standard Code Signing Certificate  
+#### Standard Code Signing Certificate
 - **Builds Reputation**: Trust improves over time with downloads
 - **Software Token**: Easier to manage
 - **Cost**: $200-300/year
@@ -91,22 +127,61 @@ $cert = Get-ChildItem -Path "Cert:\CurrentUser\My" -CodeSigningCert
 Export-PfxCertificate -Cert $cert -FilePath "DropSentinel.pfx" -Password (ConvertTo-SecureString -String "password" -Force -AsPlainText)
 ```
 
-## 🎯 Immediate Actions
+## 🎯 Recommended Action Plan
 
-### Short Term (This Week):
-1. ✅ **Improve Error Messages**: Better user guidance in installer
-2. ✅ **Add Publisher Info**: Update package.json with proper publisher details
-3. ✅ **Create User Guide**: Instructions for "Run anyway" process
+### BEST OPTION: Apply for SignPath Foundation (FREE) 🆓
+**Timeline**: 2-4 weeks | **Cost**: $0 | **Effectiveness**: 100%
+
+#### This Week:
+1. ✅ **Improve Error Messages**: Better user guidance in installer (DONE)
+2. ✅ **Add Publisher Info**: Update package.json with proper publisher details (DONE)
+3. 🎯 **Apply to SignPath Foundation**: Email oss-support@signpath.org
+4. 🎯 **Boost GitHub Activity**: Get more stars/contributors to strengthen application
+
+#### Application Email Template:
+```
+Subject: OSS Code Signing Application - DropSentinel Security Scanner
+
+Dear SignPath Foundation Team,
+
+I am writing to apply for free code signing services for DropSentinel, an open-source file security scanner.
+
+Project Details:
+- Repository: https://github.com/JSB2010/virus-total-scanner-app
+- Description: Real-time file security scanner using VirusTotal API
+- Purpose: Protect users from malware in downloaded files
+- License: Open source (MIT/Apache)
+- Build System: GitHub Actions with automated releases
+- Current Issue: Windows SmartScreen warnings preventing user adoption
+
+DropSentinel is a legitimate security tool that helps protect users from malware. The SmartScreen warnings are preventing users from installing this beneficial software.
+
+We have automated builds via GitHub Actions and can integrate with SignPath's build verification system.
+
+Thank you for considering our application.
+
+Best regards,
+[Your Name]
+```
+
+### BACKUP OPTION: Cheap Certificate ($75/year)
+If SignPath Foundation doesn't approve:
+
+#### SSL.com Code Signing Certificate:
+- **Cost**: $75/year (cheapest available)
+- **Effectiveness**: 100% (eliminates SmartScreen)
+- **Timeline**: 1-3 days verification
+- **Student Discount**: Contact support with .edu email
 
 ### Medium Term (This Month):
-1. 🔄 **Self-Signed Certificate**: For development builds
+1. 🔄 **Self-Signed Certificate**: For development builds (DONE)
 2. 🔄 **Microsoft Store**: Submit for store distribution
 3. 🔄 **Winget Package**: Create Windows Package Manager entry
 
 ### Long Term (Next Quarter):
-1. 🎯 **Code Signing Certificate**: Purchase EV certificate
-2. 🎯 **Reputation Building**: Distribute through trusted channels
-3. 🎯 **Professional Branding**: Complete publisher verification
+1. 🎯 **Reputation Building**: Distribute through trusted channels
+2. 🎯 **Professional Branding**: Complete publisher verification
+3. 🎯 **Community Growth**: Build user base and GitHub activity
 
 ## 📋 Current Configuration Status
 
