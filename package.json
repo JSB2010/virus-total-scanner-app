@@ -37,12 +37,55 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build && node scripts/fix-electron-paths.js",
     "start": "next start",
     "lint": "next lint",
     "electron": "cross-env ELECTRON_IS_DEV=1 electron public/electron.js",
     "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && npm run electron\"",
-    "electron-pack": "next build && electron-builder"
+    "electron-pack": "next build && electron-builder",
+    "build:all": "scripts/build-comprehensive.sh all",
+    "build:clean": "rimraf dist .next logs",
+    "prebuild": "npm run build:clean",
+    "dist": "npm run build && electron-builder",
+    "dist:all": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac:dmg": "npm run build && electron-builder --mac dmg",
+    "dist:mac:pkg": "npm run build && electron-builder --mac pkg",
+    "dist:mac:zip": "npm run build && electron-builder --mac zip",
+    "dist:mac:app": "npm run build && electron-builder --mac dir",
+    "dist:mac:all": "npm run build && electron-builder --mac dmg pkg zip",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:win:nsis": "npm run build && electron-builder --win nsis",
+    "dist:win:msi": "npm run build && electron-builder --win msi",
+    "dist:win:portable": "npm run build && electron-builder --win portable",
+    "dist:win:zip": "npm run build && electron-builder --win zip",
+    "dist:win:all": "npm run build && electron-builder --win nsis msi portable zip",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:linux:appimage": "npm run build && electron-builder --linux AppImage",
+    "dist:linux:deb": "npm run build && electron-builder --linux deb",
+    "dist:linux:tar": "npm run build && electron-builder --linux tar.gz",
+    "dist:linux:all": "npm run build && electron-builder --linux AppImage deb rpm tar.gz",
+    "dist:linux:rpm": "npm run build && electron-builder --linux rpm",
+    "dist:dir": "electron-builder --dir",
+    "pack": "electron-builder --dir",
+    "pack:mac": "electron-builder --mac --dir",
+    "pack:win": "electron-builder --win --dir",
+    "pack:linux": "electron-builder --linux --dir",
+    "release": "scripts/build-comprehensive.sh --clean all",
+    "release:draft": "npm run build && electron-builder --publish=onTagOrDraft",
+    "postinstall": "electron-builder install-app-deps",
+    "build:report": "node scripts/build-all.js",
+    "build:mac": "scripts/build-mac.sh",
+    "build:win": "powershell -ExecutionPolicy Bypass -File scripts/build-win.ps1",
+    "build:comprehensive": "scripts/build-comprehensive.sh",
+    "build:verbose": "scripts/build-comprehensive.sh --verbose",
+    "build:clean-all": "scripts/build-comprehensive.sh --clean --verbose all",
+    "test:build": "node scripts/test-build-system.js",
+    "validate": "npm run test:build",
+    "build:analytics": "node scripts/build-analytics.js",
+    "build:optimize": "node scripts/optimize-build.js",
+    "build:maintenance": "scripts/optimize-maintenance.sh",
+    "analyze": "ANALYZE=true npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -100,6 +143,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -110,6 +154,7 @@
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
     "postcss": "^8",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
     "wait-on": "^8.0.1"
@@ -118,15 +163,50 @@
   "build": {
     "appId": "com.jsb2010.dropsentinel",
     "productName": "DropSentinel",
-    "publish": null,
+    "executableName": "DropSentinel",
+    "copyright": "Copyright © 2024 JSB2010. All rights reserved.",
+    "buildVersion": "1.0.0",
+    "electronVersion": "32.2.7",
+    "compression": "maximum",
+    "removePackageScripts": true,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "generateUpdatesFilesForAllChannels": true,
+    "detectUpdateChannel": true,
+    "forceCodeSigning": false,
+    "publish": {
+      "provider": "github",
+      "owner": "JSB2010",
+      "repo": "virus-total-scanner-app",
+      "private": false,
+      "releaseType": "release"
+    },
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
-      ".next/**/*",
+      "out/**/*",
       "public/**/*",
       "node_modules/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/.cache/**/*",
+      "!node_modules/electron/**/*",
+      "!node_modules/electron-builder/**/*",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/electron",
+      "!**/electron-prebuilt",
+      "!**/electron-rebuild"
     ],
     "extraResources": [
       {
@@ -144,7 +224,37 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
+      "provisioningProfile": null,
       "identity": null,
+      "type": "distribution",
+      "minimumSystemVersion": "10.15.0",
+      "darkModeSupport": true,
+      "bundleVersion": "1.0.0",
+      "bundleShortVersion": "1.0.0",
+      "helperBundleId": "com.jsb2010.dropsentinel.helper",
+      "extendInfo": {
+        "NSCameraUsageDescription": "This app does not use the camera.",
+        "NSMicrophoneUsageDescription": "This app does not use the microphone.",
+        "NSLocationUsageDescription": "This app does not use location services.",
+        "NSDocumentsFolderUsageDescription": "DropSentinel needs access to scan files for security threats.",
+        "NSDownloadsFolderUsageDescription": "DropSentinel monitors your Downloads folder for new files to scan for security threats.",
+        "NSRemovableVolumesUsageDescription": "DropSentinel can scan files on removable volumes for security threats.",
+        "NSDesktopFolderUsageDescription": "DropSentinel can scan files on your Desktop for security threats.",
+        "NSFileProviderPresenceUsageDescription": "DropSentinel monitors file system changes for security scanning.",
+        "LSApplicationCategoryType": "public.app-category.utilities",
+        "LSMinimumSystemVersion": "10.15.0",
+        "LSUIElement": false,
+        "NSHighResolutionCapable": true,
+        "NSSupportsAutomaticGraphicsSwitching": true,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "DropSentinel File Handler",
+            "CFBundleURLSchemes": [
+              "dropsentinel"
+            ]
+          }
+        ]
+      },
       "target": [
         {
           "target": "dmg",
@@ -154,7 +264,21 @@
           ]
         },
         {
+          "target": "pkg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
           "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "dir",
           "arch": [
             "x64",
             "arm64"
@@ -166,6 +290,17 @@
       "icon": "public/assets/app-icon.ico",
       "publisherName": "JSB2010",
       "verifyUpdateCodeSignature": false,
+      "certificateFile": null,
+      "certificatePassword": null,
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "signAndEditExecutable": true,
+      "signDlls": false,
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
+      "timeStampServer": "http://timestamp.digicert.com",
+      "requestedExecutionLevel": "asInvoker",
+      "legalTrademarks": "DropSentinel™",
       "target": [
         {
           "target": "nsis",
@@ -175,7 +310,28 @@
           ]
         },
         {
+          "target": "msi",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
           "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "dir",
           "arch": [
             "x64",
             "arm64"
@@ -207,33 +363,102 @@
             "x64",
             "arm64"
           ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ]
     },
     "nsis": {
       "oneClick": false,
+      "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/assets/app-icon.ico",
+      "uninstallerIcon": "public/assets/app-icon.ico",
+      "installerHeaderIcon": "public/assets/app-icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "installerIcon": "public/assets/app-icon.ico",
-      "uninstallerIcon": "public/assets/app-icon.ico"
+      "menuCategory": "Security",
+      "shortcutName": "DropSentinel",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "perMachine": false,
+      "installerLanguages": [
+        "en"
+      ],
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "unicode": true,
+      "guid": "12345678-1234-1234-1234-123456789012",
+      "warningsAsErrors": false,
+      "license": "LICENSE",
+      "language": "1033",
+      "multiLanguageInstaller": false,
+      "packElevateHelper": true,
+      "removeDefaultUninstallWelcomePage": false,
+      "displayLanguageSelector": false
+    },
+    "msi": {
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": "Security",
+      "shortcutName": "DropSentinel",
+      "upgradeCode": "12345678-1234-1234-1234-123456789012",
+      "warningsAsErrors": false
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}-${arch}.${ext}",
+      "requestExecutionLevel": "user"
     },
     "dmg": {
       "icon": "public/assets/app-icon.icns",
       "iconSize": 100,
+      "iconTextSize": 12,
+      "title": "${productName} ${version}",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "background": "build/dmg-background.png",
+      "backgroundColor": "#ffffff",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
       "contents": [
         {
-          "x": 380,
-          "y": 280,
-          "type": "link",
-          "path": "/Applications"
+          "x": 130,
+          "y": 220,
+          "type": "file"
         },
         {
-          "x": 110,
-          "y": 280,
-          "type": "file"
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
         }
       ]
+    },
+    "pkg": {
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "identity": null,
+      "allowAnywhere": true,
+      "allowCurrentUserHome": true,
+      "allowRootDirectory": false,
+      "installLocation": "/Applications",
+      "scripts": "build/pkg-scripts",
+      "background": {
+        "file": "build/pkg-background.png",
+        "alignment": "center",
+        "scaling": "proportional"
+      },
+      "welcome": "build/pkg-welcome.html",
+      "conclusion": "build/pkg-conclusion.html",
+      "license": "LICENSE"
     }
   }
 }

@@ -1,33 +1,33 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
+import { AnimatePresence, motion } from "framer-motion"
 import {
-  Shield,
-  AlertTriangle,
-  Settings,
   Activity,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
   FileText,
   RefreshCw,
+  Settings,
+  Shield,
   Upload,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Clock
+  XCircle
 } from "lucide-react"
-import { SettingsDialog } from "./SettingsDialog"
+import { useEffect, useState } from "react"
+import { useToast } from "../hooks/use-toast"
+import { notificationService } from "../services/notificationService"
+import { quarantineService } from "../services/quarantineService"
 import { ManualScanDialog } from "./ManualScanDialog"
 import { ScanHistoryDialog } from "./ScanHistoryDialog"
 import { ScanHistoryListDialog } from "./ScanHistoryListDialog"
 import { ScanProgressDialog } from "./ScanProgressDialog"
 import { ScanResultDialog } from "./ScanResultDialog"
-import { useToast } from "../hooks/use-toast"
-import { notificationService } from "../services/notificationService"
-import { quarantineService } from "../services/quarantineService"
+import { SettingsDialog } from "./SettingsDialog"
 
 interface MainDashboardProps {
   onManualScan?: (filePath: string) => void
@@ -231,7 +231,7 @@ export function MainDashboard({
       // Remove event listeners if cleanup functions exist
       window.electronAPI.removeShowSetupRequiredListener?.(handleShowSetupRequired)
     }
-  }, [])
+  }, [setActualShowScanProgress, setActualShowSettings])
 
   const loadDashboardData = async () => {
     try {
@@ -443,11 +443,12 @@ export function MainDashboard({
                     whileHover={{ scale: 1.05, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <img
-                      src="/dropsentinel_logo.svg"
-                      alt="DropSentinel Logo"
-                      className="w-10 h-10"
-                    />
+                    <div
+                      className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+                      aria-label="DropSentinel Logo"
+                    >
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
                   </motion.div>
                   <motion.div
                     className={`absolute -top-2 -right-2 w-6 h-6 rounded-full ${isMonitoring ? "bg-green-500" : "bg-red-500"} flex items-center justify-center shadow-lg border-2 border-white`}
@@ -726,8 +727,8 @@ export function MainDashboard({
                         <div className={`p-2 rounded-lg ${scan.status === 'clean' ? 'bg-green-100 text-green-600' :
                           scan.status === 'threat' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}`}>
                           {scan.status === 'clean' ? <CheckCircle2 className="w-5 h-5" /> :
-                           scan.status === 'threat' ? <XCircle className="w-5 h-5" /> :
-                           <AlertCircle className="w-5 h-5" />}
+                            scan.status === 'threat' ? <XCircle className="w-5 h-5" /> :
+                              <AlertCircle className="w-5 h-5" />}
                         </div>
                         <div>
                           <div className="font-medium">{scan.fileName}</div>
@@ -773,43 +774,43 @@ export function MainDashboard({
 
 
 
-      {/* Dialog Components */}
-      <SettingsDialog
-        open={actualShowSettings}
-        onOpenChange={setActualShowSettings}
-      />
+        {/* Dialog Components */}
+        <SettingsDialog
+          open={actualShowSettings}
+          onOpenChange={setActualShowSettings}
+        />
 
-      <ManualScanDialog
-        open={actualShowManualScan}
-        onOpenChange={setActualShowManualScan}
-        onScanFile={handleManualScan}
-      />
+        <ManualScanDialog
+          open={actualShowManualScan}
+          onOpenChange={setActualShowManualScan}
+          onScanFile={handleManualScan}
+        />
 
-      <ScanHistoryDialog
-        open={showScanHistory}
-        onOpenChange={setShowScanHistory}
-        scanData={selectedScan}
-      />
+        <ScanHistoryDialog
+          open={showScanHistory}
+          onOpenChange={setShowScanHistory}
+          scanData={selectedScan}
+        />
 
-      <ScanHistoryListDialog
-        open={showScanHistoryList}
-        onOpenChange={setShowScanHistoryList}
-        onViewScan={handleViewScanFromList}
-      />
+        <ScanHistoryListDialog
+          open={showScanHistoryList}
+          onOpenChange={setShowScanHistoryList}
+          onViewScan={handleViewScanFromList}
+        />
 
-      <ScanProgressDialog
-        open={actualShowScanProgress}
-        progress={scanProgress}
-        fileName={currentScanFile}
-        status={scanStatus || `Scanning ${currentScanFile}...`}
-      />
+        <ScanProgressDialog
+          open={actualShowScanProgress}
+          progress={scanProgress}
+          fileName={currentScanFile}
+          status={scanStatus || `Scanning ${currentScanFile}...`}
+        />
 
-      <ScanResultDialog
-        open={showScanResult}
-        onClose={() => setShowScanResult(false)}
-        result={scanResult}
-        onQuarantine={handleQuarantine}
-      />
+        <ScanResultDialog
+          open={showScanResult}
+          onClose={() => setShowScanResult(false)}
+          result={scanResult}
+          onQuarantine={handleQuarantine}
+        />
       </div>
     </div>
   )

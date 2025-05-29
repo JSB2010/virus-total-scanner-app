@@ -1,0 +1,27 @@
+#!/bin/bash
+# DropSentinel PKG Pre-installation Script
+
+set -e
+
+PRODUCT_NAME="DropSentinel"
+LOG_FILE="/tmp/dropsentinel-preinstall.log"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [PREINSTALL] $1" | tee -a "$LOG_FILE"
+}
+
+log "Starting DropSentinel pre-installation..."
+
+# Check if application is currently running
+if pgrep -f "$PRODUCT_NAME" > /dev/null; then
+    log "DropSentinel is currently running, attempting to quit..."
+    osascript -e "tell application \"$PRODUCT_NAME\" to quit" 2>/dev/null || true
+    sleep 2
+    if pgrep -f "$PRODUCT_NAME" > /dev/null; then
+        pkill -f "$PRODUCT_NAME" || true
+    fi
+    log "DropSentinel has been stopped"
+fi
+
+log "Pre-installation completed successfully"
+exit 0

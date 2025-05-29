@@ -257,7 +257,7 @@ function updateTrayMenu() {
     {
       label: "Sentinel Guard",
       enabled: false,
-      icon: iconPath ? nativeImage.createFromPath(getIconPath("app-icon.png")).resize({ width: 16, height: 16 }) : undefined
+      icon: getIconPath("app-icon.png") ? nativeImage.createFromPath(getIconPath("app-icon.png")).resize({ width: 16, height: 16 }) : undefined
     },
     { type: "separator" },
     {
@@ -421,7 +421,62 @@ function createWindow() {
     show: false,
   })
 
-  const startUrl = isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "../build/index.html")}`
+  // Determine the correct path for the HTML file
+  let startUrl
+  if (isDev) {
+    startUrl = "http://localhost:3000"
+  } else {
+    // In production, the out directory should be at the app root level
+    const appPath = app.getAppPath()
+    const indexPath = path.join(appPath, "out", "index.html")
+    startUrl = `file://${indexPath}`
+
+    console.log(`[ELECTRON] App path: ${appPath}`)
+    console.log(`[ELECTRON] Looking for index.html at: ${indexPath}`)
+
+    // Verify the file exists
+    if (!require('fs').existsSync(indexPath)) {
+      console.error(`[ELECTRON] ERROR: index.html not found at ${indexPath}`)
+
+      // Try alternative paths
+      const alternatives = [
+        path.join(__dirname, "../out/index.html"),
+        path.join(__dirname, "out/index.html"),
+        path.join(process.resourcesPath, "app", "out", "index.html"),
+        path.join(process.resourcesPath, "out", "index.html")
+      ]
+
+      console.log(`[ELECTRON] Trying alternative paths:`)
+      for (const altPath of alternatives) {
+        console.log(`[ELECTRON] Checking: ${altPath}`)
+        if (require('fs').existsSync(altPath)) {
+          console.log(`[ELECTRON] ✅ Found index.html at: ${altPath}`)
+          startUrl = `file://${altPath}`
+          break
+        }
+      }
+
+      // List available files for debugging
+      try {
+        console.log(`[ELECTRON] Available files in app directory:`)
+        const appFiles = require('fs').readdirSync(appPath)
+        appFiles.forEach(file => console.log(`  - ${file}`))
+
+        if (require('fs').existsSync(path.join(appPath, "out"))) {
+          console.log(`[ELECTRON] Available files in out directory:`)
+          const outFiles = require('fs').readdirSync(path.join(appPath, "out"))
+          outFiles.forEach(file => console.log(`  - ${file}`))
+        }
+      } catch (error) {
+        console.error(`[ELECTRON] Could not list files: ${error.message}`)
+      }
+    }
+  }
+
+  console.log(`[ELECTRON] Loading URL: ${startUrl}`)
+  console.log(`[ELECTRON] __dirname: ${__dirname}`)
+  console.log(`[ELECTRON] isDev: ${isDev}`)
+  console.log(`[ELECTRON] app.getAppPath(): ${app.getAppPath()}`)
 
   mainWindow.loadURL(startUrl)
 
@@ -1442,6 +1497,14 @@ ipcMain.handle("clear-all-data", async () => {
 })
 
 async function initializeApp() {
+  // Set proper app name for notifications and system integration
+  app.setName("DropSentinel")
+
+  // Set app user model ID for Windows notifications
+  if (process.platform === 'win32') {
+    app.setAppUserModelId("com.jsb2010.dropsentinel")
+  }
+
   // Dynamically import electron-store
   const { default: ElectronStore } = await import("electron-store")
   Store = ElectronStore

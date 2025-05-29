@@ -14,7 +14,7 @@ export function ScanHistoryDialog({ open, onOpenChange, scanData }: ScanHistoryD
   // Transform scanData to match ScanResultDialog format
   const transformedResult = {
     fileName: scanData.fileName,
-    status: scanData.threats > 0 ? 'threat' : 'clean',
+    status: (scanData.threats > 0 ? 'threat' : 'clean') as 'threat' | 'clean' | 'error',
     positives: scanData.threats || 0,
     total: scanData.stats?.total || 70, // Default fallback
     scanId: scanData.scanId,

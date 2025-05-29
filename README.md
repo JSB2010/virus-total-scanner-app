@@ -149,24 +149,35 @@ npm run electron-pack
 
 #### Cross-Platform Builds
 
-**Build for Windows (from any platform):**
+**Windows Builds:**
 ```bash
-npm run electron-pack -- --win
+npm run dist:win:portable  # Portable executable
+npm run dist:win:nsis      # NSIS installer
+npm run dist:win:msi       # MSI installer
+npm run dist:win:zip       # ZIP archive
+npm run dist:win:all       # All Windows packages
 ```
 
-**Build for macOS (from macOS only):**
+**macOS Builds:**
 ```bash
-npm run electron-pack -- --mac
+npm run dist:mac:dmg       # DMG disk image
+npm run dist:mac:pkg       # PKG installer
+npm run dist:mac:zip       # ZIP archive
+npm run dist:mac:all       # All macOS packages
 ```
 
-**Build for Linux (from Linux/macOS):**
+**Linux Builds:**
 ```bash
-npm run electron-pack -- --linux
+npm run dist:linux:appimage # AppImage
+npm run dist:linux:deb      # Debian package
+npm run dist:linux:rpm      # RPM package
+npm run dist:linux:tar      # TAR archive
+npm run dist:linux:all      # All Linux packages
 ```
 
-**Build for All Platforms (from macOS):**
+**All Platforms:**
 ```bash
-npm run electron-pack -- --mac --win --linux
+npm run dist:all           # Build for all platforms
 ```
 
 The built applications will be available in the `dist/` directory with platform-specific subdirectories.

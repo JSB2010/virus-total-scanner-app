@@ -1,0 +1,37 @@
+#!/bin/bash
+# DropSentinel PKG Post-installation Script
+
+set -e
+
+PRODUCT_NAME="DropSentinel"
+INSTALL_PATH="/Applications"
+APP_PATH="$INSTALL_PATH/$PRODUCT_NAME.app"
+LOG_FILE="/tmp/dropsentinel-postinstall.log"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [POSTINSTALL] $1" | tee -a "$LOG_FILE"
+}
+
+log "Starting DropSentinel post-installation..."
+
+# Verify installation
+if [[ ! -d "$APP_PATH" ]]; then
+    log "ERROR: Application not found at $APP_PATH"
+    exit 1
+fi
+
+# Set correct permissions
+chown -R root:admin "$APP_PATH"
+chmod -R 755 "$APP_PATH"
+chmod +x "$APP_PATH/Contents/MacOS/$PRODUCT_NAME"
+
+# Remove quarantine attribute
+xattr -d com.apple.quarantine "$APP_PATH" 2>/dev/null || true
+
+# Register with Launch Services
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP_PATH"
+
+log "Post-installation completed successfully"
+osascript -e "display notification \"$PRODUCT_NAME has been installed successfully\" with title \"Installation Complete\""
+
+exit 0

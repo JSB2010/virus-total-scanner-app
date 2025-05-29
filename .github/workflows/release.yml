@@ -4,14 +4,26 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  ELECTRON_CACHE: ~/.cache/electron
+  ELECTRON_BUILDER_CACHE: ~/.cache/electron-builder
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+  # Validate before release
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
     - name: Check out Git repository
@@ -20,45 +32,284 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
     - name: Install dependencies
       run: npm ci
 
-    - name: Build application
-      run: npm run build
+    - name: Validate build system
+      run: npm run test:build
 
-    - name: Prepare for app notarization (macOS)
-      if: startsWith(matrix.os, 'macos')
-      # Import Apple API key for app notarization on macOS
+    - name: Extract version info
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          TAG="${{ github.event.inputs.tag }}"
+        else
+          TAG=${GITHUB_REF#refs/tags/}
+        fi
+        VERSION=${TAG#v}
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Release tag: $TAG"
+        echo "Version: $VERSION"
+
+  # Build for macOS with code signing and notarization
+  build-macos:
+    name: Build macOS Release
+    runs-on: macos-latest
+    needs: validate
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ELECTRON_CACHE }}
+          ${{ env.ELECTRON_BUILDER_CACHE }}
+          ~/.npm
+          .next/cache
+        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-release-
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Prepare for app notarization
+      if: env.APPLE_API_KEY != ''
       run: |
         mkdir -p ~/private_keys/
         echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-
-    - name: Build Electron app
-      run: npm run electron-pack
       env:
-        # macOS notarization API key
+        APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+
+    - name: Build macOS release packages
+      run: npm run dist:mac:all
+      env:
+        # macOS code signing and notarization
         APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         CSC_LINK: ${{ secrets.CSC_LINK }}
         CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
+
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-release-${{ needs.validate.outputs.version }}
+        path: |
+          dist/*.dmg
+          dist/*.pkg
+          dist/*.zip
+        retention-days: 90
+
+  # Build for Windows with code signing
+  build-windows:
+    name: Build Windows Release
+    runs-on: windows-latest
+    needs: validate
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~\AppData\Local\electron
+          ~\AppData\Local\electron-builder
+          ~\.npm
+          .next\cache
+        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-release-
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build Windows release packages
+      run: npm run dist:win:all
+      env:
         # Windows code signing
         WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
         WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
 
-    - name: Upload artifacts
+    - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.os }}
-        path: dist/
+        name: windows-release-${{ needs.validate.outputs.version }}
+        path: |
+          dist/*.exe
+          dist/*.msi
+          dist/*.zip
+        retention-days: 90
 
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
+  # Build for Linux
+  build-linux:
+    name: Build Linux Release
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
       with:
-        files: "dist/**"
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ELECTRON_CACHE }}
+          ${{ env.ELECTRON_BUILDER_CACHE }}
+          ~/.npm
+          .next/cache
+        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-release-
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y rpm
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build Linux release packages
+      run: npm run dist:linux:all
+      env:
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
+
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-release-${{ needs.validate.outputs.version }}
+        path: |
+          dist/*.AppImage
+          dist/*.deb
+          dist/*.rpm
+          dist/*.tar.gz
+        retention-days: 90
+
+  # Create GitHub release with all artifacts
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, build-macos, build-windows, build-linux]
+    if: always() && needs.validate.result == 'success'
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts/
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        find release-artifacts -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.tar.gz" -o -name "*.zip" \) -exec cp {} release-assets/ \;
+
+        # Create checksums
+        cd release-assets
+        sha256sum * > checksums.txt
+        cd ..
+
+        # List all files
+        echo "Release assets:"
+        ls -la release-assets/
+
+    - name: Generate release notes
+      run: |
+        cat > release-notes.md << 'EOF'
+        # DropSentinel ${{ needs.validate.outputs.tag }}
+
+        ## 🎉 What's New
+
+        Advanced file security scanner with real-time protection and comprehensive threat detection.
+
+        ## 📦 Downloads
+
+        ### Windows
+        - **NSIS Installer** (`.exe`) - Recommended for most users
+        - **MSI Installer** (`.msi`) - For enterprise environments
+        - **Portable** (`.exe`) - No installation required
+
+        ### macOS
+        - **DMG** (`.dmg`) - Standard macOS installer
+        - **PKG** (`.pkg`) - Alternative installer format
+        - **ZIP** (`.zip`) - Compressed application bundle
+
+        ### Linux
+        - **AppImage** (`.AppImage`) - Universal Linux format
+        - **DEB** (`.deb`) - For Debian/Ubuntu systems
+        - **RPM** (`.rpm`) - For Red Hat/Fedora systems
+        - **TAR.GZ** (`.tar.gz`) - Compressed archive
+
+        ## 🔐 Security
+
+        All packages are built with maximum compression and security features:
+        - Code signing (when certificates are available)
+        - Hardened runtime (macOS)
+        - Proper entitlements and permissions
+        - Integrity checksums included
+
+        ## 📋 System Requirements
+
+        - **Windows**: Windows 10 or later (x64)
+        - **macOS**: macOS 10.15 (Catalina) or later (Intel/Apple Silicon)
+        - **Linux**: Modern Linux distribution (x64)
+
+        ## 🚀 Installation
+
+        1. Download the appropriate package for your platform
+        2. Verify the checksum (optional but recommended)
+        3. Install using your platform's standard method
+        4. Launch DropSentinel and configure your VirusTotal API key
+
+        ## 📞 Support
+
+        - [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
+        - [Documentation](https://github.com/JSB2010/virus-total-scanner-app/blob/main/README.md)
+        - [Build Documentation](https://github.com/JSB2010/virus-total-scanner-app/blob/main/BUILD.md)
+        EOF
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.validate.outputs.tag }}
+        name: DropSentinel ${{ needs.validate.outputs.tag }}
+        body_path: release-notes.md
+        files: release-assets/*
+        draft: false
+        prerelease: false
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

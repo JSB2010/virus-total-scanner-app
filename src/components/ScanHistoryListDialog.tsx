@@ -1,25 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { AnimatePresence, motion } from "framer-motion"
 import {
-  Shield,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
-  FileText,
   Clock,
-  Search,
+  Eye,
+  FileText,
   Filter,
-  Calendar,
+  Search,
   Trash2,
-  Eye
+  XCircle
 } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface ScanHistoryListDialogProps {
   open: boolean
@@ -162,11 +159,10 @@ export function ScanHistoryListDialog({ open, onOpenChange, onViewScan }: ScanHi
                   variant={filterStatus === status ? "default" : "outline"}
                   size="sm"
                   onClick={() => setFilterStatus(status as any)}
-                  className={`capitalize ${
-                    filterStatus === status
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/50 hover:bg-white/70"
-                  }`}
+                  className={`capitalize ${filterStatus === status
+                    ? "bg-blue-600 text-white"
+                    : "bg-white/50 hover:bg-white/70"
+                    }`}
                 >
                   <Filter className="w-4 h-4 mr-1" />
                   {status}
@@ -197,7 +193,7 @@ export function ScanHistoryListDialog({ open, onOpenChange, onViewScan }: ScanHi
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
                     <Card className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border border-white/30 hover:shadow-lg transition-all duration-300 cursor-pointer"
-                          onClick={() => onViewScan(scan)}>
+                      onClick={() => onViewScan(scan)}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">

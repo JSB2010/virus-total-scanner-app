@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Shield, Key, CheckCircle, ExternalLink, ArrowRight, Loader2 } from "lucide-react"
+import { motion } from "framer-motion"
+import { ArrowRight, CheckCircle, ExternalLink, Key, Loader2, Shield } from "lucide-react"
+import { useState } from "react"
 
 interface WelcomeScreenProps {
   onComplete: () => void
@@ -25,12 +25,8 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       description: "Advanced file security with drag-and-drop protection",
       content: (
         <div className="text-center space-y-6">
-          <div className="mx-auto w-24 h-24 flex items-center justify-center">
-            <img
-              src="/dropsentinel_logo.svg"
-              alt="DropSentinel Logo"
-              className="w-24 h-24"
-            />
+          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+            <Shield className="w-12 h-12 text-white" />
           </div>
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Protect Your Downloads</h2>
@@ -254,13 +250,11 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
               {steps.map((_, index) => (
                 <motion.div
                   key={`step-${index}`}
-                  className={`relative ${
-                    index <= currentStep ? "w-12 h-3" : "w-3 h-3"
-                  } rounded-full transition-all duration-500 ${
-                    index <= currentStep
+                  className={`relative ${index <= currentStep ? "w-12 h-3" : "w-3 h-3"
+                    } rounded-full transition-all duration-500 ${index <= currentStep
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg"
                       : "bg-slate-200 dark:bg-slate-700"
-                  }`}
+                    }`}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
