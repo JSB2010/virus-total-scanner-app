@@ -64,7 +64,7 @@
     "dist:linux:appimage": "npm run build && electron-builder --linux AppImage",
     "dist:linux:deb": "npm run build && electron-builder --linux deb",
     "dist:linux:tar": "npm run build && electron-builder --linux tar.gz",
-    "dist:linux:all": "npm run build && electron-builder --linux AppImage tar.gz --publish never",
+    "dist:linux:all": "npm run build && electron-builder --linux AppImage tar.gz deb rpm --publish never",
     "dist:linux:rpm": "npm run build && electron-builder --linux rpm",
     "dist:dir": "electron-builder --dir",
     "pack": "electron-builder --dir",
@@ -84,6 +84,7 @@
     "validate": "npm run test:build",
     "build:analytics": "node scripts/build-analytics.js",
     "build:optimize": "node scripts/optimize-build.js",
+    "build:enhanced": "node scripts/enhanced-build.js",
     "build:maintenance": "scripts/optimize-maintenance.sh",
     "analyze": "ANALYZE=true npm run build",
     "test": "jest",
@@ -358,7 +359,19 @@
     },
     "linux": {
       "icon": "public/assets/app-icon.png",
-      "category": "Utility",
+      "category": "Security",
+      "description": "Advanced file security scanner with real-time protection and comprehensive threat detection",
+      "synopsis": "Real-time file monitoring and virus scanning with VirusTotal integration",
+      "maintainer": "Sentinel Guard <support@sentinelguard.com>",
+      "vendor": "Sentinel Guard",
+      "desktop": {
+        "Name": "DropSentinel",
+        "Comment": "Advanced File Security Scanner",
+        "GenericName": "Security Scanner",
+        "Keywords": "security;virus;scanner;protection;monitoring;",
+        "Categories": "Security;Utility;System;",
+        "StartupNotify": "true"
+      },
       "target": [
         {
           "target": "AppImage",
@@ -377,8 +390,13 @@
         {
           "target": "deb",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64"
           ]
         }
       ]
@@ -409,7 +427,10 @@
       "multiLanguageInstaller": false,
       "packElevateHelper": true,
       "removeDefaultUninstallWelcomePage": false,
-      "displayLanguageSelector": false
+      "displayLanguageSelector": false,
+      "installerSidebar": "build/installer-sidebar.bmp",
+      "installerHeader": "build/installer-header.bmp",
+      "uninstallDisplayName": "${productName} - Advanced File Security Scanner"
     },
     "msi": {
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
@@ -429,25 +450,26 @@
     },
     "dmg": {
       "icon": "public/assets/app-icon.icns",
-      "iconSize": 100,
-      "iconTextSize": 12,
-      "title": "${productName} ${version}",
+      "iconSize": 120,
+      "iconTextSize": 14,
+      "title": "${productName} ${version} - Advanced File Security",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "backgroundColor": "#ffffff",
+      "backgroundColor": "#f8f9fa",
       "format": "UDZO",
+      "background": "build/dmg-background.png",
       "window": {
-        "width": 540,
-        "height": 380
+        "width": 600,
+        "height": 420
       },
       "contents": [
         {
-          "x": 130,
-          "y": 220,
+          "x": 150,
+          "y": 240,
           "type": "file"
         },
         {
-          "x": 410,
-          "y": 220,
+          "x": 450,
+          "y": 240,
           "type": "link",
           "path": "/Applications"
         }
@@ -469,6 +491,34 @@
       "welcome": "build/pkg-welcome.html",
       "conclusion": "build/pkg-conclusion.html",
       "license": "LICENSE"
+    },
+    "deb": {
+      "packageCategory": "utils",
+      "priority": "optional",
+      "depends": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3"
+      ],
+      "recommends": [
+        "pulseaudio"
+      ],
+      "afterInstall": "build/deb-postinstall.sh",
+      "afterRemove": "build/deb-postremove.sh"
+    },
+    "rpm": {
+      "packageCategory": "Applications/System",
+      "depends": [
+        "libnotify",
+        "libappindicator",
+        "libXtst",
+        "nss"
+      ],
+      "afterInstall": "build/rpm-postinstall.sh",
+      "afterRemove": "build/rpm-postremove.sh"
     }
   }
 }

@@ -37,6 +37,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // External link opening
   openExternal: (url) => ipcRenderer.invoke("open-external", url),
 
+  // Error logging and crash reporting
+  logError: (errorData) => ipcRenderer.invoke("log-error", errorData),
+  getCrashLogs: () => ipcRenderer.invoke("get-crash-logs"),
+  clearCrashLogs: () => ipcRenderer.invoke("clear-crash-logs"),
+
+  // Advanced logging system
+  logAdvanced: (logEntry) => ipcRenderer.invoke("log-advanced", logEntry),
+  getAdvancedLogs: (criteria) => ipcRenderer.invoke("get-advanced-logs", criteria),
+  clearAdvancedLogs: () => ipcRenderer.invoke("clear-advanced-logs"),
+
   // Auto-start methods
   getAutoStartStatus: () => ipcRenderer.invoke("get-auto-start-status"),
   setAutoStart: (enable) => ipcRenderer.invoke("set-auto-start", enable),

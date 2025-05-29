@@ -206,6 +206,8 @@ jobs:
         path: |
           dist/*.AppImage
           dist/*.tar.gz
+          dist/*.deb
+          dist/*.rpm
           dist/linux-unpacked/
         retention-days: 30
         if-no-files-found: warn
@@ -255,7 +257,7 @@ jobs:
 
         # List artifacts
         if [ -d "artifacts" ]; then
-          find artifacts -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" -o -name "*.tar.gz" -o -name "*.zip" \) | while read file; do
+          find artifacts -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" -o -name "*.tar.gz" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" \) | while read file; do
             filename=$(basename "$file")
             size=$(du -h "$file" | cut -f1)
             echo "- 📁 **$filename** ($size)" >> $GITHUB_STEP_SUMMARY

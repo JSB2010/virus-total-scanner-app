@@ -59,6 +59,11 @@ declare global {
       getCrashLogs: () => Promise<any[]>
       clearCrashLogs: () => Promise<boolean>
 
+      // Advanced logging system
+      logAdvanced: (logEntry: any) => Promise<boolean>
+      getAdvancedLogs: (criteria?: any) => Promise<any[]>
+      clearAdvancedLogs: () => Promise<boolean>
+
       // Event listeners
       onShowWelcome: (callback: () => void) => void
       onFileDetected: (callback: (data: any) => void) => void

@@ -1662,6 +1662,132 @@ ipcMain.handle("clear-crash-logs", async () => {
   }
 })
 
+// Advanced logging system
+ipcMain.handle("log-advanced", async (event, logEntry) => {
+  try {
+    const timestamp = new Date().toISOString()
+    const enhancedEntry = {
+      ...logEntry,
+      processType: 'main',
+      pid: process.pid,
+      memoryUsage: process.memoryUsage(),
+      cpuUsage: process.cpuUsage()
+    }
+
+    // Console output with enhanced formatting
+    const prefix = `[${timestamp}] [${logEntry.level.toUpperCase()}] [${logEntry.category}]`
+    console.log(`${prefix} ${logEntry.message}`, logEntry.data || '')
+
+    // Save to structured log file
+    const logDir = path.join(os.homedir(), '.dropsentinel', 'logs')
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true })
+    }
+
+    // Daily log rotation
+    const today = new Date().toISOString().split('T')[0]
+    const logFile = path.join(logDir, `dropsentinel-${today}.log`)
+
+    const logLine = JSON.stringify(enhancedEntry) + '\n'
+    fs.appendFileSync(logFile, logLine)
+
+    // Store in memory for analytics (keep last 500 entries)
+    const recentLogs = store.get('recentLogs', [])
+    recentLogs.unshift(enhancedEntry)
+
+    if (recentLogs.length > 500) {
+      recentLogs.splice(500)
+    }
+
+    store.set('recentLogs', recentLogs)
+
+    // Cleanup old log files (keep last 30 days)
+    cleanupOldLogs(logDir)
+
+    return true
+  } catch (error) {
+    console.error(`[ADVANCED-LOG] Failed to log entry:`, error)
+    return false
+  }
+})
+
+// Get advanced logs for analytics
+ipcMain.handle("get-advanced-logs", async (event, criteria = {}) => {
+  try {
+    const recentLogs = store.get('recentLogs', [])
+
+    let filteredLogs = [...recentLogs]
+
+    if (criteria.level) {
+      filteredLogs = filteredLogs.filter(log => log.level === criteria.level)
+    }
+
+    if (criteria.category) {
+      filteredLogs = filteredLogs.filter(log => log.category === criteria.category)
+    }
+
+    if (criteria.since) {
+      const sinceDate = new Date(criteria.since)
+      filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) >= sinceDate)
+    }
+
+    if (criteria.limit) {
+      filteredLogs = filteredLogs.slice(0, criteria.limit)
+    }
+
+    return filteredLogs
+  } catch (error) {
+    console.error(`[ADVANCED-LOG] Failed to get logs:`, error)
+    return []
+  }
+})
+
+// Clear advanced logs
+ipcMain.handle("clear-advanced-logs", async () => {
+  try {
+    store.delete('recentLogs')
+
+    // Also clear log files
+    const logDir = path.join(os.homedir(), '.dropsentinel', 'logs')
+    if (fs.existsSync(logDir)) {
+      const files = fs.readdirSync(logDir)
+      files.forEach(file => {
+        if (file.startsWith('dropsentinel-') && file.endsWith('.log')) {
+          fs.unlinkSync(path.join(logDir, file))
+        }
+      })
+    }
+
+    return true
+  } catch (error) {
+    console.error(`[ADVANCED-LOG] Failed to clear logs:`, error)
+    return false
+  }
+})
+
+// Helper function to cleanup old log files
+function cleanupOldLogs(logDir) {
+  try {
+    const files = fs.readdirSync(logDir)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    files.forEach(file => {
+      if (file.startsWith('dropsentinel-') && file.endsWith('.log')) {
+        const filePath = path.join(logDir, file)
+        const stats = fs.statSync(filePath)
+
+        if (stats.mtime < thirtyDaysAgo) {
+          fs.unlinkSync(filePath)
+          console.log(`[LOG-CLEANUP] Removed old log file: ${file}`)
+        }
+      }
+    })
+  } catch (error) {
+    console.error(`[LOG-CLEANUP] Failed to cleanup old logs:`, error)
+  }
+}
+
 ipcMain.handle("get-files-in-folder", async (event, folderPath) => {
   try {
     const files = fs.readdirSync(folderPath)
