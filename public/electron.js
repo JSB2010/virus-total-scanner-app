@@ -9,7 +9,13 @@ const fs = require("fs")
 function setAutoStart(enable) {
   if (process.platform !== 'win32') {
     console.log('[AUTO-START] Auto-start only supported on Windows')
-    return false
+    return { success: false, error: 'Auto-start only supported on Windows' }
+  }
+
+  // Don't allow auto-start in development mode
+  if (isDev) {
+    console.log('[AUTO-START] Auto-start disabled in development mode')
+    return { success: false, error: 'Auto-start not available in development mode' }
   }
 
   try {
@@ -21,18 +27,30 @@ function setAutoStart(enable) {
         path: process.execPath,
         args: ['--hidden']
       })
-      console.log('[AUTO-START] ✅ Auto-start enabled')
+
+      // Verify the setting was applied
+      const verification = app.getLoginItemSettings()
+      if (verification.openAtLogin) {
+        console.log('[AUTO-START] ✅ Auto-start enabled successfully')
+        return { success: true }
+      } else {
+        console.log('[AUTO-START] ⚠️ Auto-start setting may not have been applied')
+        return { success: false, error: 'Auto-start setting could not be verified. Try running as administrator.' }
+      }
     } else {
       // Remove from Windows startup
       app.setLoginItemSettings({
         openAtLogin: false
       })
       console.log('[AUTO-START] ❌ Auto-start disabled')
+      return { success: true }
     }
-    return true
   } catch (error) {
     console.error('[AUTO-START] Error setting auto-start:', error)
-    return false
+    return {
+      success: false,
+      error: `Failed to modify startup settings: ${error.message}. Try running as administrator.`
+    }
   }
 }
 
@@ -371,8 +389,8 @@ function updateTrayMenu() {
       click: () => {
         if (process.platform === 'win32') {
           const newStatus = !autoStartEnabled
-          const success = setAutoStart(newStatus)
-          if (success) {
+          const result = setAutoStart(newStatus)
+          if (result.success) {
             store.set("autoStartEnabled", newStatus)
             updateTrayMenu()
             showNotification(
@@ -382,7 +400,7 @@ function updateTrayMenu() {
           } else {
             showNotification(
               "Auto-Start Error",
-              "Failed to change auto-start setting. Please try running as administrator."
+              result.error || "Failed to change auto-start setting."
             )
           }
         }
@@ -1013,11 +1031,11 @@ ipcMain.handle("get-auto-start-status", () => {
 })
 
 ipcMain.handle("set-auto-start", (event, enable) => {
-  const success = setAutoStart(enable)
-  if (success) {
+  const result = setAutoStart(enable)
+  if (result.success) {
     store.set("autoStartEnabled", enable)
   }
-  return success
+  return result
 })
 
 ipcMain.handle("scan-file", async (event, filePath) => {

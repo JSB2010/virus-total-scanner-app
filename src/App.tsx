@@ -30,7 +30,7 @@ declare global {
 
       // Auto-start methods
       getAutoStartStatus: () => Promise<boolean>
-      setAutoStart: (enable: boolean) => Promise<boolean>
+      setAutoStart: (enable: boolean) => Promise<{ success: boolean, error?: string }>
 
       // File selection methods
       selectFiles: () => Promise<any[]>

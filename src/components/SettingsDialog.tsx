@@ -111,9 +111,11 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
       await window.electronAPI.setMonitoringStatus(settings.realTimeMonitoring)
 
       // Save auto-start setting
-      const autoStartSuccess = await window.electronAPI.setAutoStart(settings.startWithSystem)
-      if (!autoStartSuccess && settings.startWithSystem) {
-        console.warn("Failed to enable auto-start - may require administrator privileges")
+      const autoStartResult = await window.electronAPI.setAutoStart(settings.startWithSystem)
+      if (!autoStartResult.success && settings.startWithSystem) {
+        console.warn("Failed to enable auto-start:", autoStartResult.error)
+        // Show user-friendly error message
+        alert(`Auto-start could not be enabled: ${autoStartResult.error}`)
       }
 
       // Save other settings

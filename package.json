@@ -288,19 +288,27 @@
     },
     "win": {
       "icon": "public/assets/app-icon.ico",
-      "publisherName": "JSB2010",
+      "publisherName": "DropSentinel Security",
       "verifyUpdateCodeSignature": false,
       "certificateFile": null,
       "certificatePassword": null,
       "signingHashAlgorithms": [
         "sha256"
       ],
-      "signAndEditExecutable": true,
+      "signAndEditExecutable": false,
       "signDlls": false,
       "rfc3161TimeStampServer": "http://timestamp.digicert.com",
       "timeStampServer": "http://timestamp.digicert.com",
       "requestedExecutionLevel": "asInvoker",
       "legalTrademarks": "DropSentinel™",
+      "fileAssociations": [
+        {
+          "ext": "exe",
+          "name": "Executable File",
+          "description": "Scan with DropSentinel",
+          "role": "Viewer"
+        }
+      ],
       "target": [
         {
           "target": "nsis",
@@ -385,14 +393,16 @@
       ],
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
       "unicode": true,
-      "guid": "12345678-1234-1234-1234-123456789012",
+      "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "warningsAsErrors": false,
       "license": "LICENSE",
       "language": "1033",
       "multiLanguageInstaller": false,
       "packElevateHelper": true,
       "removeDefaultUninstallWelcomePage": false,
-      "displayLanguageSelector": false
+      "displayLanguageSelector": false,
+      "include": "build/installer.nsh",
+      "script": "build/installer.nsi"
     },
     "msi": {
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
