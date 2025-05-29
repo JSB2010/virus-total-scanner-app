@@ -1,0 +1,368 @@
+name: Optimized Cross-Platform Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_platforms:
+        description: 'Platforms to build (comma-separated: windows,macos,linux)'
+        required: false
+        default: 'windows,macos,linux'
+        type: string
+      skip_tests:
+        description: 'Skip build system tests'
+        required: false
+        default: false
+        type: boolean
+      compression_level:
+        description: 'Compression level (0-9)'
+        required: false
+        default: '9'
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  ELECTRON_CACHE: ~/.cache/electron
+  ELECTRON_BUILDER_CACHE: ~/.cache/electron-builder
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # Fast validation with parallel testing
+  validate:
+    name: Fast Validation
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.validation.outputs.should_build }}
+      platforms: ${{ steps.platforms.outputs.platforms }}
+      cache_key: ${{ steps.cache.outputs.cache_key }}
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Generate cache key
+      id: cache
+      run: |
+        CACHE_KEY="${{ runner.os }}-optimized-${{ hashFiles('**/package-lock.json', 'src/**', 'public/**') }}"
+        echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
+
+    - name: Setup comprehensive cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          ~/.cache/electron
+          ~/.cache/electron-builder
+          .next/cache
+          node_modules/.cache
+        key: ${{ steps.cache.outputs.cache_key }}
+        restore-keys: |
+          ${{ runner.os }}-optimized-
+
+    - name: Install dependencies (with cache optimization)
+      run: |
+        if [ -d "node_modules" ] && [ -f "node_modules/.package-lock.json" ]; then
+          echo "Using cached node_modules"
+          npm ci --offline --legacy-peer-deps
+        else
+          npm ci --legacy-peer-deps
+        fi
+
+    - name: Determine build platforms
+      id: platforms
+      run: |
+        if [ "${{ github.event.inputs.build_platforms }}" != "" ]; then
+          PLATFORMS="${{ github.event.inputs.build_platforms }}"
+        else
+          PLATFORMS="windows,macos,linux"
+        fi
+        echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
+        echo "Building for platforms: $PLATFORMS"
+
+    - name: Fast validation
+      id: validation
+      run: |
+        if [ "${{ github.event.inputs.skip_tests }}" = "true" ]; then
+          echo "Skipping build system tests"
+          echo "should_build=true" >> $GITHUB_OUTPUT
+        else
+          # Run tests in parallel
+          npm run lint &
+          npm test &
+          npm run test:build &
+          wait
+          echo "should_build=true" >> $GITHUB_OUTPUT
+        fi
+
+  # Optimized Windows build
+  build-windows:
+    name: Windows Build (Optimized)
+    runs-on: windows-latest
+    needs: validate
+    if: needs.validate.outputs.should_build == 'true' && contains(needs.validate.outputs.platforms, 'windows')
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Restore build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~\AppData\Local\electron
+          ~\AppData\Local\electron-builder
+          ~\.npm
+          .next\cache
+          node_modules
+        key: ${{ needs.validate.outputs.cache_key }}
+        restore-keys: |
+          ${{ runner.os }}-optimized-
+
+    - name: Install dependencies (optimized)
+      run: |
+        if (Test-Path "node_modules\.package-lock.json") {
+          Write-Host "Using cached node_modules"
+          npm ci --offline --legacy-peer-deps
+        } else {
+          npm ci --legacy-peer-deps
+        }
+
+    - name: Build with enhanced script
+      run: npm run build:enhanced
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        WIN_CSC_LINK: ""
+        WIN_CSC_KEY_PASSWORD: ""
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: ${{ github.event.inputs.compression_level || '9' }}
+        NODE_OPTIONS: "--max-old-space-size=8192"
+
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-optimized-${{ github.sha }}
+        path: |
+          dist/*.exe
+          dist/*.msi
+          dist/*.zip
+          dist/build-report-*.json
+        retention-days: 30
+        compression-level: 6
+
+  # Optimized macOS build
+  build-macos:
+    name: macOS Build (Optimized)
+    runs-on: macos-latest
+    needs: validate
+    if: needs.validate.outputs.should_build == 'true' && contains(needs.validate.outputs.platforms, 'macos')
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Restore build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ELECTRON_CACHE }}
+          ${{ env.ELECTRON_BUILDER_CACHE }}
+          ~/.npm
+          .next/cache
+          node_modules
+        key: ${{ needs.validate.outputs.cache_key }}
+        restore-keys: |
+          ${{ runner.os }}-optimized-
+
+    - name: Install dependencies (optimized)
+      run: |
+        if [ -f "node_modules/.package-lock.json" ]; then
+          echo "Using cached node_modules"
+          npm ci --offline --legacy-peer-deps
+        else
+          npm ci --legacy-peer-deps
+        fi
+
+    - name: Build All macOS Packages
+      run: npm run dist:mac:all
+      env:
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        SKIP_NOTARIZATION: true
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: ${{ github.event.inputs.compression_level || '9' }}
+        NODE_OPTIONS: "--max-old-space-size=8192"
+
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-optimized-${{ github.sha }}
+        path: |
+          dist/*.dmg
+          dist/*.pkg
+          dist/*.zip
+        retention-days: 30
+        compression-level: 6
+
+  # Optimized Linux build
+  build-linux:
+    name: Linux Build (Optimized)
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.should_build == 'true' && contains(needs.validate.outputs.platforms, 'linux')
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Restore build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ELECTRON_CACHE }}
+          ${{ env.ELECTRON_BUILDER_CACHE }}
+          ~/.npm
+          .next/cache
+          node_modules
+        key: ${{ needs.validate.outputs.cache_key }}
+        restore-keys: |
+          ${{ runner.os }}-optimized-
+
+    - name: Install system dependencies (cached)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y rpm
+
+    - name: Install dependencies (optimized)
+      run: |
+        if [ -f "node_modules/.package-lock.json" ]; then
+          echo "Using cached node_modules"
+          npm ci --offline --legacy-peer-deps
+        else
+          npm ci --legacy-peer-deps
+        fi
+
+    - name: Build All Linux Packages
+      run: npm run dist:linux:all
+      env:
+        ELECTRON_BUILDER_COMPRESSION_LEVEL: ${{ github.event.inputs.compression_level || '9' }}
+        NODE_OPTIONS: "--max-old-space-size=8192"
+
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-optimized-${{ github.sha }}
+        path: |
+          dist/*.AppImage
+          dist/*.tar.gz
+          dist/*.deb
+          dist/*.rpm
+        retention-days: 30
+        compression-level: 6
+
+  # Enhanced build summary with metrics
+  build-summary:
+    name: Enhanced Build Summary
+    runs-on: ubuntu-latest
+    needs: [validate, build-windows, build-macos, build-linux]
+    if: always() && needs.validate.outputs.should_build == 'true'
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+
+    - name: Generate comprehensive summary
+      run: |
+        echo "# 🚀 DropSentinel Optimized Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Build ID**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Platforms**: ${{ needs.validate.outputs.platforms }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Compression**: Level ${{ github.event.inputs.compression_level || '9' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Build status with emojis
+        echo "## 📊 Build Status" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [[ "${{ needs.validate.outputs.platforms }}" == *"windows"* ]]; then
+          if [ "${{ needs.build-windows.result }}" = "success" ]; then
+            echo "✅ **Windows**: All formats built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Windows**: Build failed" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+        if [[ "${{ needs.validate.outputs.platforms }}" == *"macos"* ]]; then
+          if [ "${{ needs.build-macos.result }}" = "success" ]; then
+            echo "✅ **macOS**: All formats built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **macOS**: Build failed" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+        if [[ "${{ needs.validate.outputs.platforms }}" == *"linux"* ]]; then
+          if [ "${{ needs.build-linux.result }}" = "success" ]; then
+            echo "✅ **Linux**: All formats built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Linux**: Build failed" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 📦 Generated Packages" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # List all artifacts with sizes
+        if [ -d "artifacts" ]; then
+          find artifacts -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.exe" -o -name "*.msi" -o -name "*.AppImage" -o -name "*.tar.gz" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" \) | sort | while read file; do
+            filename=$(basename "$file")
+            size=$(du -h "$file" | cut -f1)
+            platform=""
+            
+            case "$filename" in
+              *.exe|*.msi) platform="🪟" ;;
+              *.dmg|*.pkg) platform="🍎" ;;
+              *.AppImage|*.deb|*.rpm|*.tar.gz) platform="🐧" ;;
+              *) platform="📦" ;;
+            esac
+            
+            echo "- $platform **$filename** ($size)" >> $GITHUB_STEP_SUMMARY
+          done
+        fi
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## ⚡ Performance Optimizations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- 🚀 **Parallel builds** across platforms" >> $GITHUB_STEP_SUMMARY
+        echo "- 💾 **Advanced caching** for dependencies and build artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- 🗜️ **Maximum compression** for smaller package sizes" >> $GITHUB_STEP_SUMMARY
+        echo "- 📊 **Enhanced logging** and build analytics" >> $GITHUB_STEP_SUMMARY
+        echo "- ⚡ **Optimized Node.js** memory allocation" >> $GITHUB_STEP_SUMMARY

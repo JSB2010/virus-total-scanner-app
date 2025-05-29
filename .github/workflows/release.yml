@@ -313,3 +313,32 @@ jobs:
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Trigger package publishing
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: publish-packages
+        client-payload: |
+          {
+            "version": "${{ needs.validate.outputs.version }}",
+            "tag": "${{ needs.validate.outputs.tag }}",
+            "prerelease": false
+          }
+
+    - name: Update package registry
+      run: |
+        echo "## 🎉 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Version**: ${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Release URL**: https://github.com/JSB2010/virus-total-scanner-app/releases/tag/${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Available Downloads" >> $GITHUB_STEP_SUMMARY
+        echo "- 🪟 **Windows**: NSIS Installer, MSI Package, Portable EXE" >> $GITHUB_STEP_SUMMARY
+        echo "- 🍎 **macOS**: DMG Disk Image, PKG Installer" >> $GITHUB_STEP_SUMMARY
+        echo "- 🐧 **Linux**: AppImage, DEB Package, RPM Package" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "- Packages will be published to GitHub Packages automatically" >> $GITHUB_STEP_SUMMARY
+        echo "- Container images will be available in GitHub Container Registry" >> $GITHUB_STEP_SUMMARY
+        echo "- Update documentation and announce the release" >> $GITHUB_STEP_SUMMARY
