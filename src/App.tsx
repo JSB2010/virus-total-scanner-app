@@ -1,14 +1,71 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { WelcomeScreen } from "./components/WelcomeScreen"
+import { useEffect, useState } from "react"
 import { MainDashboard } from "./components/MainDashboard"
 import { ThemeProvider } from "./components/ThemeProvider"
 import { Toaster } from "./components/ui/toaster"
+import { WelcomeScreen } from "./components/WelcomeScreen"
 
 declare global {
   interface Window {
-    electronAPI: any
+    electronAPI: {
+      // Store methods
+      getStoreValue: (key: string) => Promise<any>
+      setStoreValue: (key: string, value: any) => Promise<void>
+
+      // File operations
+      scanFile: (filePath: string) => Promise<any>
+      deleteFile: (filePath: string) => Promise<boolean>
+      showFileInFolder: (filePath: string) => Promise<void>
+
+      // Dashboard methods
+      getDashboardStats: () => Promise<any>
+      getRecentScans: () => Promise<any[]>
+      updateDashboardStats: (stats: any) => Promise<any>
+      addScanResult: (result: any) => Promise<any>
+
+      // Monitoring methods
+      getMonitoringStatus: () => Promise<boolean>
+      setMonitoringStatus: (status: boolean) => Promise<boolean>
+
+      // Auto-start methods
+      getAutoStartStatus: () => Promise<boolean>
+      setAutoStart: (enable: boolean) => Promise<boolean>
+
+      // File selection methods
+      selectFiles: () => Promise<any[]>
+      selectFolder: () => Promise<string | null>
+      clearAllData: () => Promise<boolean>
+
+      // Notification methods
+      showNotification: (options: any) => Promise<boolean>
+
+      // Quarantine methods
+      quarantineFile: (options: any) => Promise<any>
+      getQuarantinedFiles: () => Promise<any[]>
+      restoreQuarantinedFile: (options: any) => Promise<any>
+      deleteQuarantinedFile: (quarantineId: string) => Promise<any>
+      getQuarantineStats: () => Promise<any>
+      cleanupQuarantine: (daysOld: number) => Promise<any>
+      isQuarantineAvailable: () => Promise<boolean>
+
+      // External methods
+      openExternal: (url: string) => Promise<boolean>
+
+      // Event listeners
+      onShowWelcome: (callback: () => void) => void
+      onFileDetected: (callback: (data: any) => void) => void
+      onScanProgress: (callback: (data: any) => void) => void
+      onScanStarted: (callback: (event: any, data: any) => void) => void
+      onShowSetupRequired: (callback: () => void) => void
+      onShowManualScan: (callback: () => void) => void
+      onShowSettings: (callback: () => void) => void
+
+      // Event cleanup
+      removeAllListeners: (channel: string) => void
+      removeScanStartedListener: (callback: any) => void
+      removeShowSetupRequiredListener: (callback: any) => void
+    }
   }
 }
 

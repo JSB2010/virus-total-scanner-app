@@ -5,6 +5,51 @@ const chokidar = require("chokidar")
 const os = require("os")
 const fs = require("fs")
 
+// Auto-start functionality for Windows
+function setAutoStart(enable) {
+  if (process.platform !== 'win32') {
+    console.log('[AUTO-START] Auto-start only supported on Windows')
+    return false
+  }
+
+  try {
+    if (enable) {
+      // Add to Windows startup registry
+      app.setLoginItemSettings({
+        openAtLogin: true,
+        openAsHidden: true,
+        path: process.execPath,
+        args: ['--hidden']
+      })
+      console.log('[AUTO-START] ✅ Auto-start enabled')
+    } else {
+      // Remove from Windows startup
+      app.setLoginItemSettings({
+        openAtLogin: false
+      })
+      console.log('[AUTO-START] ❌ Auto-start disabled')
+    }
+    return true
+  } catch (error) {
+    console.error('[AUTO-START] Error setting auto-start:', error)
+    return false
+  }
+}
+
+function getAutoStartStatus() {
+  if (process.platform !== 'win32') {
+    return false
+  }
+
+  try {
+    const settings = app.getLoginItemSettings()
+    return settings.openAtLogin
+  } catch (error) {
+    console.error('[AUTO-START] Error getting auto-start status:', error)
+    return false
+  }
+}
+
 let Store
 let store
 let fileWatcher
@@ -252,10 +297,11 @@ function createTray() {
 function updateTrayMenu() {
   const isMonitoring = store.get("isMonitoring", true)
   const stats = store.get("dashboardStats", { totalScans: 0, threatsDetected: 0 })
+  const autoStartEnabled = getAutoStartStatus()
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "Sentinel Guard",
+      label: "DropSentinel",
       enabled: false,
       icon: getIconPath("app-icon.png") ? nativeImage.createFromPath(getIconPath("app-icon.png")).resize({ width: 16, height: 16 }) : undefined
     },
@@ -279,6 +325,7 @@ function updateTrayMenu() {
         if (mainWindow) {
           mainWindow.show()
           mainWindow.focus()
+          mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
         } else {
           createWindow()
         }
@@ -290,12 +337,14 @@ function updateTrayMenu() {
         if (mainWindow) {
           mainWindow.show()
           mainWindow.focus()
+          mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
           mainWindow.webContents.send("show-manual-scan")
         } else {
           createWindow()
         }
       },
     },
+    { type: "separator" },
     {
       label: isMonitoring ? "Pause Monitoring" : "Resume Monitoring",
       click: () => {
@@ -315,11 +364,37 @@ function updateTrayMenu() {
       },
     },
     {
+      label: process.platform === 'win32' ?
+        (autoStartEnabled ? "Disable Auto-Start" : "Enable Auto-Start") :
+        "Auto-Start (Windows Only)",
+      enabled: process.platform === 'win32',
+      click: () => {
+        if (process.platform === 'win32') {
+          const newStatus = !autoStartEnabled
+          const success = setAutoStart(newStatus)
+          if (success) {
+            store.set("autoStartEnabled", newStatus)
+            updateTrayMenu()
+            showNotification(
+              "Auto-Start",
+              `Auto-start ${newStatus ? "enabled" : "disabled"}. App will ${newStatus ? "start with Windows" : "not start automatically"}.`
+            )
+          } else {
+            showNotification(
+              "Auto-Start Error",
+              "Failed to change auto-start setting. Please try running as administrator."
+            )
+          }
+        }
+      },
+    },
+    {
       label: "Settings",
       click: () => {
         if (mainWindow) {
           mainWindow.show()
           mainWindow.focus()
+          mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
           mainWindow.webContents.send("show-settings")
         } else {
           createWindow()
@@ -328,13 +403,13 @@ function updateTrayMenu() {
     },
     { type: "separator" },
     {
-      label: "About Sentinel Guard",
+      label: "About DropSentinel",
       click: () => {
         showAboutDialog()
       },
     },
     {
-      label: "Quit Sentinel Guard",
+      label: "Quit DropSentinel",
       click: () => {
         app.quit()
       },
@@ -347,9 +422,11 @@ function updateTrayMenu() {
 function updateTrayTooltip() {
   const isMonitoring = store.get("isMonitoring", true)
   const stats = store.get("dashboardStats", { totalScans: 0, threatsDetected: 0 })
+  const autoStartEnabled = getAutoStartStatus()
 
-  const tooltip = `Sentinel Guard - Advanced File Security
+  const tooltip = `DropSentinel - Advanced File Security
 Status: ${isMonitoring ? "Monitoring Active" : "Monitoring Paused"}
+Auto-Start: ${autoStartEnabled ? "Enabled" : "Disabled"}
 Scans Today: ${stats.totalScans}
 Threats Detected: ${stats.threatsDetected}`
 
@@ -404,13 +481,13 @@ function showAboutDialog() {
   `)
 }
 
-function createWindow() {
+function createWindow(startHidden = false) {
   const appIconPath = getIconPath("app-icon.png")
 
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
-    title: "Sentinel Guard",
+    title: "DropSentinel",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -419,6 +496,7 @@ function createWindow() {
     icon: appIconPath || undefined,
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     show: false,
+    skipTaskbar: startHidden, // Hide from taskbar if starting hidden
   })
 
   // Determine the correct path for the HTML file
@@ -481,11 +559,24 @@ function createWindow() {
   mainWindow.loadURL(startUrl)
 
   mainWindow.once("ready-to-show", () => {
-    mainWindow.show()
+    // Check if app was started with --hidden flag or should start hidden
+    const shouldStartHidden = process.argv.includes('--hidden') ||
+      store.get('startMinimized', false) ||
+      startHidden
 
-    // Show welcome screen if first time
-    if (!store.get("hasSeenWelcome")) {
-      mainWindow.webContents.send("show-welcome")
+    if (!shouldStartHidden) {
+      mainWindow.show()
+
+      // Show welcome screen if first time
+      if (!store.get("hasSeenWelcome")) {
+        mainWindow.webContents.send("show-welcome")
+      }
+    } else {
+      console.log('[WINDOW] Starting hidden - app running in background')
+      // Still send welcome screen event if needed, even when hidden
+      if (!store.get("hasSeenWelcome")) {
+        mainWindow.webContents.send("show-welcome")
+      }
     }
   })
 
@@ -493,11 +584,19 @@ function createWindow() {
     mainWindow = null
   })
 
-  // Hide to tray instead of closing on macOS
+  // Hide to tray instead of closing (Windows and macOS)
   mainWindow.on("close", (event) => {
-    if (process.platform === "darwin") {
+    if (process.platform === "darwin" || process.platform === "win32") {
       event.preventDefault()
       mainWindow.hide()
+
+      // Show notification that app is still running
+      if (process.platform === "win32") {
+        showNotification(
+          "DropSentinel",
+          "App minimized to system tray. File monitoring continues in background."
+        )
+      }
     }
   })
 }
@@ -906,6 +1005,19 @@ ipcMain.handle("set-monitoring-status", (event, status) => {
 
 ipcMain.handle("set-store-value", (event, key, value) => {
   store.set(key, value)
+})
+
+// Auto-start IPC handlers
+ipcMain.handle("get-auto-start-status", () => {
+  return getAutoStartStatus()
+})
+
+ipcMain.handle("set-auto-start", (event, enable) => {
+  const success = setAutoStart(enable)
+  if (success) {
+    store.set("autoStartEnabled", enable)
+  }
+  return success
 })
 
 ipcMain.handle("scan-file", async (event, filePath) => {
@@ -1510,17 +1622,38 @@ async function initializeApp() {
   Store = ElectronStore
   store = new Store()
 
+  // Check if app should start hidden
+  const shouldStartHidden = process.argv.includes('--hidden') ||
+    store.get('startMinimized', false)
+
+  console.log(`[INIT] Starting app ${shouldStartHidden ? 'hidden' : 'visible'}`)
+
   createTray()
-  createWindow()
+  createWindow(shouldStartHidden)
   startFileWatcher()
+
+  // Show startup notification if starting hidden
+  if (shouldStartHidden) {
+    setTimeout(() => {
+      showNotification(
+        "DropSentinel Started",
+        "File monitoring is active. App is running in the background."
+      )
+    }, 2000) // Delay to ensure tray is ready
+  }
 }
 
 app.whenReady().then(initializeApp)
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit()
+  // Don't quit the app when all windows are closed - keep running in background
+  // Only quit on macOS if explicitly requested
+  if (process.platform === "darwin") {
+    // On macOS, keep the app running in the dock
+    return
   }
+  // On Windows/Linux, keep running in system tray
+  console.log('[APP] All windows closed, continuing to run in background')
 })
 
 app.on("activate", () => {

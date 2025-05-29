@@ -1,31 +1,31 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { AnimatePresence, motion } from "framer-motion"
 import {
-  Settings,
-  Shield,
-  FolderOpen,
-  Key,
-  Trash2,
-  Plus,
-  X,
+  AlertTriangle,
+  ExternalLink,
   Eye,
   EyeOff,
-  Save,
+  FolderOpen,
+  Key,
+  Plus,
   RefreshCw,
-  AlertTriangle,
-  ExternalLink
+  Save,
+  Settings,
+  Shield,
+  Trash2,
+  X
 } from "lucide-react"
+import { useEffect, useState } from "react"
 
 // import { useTheme } from "./ThemeProvider"
 
@@ -82,11 +82,13 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
       const apiKey = await window.electronAPI.getStoreValue("virusTotalApiKey") ?? ""
       const monitoring = await window.electronAPI.getMonitoringStatus()
       const storedSettings = await window.electronAPI.getStoreValue("appSettings") ?? {}
+      const autoStartStatus = await window.electronAPI.getAutoStartStatus()
 
       setSettings(prev => ({
         ...prev,
         apiKey,
         realTimeMonitoring: monitoring,
+        startWithSystem: autoStartStatus,
         ...storedSettings
       }))
     } catch (error) {
@@ -108,8 +110,14 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
       // Save monitoring status
       await window.electronAPI.setMonitoringStatus(settings.realTimeMonitoring)
 
+      // Save auto-start setting
+      const autoStartSuccess = await window.electronAPI.setAutoStart(settings.startWithSystem)
+      if (!autoStartSuccess && settings.startWithSystem) {
+        console.warn("Failed to enable auto-start - may require administrator privileges")
+      }
+
       // Save other settings
-      const { apiKey, ...otherSettings } = settings
+      const { apiKey, startWithSystem, ...otherSettings } = settings
       await window.electronAPI.setStoreValue("appSettings", otherSettings)
 
       // Save auto-scan setting separately for easy access
@@ -379,9 +387,9 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
 
                             <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-white/20 hover:bg-white/70 dark:hover:bg-slate-800/70 transition-all duration-200">
                               <div className="space-y-1">
-                                <Label className="text-sm font-medium">Start with System</Label>
+                                <Label className="text-sm font-medium">Start with Windows</Label>
                                 <div className="text-xs text-slate-600 dark:text-slate-400">
-                                  Launch Sentinel Guard automatically when your computer starts
+                                  Launch DropSentinel automatically when Windows starts (hidden in system tray)
                                 </div>
                               </div>
                               <Switch
@@ -390,6 +398,7 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
                                   setSettings(prev => ({ ...prev, startWithSystem: checked }))
                                 }
                                 className="data-[state=checked]:bg-purple-600"
+                                disabled={process.platform !== 'win32'}
                               />
                             </div>
 
@@ -416,250 +425,250 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
                   </TabsContent>
 
                   <TabsContent value="scanning" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      Scan Behavior
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Auto-delete Threats</Label>
-                        <div className="text-sm text-muted-foreground">
-                          Automatically delete files identified as malicious
-                        </div>
-                      </div>
-                      <Switch
-                        checked={settings.autoDelete}
-                        onCheckedChange={(checked) =>
-                          setSettings(prev => ({ ...prev, autoDelete: checked }))
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Quarantine Threats</Label>
-                        <div className="text-sm text-muted-foreground">
-                          Move suspicious files to quarantine instead of deleting
-                        </div>
-                      </div>
-                      <Switch
-                        checked={settings.quarantineThreats}
-                        onCheckedChange={(checked) =>
-                          setSettings(prev => ({ ...prev, quarantineThreats: checked }))
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Scan Archives</Label>
-                        <div className="text-sm text-muted-foreground">
-                          Scan contents of ZIP, RAR, and other archive files
-                        </div>
-                      </div>
-                      <Switch
-                        checked={settings.scanArchives}
-                        onCheckedChange={(checked) =>
-                          setSettings(prev => ({ ...prev, scanArchives: checked }))
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Auto-scan Without Prompting</Label>
-                        <div className="text-sm text-muted-foreground">
-                          Automatically scan new files without asking for confirmation
-                        </div>
-                      </div>
-                      <Switch
-                        checked={settings.autoScan}
-                        onCheckedChange={(checked) =>
-                          setSettings(prev => ({ ...prev, autoScan: checked }))
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <Label>Maximum File Size (MB)</Label>
-                      <Input
-                        type="number"
-                        value={settings.maxFileSize}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          maxFileSize: parseInt(e.target.value) || 100
-                        }))}
-                        min="1"
-                        max="1000"
-                      />
-                      <div className="text-sm text-muted-foreground">
-                        Files larger than this will be skipped
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Excluded File Extensions</CardTitle>
-                    <CardDescription>
-                      File types that will be skipped during scanning
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder=".tmp, .log, .cache"
-                        value={newExtension}
-                        onChange={(e) => setNewExtension(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && addExcludedExtension()}
-                      />
-                      <Button onClick={addExcludedExtension} size="sm">
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {settings.excludeExtensions.map((ext) => (
-                        <Badge key={ext} variant="secondary" className="flex items-center gap-1">
-                          {ext}
-                          <X
-                            className="w-3 h-3 cursor-pointer"
-                            onClick={() => removeExcludedExtension(ext)}
-                          />
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="locations" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FolderOpen className="w-4 h-4" />
-                      Scan Locations
-                    </CardTitle>
-                    <CardDescription>
-                      Configure which folders to monitor for new files
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Location name (e.g., Downloads, Desktop)"
-                        value={newLocation}
-                        onChange={(e) => setNewLocation(e.target.value)}
-                      />
-                      <Button onClick={addScanLocation} size="sm">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Location
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                      <AnimatePresence>
-                        {settings.scanLocations.map((location) => (
-                          <motion.div
-                            key={location.id}
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="flex items-center justify-between p-3 border rounded-lg"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Switch
-                                checked={location.enabled}
-                                onCheckedChange={() => toggleScanLocation(location.id)}
-                              />
-                              <div>
-                                <div className="font-medium">{location.name}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {location.path || "System default location"}
-                                </div>
-                              </div>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Scan Behavior
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Auto-delete Threats</Label>
+                            <div className="text-sm text-muted-foreground">
+                              Automatically delete files identified as malicious
                             </div>
+                          </div>
+                          <Switch
+                            checked={settings.autoDelete}
+                            onCheckedChange={(checked) =>
+                              setSettings(prev => ({ ...prev, autoDelete: checked }))
+                            }
+                          />
+                        </div>
+
+                        <Separator />
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Quarantine Threats</Label>
+                            <div className="text-sm text-muted-foreground">
+                              Move suspicious files to quarantine instead of deleting
+                            </div>
+                          </div>
+                          <Switch
+                            checked={settings.quarantineThreats}
+                            onCheckedChange={(checked) =>
+                              setSettings(prev => ({ ...prev, quarantineThreats: checked }))
+                            }
+                          />
+                        </div>
+
+                        <Separator />
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Scan Archives</Label>
+                            <div className="text-sm text-muted-foreground">
+                              Scan contents of ZIP, RAR, and other archive files
+                            </div>
+                          </div>
+                          <Switch
+                            checked={settings.scanArchives}
+                            onCheckedChange={(checked) =>
+                              setSettings(prev => ({ ...prev, scanArchives: checked }))
+                            }
+                          />
+                        </div>
+
+                        <Separator />
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Auto-scan Without Prompting</Label>
+                            <div className="text-sm text-muted-foreground">
+                              Automatically scan new files without asking for confirmation
+                            </div>
+                          </div>
+                          <Switch
+                            checked={settings.autoScan}
+                            onCheckedChange={(checked) =>
+                              setSettings(prev => ({ ...prev, autoScan: checked }))
+                            }
+                          />
+                        </div>
+
+                        <Separator />
+
+                        <div className="space-y-2">
+                          <Label>Maximum File Size (MB)</Label>
+                          <Input
+                            type="number"
+                            value={settings.maxFileSize}
+                            onChange={(e) => setSettings(prev => ({
+                              ...prev,
+                              maxFileSize: parseInt(e.target.value) || 100
+                            }))}
+                            min="1"
+                            max="1000"
+                          />
+                          <div className="text-sm text-muted-foreground">
+                            Files larger than this will be skipped
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Excluded File Extensions</CardTitle>
+                        <CardDescription>
+                          File types that will be skipped during scanning
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder=".tmp, .log, .cache"
+                            value={newExtension}
+                            onChange={(e) => setNewExtension(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addExcludedExtension()}
+                          />
+                          <Button onClick={addExcludedExtension} size="sm">
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {settings.excludeExtensions.map((ext) => (
+                            <Badge key={ext} variant="secondary" className="flex items-center gap-1">
+                              {ext}
+                              <X
+                                className="w-3 h-3 cursor-pointer"
+                                onClick={() => removeExcludedExtension(ext)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="locations" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <FolderOpen className="w-4 h-4" />
+                          Scan Locations
+                        </CardTitle>
+                        <CardDescription>
+                          Configure which folders to monitor for new files
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Location name (e.g., Downloads, Desktop)"
+                            value={newLocation}
+                            onChange={(e) => setNewLocation(e.target.value)}
+                          />
+                          <Button onClick={addScanLocation} size="sm">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Location
+                          </Button>
+                        </div>
+
+                        <div className="space-y-2">
+                          <AnimatePresence>
+                            {settings.scanLocations.map((location) => (
+                              <motion.div
+                                key={location.id}
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="flex items-center justify-between p-3 border rounded-lg"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Switch
+                                    checked={location.enabled}
+                                    onCheckedChange={() => toggleScanLocation(location.id)}
+                                  />
+                                  <div>
+                                    <div className="font-medium">{location.name}</div>
+                                    <div className="text-sm text-muted-foreground">
+                                      {location.path || "System default location"}
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeScanLocation(location.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="advanced" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4" />
+                          Advanced Options
+                        </CardTitle>
+                        <CardDescription>
+                          Advanced settings and data management
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-4">
+                          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                            <h4 className="font-medium text-red-800 mb-2">Danger Zone</h4>
+                            <p className="text-sm text-red-600 mb-3">
+                              These actions cannot be undone. Please proceed with caution.
+                            </p>
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeScanLocation(location.id)}
-                              className="text-red-600 hover:text-red-700"
+                              variant="destructive"
+                              onClick={clearAllData}
+                              className="w-full"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Clear All Scan History & Statistics
                             </Button>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-              <TabsContent value="advanced" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      Advanced Options
-                    </CardTitle>
-                    <CardDescription>
-                      Advanced settings and data management
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-4">
-                      <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                        <h4 className="font-medium text-red-800 mb-2">Danger Zone</h4>
-                        <p className="text-sm text-red-600 mb-3">
-                          These actions cannot be undone. Please proceed with caution.
-                        </p>
-                        <Button
-                          variant="destructive"
-                          onClick={clearAllData}
-                          className="w-full"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Clear All Scan History & Statistics
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Application Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Version:</span>
-                      <span>1.0.0</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Build:</span>
-                      <span>2024.01.15</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">API Status:</span>
-                      <Badge variant={settings.apiKey ? "default" : "destructive"}>
-                        {settings.apiKey ? "Connected" : "Not Configured"}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Application Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Version:</span>
+                          <span>1.0.0</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Build:</span>
+                          <span>2024.01.15</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">API Status:</span>
+                          <Badge variant={settings.apiKey ? "default" : "destructive"}>
+                            {settings.apiKey ? "Connected" : "Not Configured"}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
                 </motion.div>
               </AnimatePresence>
             </div>

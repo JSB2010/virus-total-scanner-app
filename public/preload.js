@@ -37,6 +37,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // External link opening
   openExternal: (url) => ipcRenderer.invoke("open-external", url),
 
+  // Auto-start methods
+  getAutoStartStatus: () => ipcRenderer.invoke("get-auto-start-status"),
+  setAutoStart: (enable) => ipcRenderer.invoke("set-auto-start", enable),
+
   // Event listeners
   onShowWelcome: (callback) => ipcRenderer.on("show-welcome", callback),
   onFileDetected: (callback) => ipcRenderer.on("file-detected", (event, data) => callback(data)),
