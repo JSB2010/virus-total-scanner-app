@@ -1,6 +1,6 @@
 {
   "name": "dropsentinel",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Advanced file security scanner with real-time protection and drag-and-drop scanning",
   "private": true,
   "author": {
@@ -85,7 +85,10 @@
     "build:analytics": "node scripts/build-analytics.js",
     "build:optimize": "node scripts/optimize-build.js",
     "build:maintenance": "scripts/optimize-maintenance.sh",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "ANALYZE=true npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -157,7 +160,12 @@
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
-    "wait-on": "^8.0.1"
+    "wait-on": "^8.0.1",
+    "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
   },
   "main": "public/electron.js",
   "build": {
@@ -288,7 +296,7 @@
     },
     "win": {
       "icon": "public/assets/app-icon.ico",
-      "publisherName": "DropSentinel Security",
+      "publisherName": "JSB2010",
       "verifyUpdateCodeSignature": false,
       "certificateFile": null,
       "certificatePassword": null,

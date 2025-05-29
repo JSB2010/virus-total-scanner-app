@@ -1588,6 +1588,80 @@ ipcMain.handle("open-external", async (event, url) => {
   }
 })
 
+// Error logging and crash reporting
+ipcMain.handle("log-error", async (event, errorData) => {
+  try {
+    const timestamp = new Date().toISOString()
+    const logEntry = {
+      timestamp,
+      type: 'renderer-error',
+      ...errorData
+    }
+
+    // Log to console
+    console.error(`[CRASH-REPORT] ${timestamp} - Renderer Error:`, errorData)
+
+    // Save to crash log file
+    const crashLogPath = path.join(os.homedir(), '.dropsentinel', 'crash-logs')
+    if (!fs.existsSync(crashLogPath)) {
+      fs.mkdirSync(crashLogPath, { recursive: true })
+    }
+
+    const logFile = path.join(crashLogPath, `crash-${timestamp.replace(/[:.]/g, '-')}.json`)
+    fs.writeFileSync(logFile, JSON.stringify(logEntry, null, 2))
+
+    // Store in electron-store for later reporting
+    const crashLogs = store.get('crashLogs', [])
+    crashLogs.unshift(logEntry)
+
+    // Keep only last 50 crash logs
+    if (crashLogs.length > 50) {
+      crashLogs.splice(50)
+    }
+
+    store.set('crashLogs', crashLogs)
+
+    console.log(`[CRASH-REPORT] Error logged to: ${logFile}`)
+    return true
+  } catch (error) {
+    console.error(`[CRASH-REPORT] Failed to log error:`, error)
+    return false
+  }
+})
+
+// Get crash logs for debugging
+ipcMain.handle("get-crash-logs", async () => {
+  try {
+    return store.get('crashLogs', [])
+  } catch (error) {
+    console.error(`[CRASH-REPORT] Failed to get crash logs:`, error)
+    return []
+  }
+})
+
+// Clear crash logs
+ipcMain.handle("clear-crash-logs", async () => {
+  try {
+    store.delete('crashLogs')
+
+    // Also clear crash log files
+    const crashLogPath = path.join(os.homedir(), '.dropsentinel', 'crash-logs')
+    if (fs.existsSync(crashLogPath)) {
+      const files = fs.readdirSync(crashLogPath)
+      files.forEach(file => {
+        if (file.startsWith('crash-') && file.endsWith('.json')) {
+          fs.unlinkSync(path.join(crashLogPath, file))
+        }
+      })
+    }
+
+    return true
+  } catch (error) {
+    console.error(`[CRASH-REPORT] Failed to clear crash logs:`, error)
+    return false
+  }
+})
+
 ipcMain.handle("get-files-in-folder", async (event, folderPath) => {
   try {
     const files = fs.readdirSync(folderPath)

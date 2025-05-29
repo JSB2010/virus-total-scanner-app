@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { ErrorBoundary } from "./components/ErrorBoundary"
 import { MainDashboard } from "./components/MainDashboard"
 import { ThemeProvider } from "./components/ThemeProvider"
 import { Toaster } from "./components/ui/toaster"
@@ -115,21 +116,23 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-background">
-        {currentScreen === "welcome" && <WelcomeScreen onComplete={handleWelcomeComplete} />}
+    <ErrorBoundary>
+      <ThemeProvider>
+        <div className="min-h-screen bg-background">
+          {currentScreen === "welcome" && <WelcomeScreen onComplete={handleWelcomeComplete} />}
 
-        {currentScreen === "main" && (
-          <MainDashboard
-            showManualScan={showManualScanDialog}
-            onShowManualScanChange={setShowManualScanDialog}
-            showSettings={showSettingsDialog}
-            onShowSettingsChange={setShowSettingsDialog}
-          />
-        )}
+          {currentScreen === "main" && (
+            <MainDashboard
+              showManualScan={showManualScanDialog}
+              onShowManualScanChange={setShowManualScanDialog}
+              showSettings={showSettingsDialog}
+              onShowSettingsChange={setShowSettingsDialog}
+            />
+          )}
 
-        <Toaster />
-      </div>
-    </ThemeProvider>
+          <Toaster />
+        </div>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
