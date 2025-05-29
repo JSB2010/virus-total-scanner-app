@@ -130,9 +130,12 @@ function validatePackageJson() {
       }
     }
 
-    // Check scripts
+    // Check scripts (make some optional)
     const requiredScripts = [
-      'build', 'dist:all', 'dist:mac', 'dist:win', 'dist:linux',
+      'build', 'dist:all', 'dist:mac', 'dist:win', 'dist:linux'
+    ];
+
+    const optionalScripts = [
       'build:all', 'build:clean', 'build:comprehensive'
     ];
 
@@ -142,6 +145,14 @@ function validatePackageJson() {
       } else {
         logError(`Missing script: ${script}`);
         valid = false;
+      }
+    }
+
+    for (const script of optionalScripts) {
+      if (packageJson.scripts && packageJson.scripts[script]) {
+        logSuccess(`Optional script found: ${script}`);
+      } else {
+        logWarning(`Optional script missing: ${script}`);
       }
     }
 

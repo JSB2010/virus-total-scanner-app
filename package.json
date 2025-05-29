@@ -276,29 +276,19 @@
         {
           "target": "dmg",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "pkg",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "dir",
-          "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         }
       ]
@@ -330,36 +320,25 @@
         {
           "target": "nsis",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "msi",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "portable",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "dir",
-          "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         }
       ]
@@ -383,15 +362,13 @@
         {
           "target": "AppImage",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "tar.gz",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {

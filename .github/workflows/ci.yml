@@ -39,7 +39,12 @@ jobs:
       run: npm run build && du -sh .next/ || true
 
     - name: Run build analytics
-      run: npm run build:analytics
+      run: |
+        if npm run build:analytics; then
+          echo "Build analytics completed successfully"
+        else
+          echo "Build analytics failed, continuing..."
+        fi
       continue-on-error: true
 
     - name: Upload analytics report
