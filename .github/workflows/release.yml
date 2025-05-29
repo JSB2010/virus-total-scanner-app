@@ -36,7 +36,7 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Validate build system
       run: npm run test:build
@@ -84,7 +84,7 @@ jobs:
           ${{ runner.os }}-release-
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Prepare for app notarization
       if: env.APPLE_API_KEY != ''
@@ -144,7 +144,7 @@ jobs:
           ${{ runner.os }}-release-
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Build Windows release packages
       run: npm run dist:win:all
@@ -198,7 +198,7 @@ jobs:
         sudo apt-get install -y rpm
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Build Linux release packages
       run: npm run dist:linux:all

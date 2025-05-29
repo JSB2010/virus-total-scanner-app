@@ -79,18 +79,34 @@ jest.mock('framer-motion', () => ({
 
 // Suppress console warnings in tests
 const originalError = console.error
+const originalWarn = console.warn
+
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is no longer supported')
+      (args[0].includes('Warning: ReactDOM.render is no longer supported') ||
+        args[0].includes('Warning: React.createFactory') ||
+        args[0].includes('Warning: componentWillReceiveProps'))
     ) {
       return
     }
     originalError.call(console, ...args)
   }
+
+  console.warn = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('React Router Future Flag Warning') ||
+        args[0].includes('Warning: React.createFactory'))
+    ) {
+      return
+    }
+    originalWarn.call(console, ...args)
+  }
 })
 
 afterAll(() => {
   console.error = originalError
+  console.warn = originalWarn
 })
