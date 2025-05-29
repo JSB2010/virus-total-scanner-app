@@ -9,11 +9,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Enable static export for website deployment
-  output: process.env.BUILD_WEBSITE === 'true' ? 'export' : undefined,
-  trailingSlash: process.env.BUILD_WEBSITE === 'true',
-  basePath: process.env.BUILD_WEBSITE === 'true' ? '/virus-total-scanner-app' : '',
-  assetPrefix: process.env.BUILD_WEBSITE === 'true' ? '/virus-total-scanner-app/' : '',
+  // Website-specific configuration
+  ...(process.env.BUILD_WEBSITE === 'true' && {
+    output: 'export',
+    trailingSlash: true,
+    basePath: '',
+    assetPrefix: '',
+    distDir: 'out',
+  }),
   // Turbopack configuration (replaces webpack when using --turbopack)
   turbopack: {
     rules: {

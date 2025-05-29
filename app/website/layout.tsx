@@ -7,7 +7,7 @@ import '../globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://jsb2010.github.io/virus-total-scanner-app'),
+  metadataBase: new URL('https://jsb2010.github.io'),
   title: 'DropSentinel - Advanced File Security Scanner',
   description: 'Real-time file protection with VirusTotal integration. Monitor downloads, detect threats, and keep your system secure with our ultra-modern security scanner.',
   keywords: [

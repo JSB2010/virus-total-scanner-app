@@ -41,15 +41,16 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          static_site_generator: next
+      - name: Create website directory structure
+        run: |
+          mkdir -p ./website-deploy/website
+          cp -r ./out/* ./website-deploy/website/
+          touch ./website-deploy/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: ./website-deploy
 
   deploy:
     environment:
