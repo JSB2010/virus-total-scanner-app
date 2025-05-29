@@ -1,20 +1,11 @@
-name: Build Cross-Platform Packages
+name: Legacy Build Packages (Deprecated)
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
-      build_all:
-        description: 'Build all installer types'
-        required: false
-        default: true
-        type: boolean
-      skip_tests:
-        description: 'Skip build system tests'
-        required: false
+      force_legacy_build:
+        description: 'Force legacy build (use optimized-build.yml instead)'
+        required: true
         default: false
         type: boolean
 
@@ -24,10 +15,29 @@ env:
   ELECTRON_BUILDER_CACHE: ~/.cache/electron-builder
 
 jobs:
+  # Deprecation notice
+  deprecation-notice:
+    name: ⚠️ Legacy Build Workflow (Deprecated)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deprecation Warning
+      run: |
+        echo "::warning::This workflow is deprecated. Please use 'optimized-build.yml' instead."
+        echo "::notice::The optimized build workflow provides better performance and caching."
+
+        if [ "${{ github.event.inputs.force_legacy_build }}" != "true" ]; then
+          echo "::error::Legacy build not forced. Set 'force_legacy_build' to true to proceed."
+          exit 1
+        fi
+
+        echo "::warning::Proceeding with legacy build as requested."
+
   # Validate build system before building
   validate:
     name: Validate Build System
     runs-on: ubuntu-latest
+    needs: deprecation-notice
     outputs:
       should_build: ${{ steps.validation.outputs.should_build }}
 
@@ -47,13 +57,8 @@ jobs:
     - name: Validate build system
       id: validation
       run: |
-        if [ "${{ github.event.inputs.skip_tests }}" = "true" ]; then
-          echo "Skipping build system tests"
-          echo "should_build=true" >> $GITHUB_OUTPUT
-        else
-          npm run test:build
-          echo "should_build=true" >> $GITHUB_OUTPUT
-        fi
+        npm run test:build
+        echo "should_build=true" >> $GITHUB_OUTPUT
 
   # Build for macOS (can build all platforms)
   build-macos:

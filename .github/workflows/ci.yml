@@ -38,6 +38,20 @@ jobs:
     - name: Check bundle size
       run: npm run build && du -sh .next/ || true
 
+    - name: Run build analytics
+      run: npm run build:analytics
+      continue-on-error: true
+
+    - name: Upload analytics report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-analytics-${{ matrix.node-version }}
+        path: |
+          analytics/
+          logs/
+        retention-days: 7
+
     - name: Upload build artifacts (on failure)
       if: failure()
       uses: actions/upload-artifact@v4
