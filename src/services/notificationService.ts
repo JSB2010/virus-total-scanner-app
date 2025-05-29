@@ -5,7 +5,7 @@ export class NotificationService {
   private electronAPI: any;
 
   private constructor() {
-    this.isElectron = typeof window !== 'undefined' && window.electronAPI;
+    this.isElectron = typeof window !== 'undefined' && !!window.electronAPI;
     this.electronAPI = this.isElectron ? window.electronAPI : null;
   }
 
