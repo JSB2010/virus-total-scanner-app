@@ -91,7 +91,11 @@
     "analyze": "ANALYZE=true npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "website:dev": "cross-env BUILD_WEBSITE=true npm run dev",
+    "website:build": "cross-env BUILD_WEBSITE=true npm run build",
+    "website:export": "cross-env BUILD_WEBSITE=true next build && next export",
+    "website:deploy": "npm run website:export && gh-pages -d out -b gh-pages"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -150,6 +154,10 @@
   },
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -159,17 +167,14 @@
     "electron-builder": "^25.1.8",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
+    "gh-pages": "^6.1.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
-    "wait-on": "^8.0.1",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@testing-library/user-event": "^14.5.2",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
+    "wait-on": "^8.0.1"
   },
   "main": "public/electron.js",
   "build": {
