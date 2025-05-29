@@ -409,9 +409,7 @@
       "multiLanguageInstaller": false,
       "packElevateHelper": true,
       "removeDefaultUninstallWelcomePage": false,
-      "displayLanguageSelector": false,
-      "include": "build/installer.nsh",
-      "script": "build/installer.nsi"
+      "displayLanguageSelector": false
     },
     "msi": {
       "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",

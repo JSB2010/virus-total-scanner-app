@@ -14,8 +14,7 @@ RequestExecutionLevel user
 
 ; Modern UI Configuration
 !define MUI_ABORTWARNING
-!define MUI_ICON "public\assets\app-icon.ico"
-!define MUI_UNICON "public\assets\app-icon.ico"
+; Note: MUI_ICON and MUI_UNICON are handled by electron-builder automatically
 
 ; Welcome page with SmartScreen guidance
 !define MUI_WELCOMEPAGE_TITLE "Welcome to DropSentinel Setup"
@@ -27,7 +26,6 @@ IMPORTANT: If you saw a Windows SmartScreen warning:$\r$\n\
 Click Next to continue."
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "LICENSE"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -45,54 +43,46 @@ Click Next to continue."
 ; Languages
 !insertmacro MUI_LANGUAGE "English"
 
-; Version Information
-VIProductVersion "0.1.0.0"
-VIAddVersionKey "ProductName" "DropSentinel"
-VIAddVersionKey "CompanyName" "DropSentinel Security"
-VIAddVersionKey "FileDescription" "DropSentinel Security Scanner"
-VIAddVersionKey "FileVersion" "0.1.0"
-VIAddVersionKey "ProductVersion" "0.1.0"
-VIAddVersionKey "LegalCopyright" "© 2024 DropSentinel Security"
-VIAddVersionKey "OriginalFilename" "DropSentinel-Setup.exe"
+; Note: Version information is handled by electron-builder automatically
 
 ; Installer sections
 Section "DropSentinel" SecMain
   SetOutPath "$INSTDIR"
-  
+
   ; Install files (this will be populated by electron-builder)
   File /r "${BUILD_RESOURCES_DIR}\*"
-  
+
   ; Create shortcuts
   CreateDirectory "$SMPROGRAMS\DropSentinel"
   CreateShortcut "$SMPROGRAMS\DropSentinel\DropSentinel.lnk" "$INSTDIR\DropSentinel.exe"
   CreateShortcut "$SMPROGRAMS\DropSentinel\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   CreateShortcut "$DESKTOP\DropSentinel.lnk" "$INSTDIR\DropSentinel.exe"
-  
+
   ; Registry entries
   WriteRegStr HKCU "Software\DropSentinel" "InstallDir" "$INSTDIR"
-  WriteRegStr HKCU "Software\DropSentinel" "Version" "0.1.0"
-  
+  WriteRegStr HKCU "Software\DropSentinel" "Version" "1.0.0"
+
   ; Uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "DisplayName" "DropSentinel"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "UninstallString" "$INSTDIR\Uninstall.exe"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "Publisher" "DropSentinel Security"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "DisplayVersion" "0.1.0"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "Publisher" "JSB2010"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "DisplayVersion" "1.0.0"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel" "URLInfoAbout" "https://github.com/JSB2010/virus-total-scanner-app"
-  
+
 SectionEnd
 
 ; Uninstaller section
 Section "Uninstall"
   ; Remove files
   RMDir /r "$INSTDIR"
-  
+
   ; Remove shortcuts
   Delete "$SMPROGRAMS\DropSentinel\DropSentinel.lnk"
   Delete "$SMPROGRAMS\DropSentinel\Uninstall.lnk"
   RMDir "$SMPROGRAMS\DropSentinel"
   Delete "$DESKTOP\DropSentinel.lnk"
-  
+
   ; Remove registry entries
   DeleteRegKey HKCU "Software\DropSentinel"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\DropSentinel"
@@ -103,11 +93,11 @@ Function .onInit
   ; Check if already installed
   ReadRegStr $R0 HKCU "Software\DropSentinel" "InstallDir"
   StrCmp $R0 "" done
-  
+
   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
     "DropSentinel is already installed. $\n$\nClick OK to upgrade or Cancel to quit." \
     IDOK done
   Abort
-  
+
   done:
 FunctionEnd
