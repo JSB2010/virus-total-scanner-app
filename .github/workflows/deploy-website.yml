@@ -43,8 +43,14 @@ jobs:
 
       - name: Create website directory structure
         run: |
-          mkdir -p ./website-deploy/website
-          cp -r ./out/* ./website-deploy/website/
+          mkdir -p ./website-deploy
+          # Copy only the website files to root (this makes /website the homepage)
+          cp -r ./out/website/* ./website-deploy/
+          # Copy necessary Next.js assets
+          cp -r ./out/_next ./website-deploy/
+          # Copy other assets if they exist
+          if [ -d "./out/assets" ]; then cp -r ./out/assets ./website-deploy/; fi
+          # Create .nojekyll to prevent Jekyll processing
           touch ./website-deploy/.nojekyll
 
       - name: Upload artifact
