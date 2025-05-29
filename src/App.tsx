@@ -54,6 +54,11 @@ declare global {
       // External methods
       openExternal: (url: string) => Promise<boolean>
 
+      // Error logging and crash reporting
+      logError: (errorData: any) => Promise<boolean>
+      getCrashLogs: () => Promise<any[]>
+      clearCrashLogs: () => Promise<boolean>
+
       // Event listeners
       onShowWelcome: (callback: () => void) => void
       onFileDetected: (callback: (data: any) => void) => void
