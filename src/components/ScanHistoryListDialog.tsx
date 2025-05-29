@@ -16,7 +16,7 @@ import {
   Trash2,
   XCircle
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface ScanHistoryListDialogProps {
   open: boolean
@@ -31,29 +31,7 @@ export function ScanHistoryListDialog({ open, onOpenChange, onViewScan }: ScanHi
   const [filterStatus, setFilterStatus] = useState<"all" | "clean" | "threat">("all")
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (open) {
-      loadScanHistory()
-    }
-  }, [open])
-
-  useEffect(() => {
-    filterScans()
-  }, [scanHistory, searchTerm, filterStatus])
-
-  const loadScanHistory = async () => {
-    setIsLoading(true)
-    try {
-      const history = await window.electronAPI.getRecentScans()
-      setScanHistory(history || [])
-    } catch (error) {
-      console.error("Failed to load scan history:", error)
-      setScanHistory([])
-    }
-    setIsLoading(false)
-  }
-
-  const filterScans = () => {
+  const filterScans = useCallback(() => {
     let filtered = scanHistory
 
     // Filter by search term
@@ -73,7 +51,29 @@ export function ScanHistoryListDialog({ open, onOpenChange, onViewScan }: ScanHi
     }
 
     setFilteredHistory(filtered)
+  }, [scanHistory, searchTerm, filterStatus])
+
+  const loadScanHistory = async () => {
+    setIsLoading(true)
+    try {
+      const history = await window.electronAPI.getRecentScans()
+      setScanHistory(history || [])
+    } catch (error) {
+      console.error("Failed to load scan history:", error)
+      setScanHistory([])
+    }
+    setIsLoading(false)
   }
+
+  useEffect(() => {
+    if (open) {
+      loadScanHistory()
+    }
+  }, [open])
+
+  useEffect(() => {
+    filterScans()
+  }, [filterScans])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()

@@ -93,6 +93,7 @@ jobs:
         CSC_IDENTITY_AUTO_DISCOVERY: false
         SKIP_NOTARIZATION: true
         ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
+        ELECTRON_BUILDER_PUBLISH: never
 
     - name: Upload macOS artifacts
       uses: actions/upload-artifact@v4
@@ -145,6 +146,7 @@ jobs:
         WIN_CSC_LINK: ""
         WIN_CSC_KEY_PASSWORD: ""
         ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
+        ELECTRON_BUILDER_PUBLISH: never
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
@@ -199,6 +201,7 @@ jobs:
       run: npm run dist:linux:all
       env:
         ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
+        ELECTRON_BUILDER_PUBLISH: never
 
     - name: Upload Linux artifacts
       uses: actions/upload-artifact@v4

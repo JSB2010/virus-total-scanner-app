@@ -45,7 +45,7 @@
     "electron-pack": "next build && electron-builder",
     "build:all": "scripts/build-comprehensive.sh all",
     "build:clean": "rimraf dist .next logs",
-    "prebuild": "npm run build:clean",
+    "prebuild": "npm run build:clean && node scripts/create-pkg-background.js",
     "dist": "npm run build && electron-builder",
     "dist:all": "npm run build && electron-builder",
     "dist:mac": "npm run build && electron-builder --mac",
@@ -64,7 +64,7 @@
     "dist:linux:appimage": "npm run build && electron-builder --linux AppImage",
     "dist:linux:deb": "npm run build && electron-builder --linux deb",
     "dist:linux:tar": "npm run build && electron-builder --linux tar.gz",
-    "dist:linux:all": "npm run build && electron-builder --linux AppImage deb rpm tar.gz",
+    "dist:linux:all": "npm run build && electron-builder --linux AppImage deb tar.gz",
     "dist:linux:rpm": "npm run build && electron-builder --linux rpm",
     "dist:dir": "electron-builder --dir",
     "pack": "electron-builder --dir",
@@ -363,13 +363,6 @@
             "x64",
             "arm64"
           ]
-        },
-        {
-          "target": "rpm",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
         }
       ]
     },
@@ -423,7 +416,6 @@
       "iconTextSize": 12,
       "title": "${productName} ${version}",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "background": "build/dmg-background.png",
       "backgroundColor": "#ffffff",
       "window": {
         "width": 540,
