@@ -53,7 +53,7 @@
     "dist:mac:pkg": "npm run build && electron-builder --mac pkg",
     "dist:mac:zip": "npm run build && electron-builder --mac zip",
     "dist:mac:app": "npm run build && electron-builder --mac dir",
-    "dist:mac:all": "npm run build && electron-builder --mac dmg pkg zip --publish never",
+    "dist:mac:all": "npm run build && npx electron-builder --mac dmg pkg zip --universal --publish never",
     "dist:win": "npm run build && electron-builder --win",
     "dist:win:nsis": "npm run build && electron-builder --win nsis",
     "dist:win:msi": "npm run build && electron-builder --win msi",
@@ -276,19 +276,25 @@
         {
           "target": "dmg",
           "arch": [
-            "x64"
+            "universal"
           ]
         },
         {
           "target": "pkg",
           "arch": [
-            "x64"
+            "universal"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64"
+            "universal"
+          ]
+        },
+        {
+          "target": "dir",
+          "arch": [
+            "universal"
           ]
         }
       ]
@@ -438,7 +444,6 @@
       "iconTextSize": 14,
       "title": "${productName} ${version} - Advanced File Security",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "backgroundColor": "#f8f9fa",
       "format": "UDZO",
       "background": "build/dmg-background.png",
       "window": {

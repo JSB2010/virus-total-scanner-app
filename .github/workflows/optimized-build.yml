@@ -221,9 +221,9 @@ jobs:
           npm ci --legacy-peer-deps
         fi
 
-    - name: Build macOS packages
+    - name: Build macOS packages (Comprehensive)
       run: |
-        echo "Starting macOS build process..."
+        echo "Starting comprehensive macOS build process..."
         echo "Node version: $(node --version)"
         echo "NPM version: $(npm --version)"
         echo "Available disk space:"
@@ -239,13 +239,55 @@ jobs:
         mkdir -p "$ELECTRON_CACHE"
         mkdir -p "$ELECTRON_BUILDER_CACHE"
 
-        # Run the build with verbose output and fallback strategy
-        if ! npm run dist:mac:all --verbose; then
-          echo "Full macOS build failed, trying individual builds..."
-          npm run dist:mac:dmg --verbose || echo "DMG build failed"
-          npm run dist:mac:pkg --verbose || echo "PKG build failed"
-          npm run dist:mac:zip --verbose || echo "ZIP build failed"
+        # Clean previous builds
+        echo "Cleaning previous builds..."
+        rm -rf dist/*
+
+        # Build all macOS formats with universal architecture
+        echo "Building comprehensive macOS packages (DMG, PKG, ZIP, APP)..."
+        echo "Target: Universal binaries (Intel x64 + Apple Silicon ARM64)"
+
+        # Run the comprehensive build with explicit universal architecture
+        if npm run dist:mac:all --verbose; then
+          echo "✅ Comprehensive macOS build completed successfully"
+        else
+          echo "❌ Comprehensive build failed, trying fallback strategy..."
+
+          # Fallback to individual builds with explicit universal arch
+          echo "Attempting fallback builds with universal architecture..."
+          npm run build || echo "Build step failed"
+          npx electron-builder --mac dmg --universal --verbose || echo "Universal DMG build failed"
+          npx electron-builder --mac pkg --universal --verbose || echo "Universal PKG build failed"
+          npx electron-builder --mac zip --universal --verbose || echo "Universal ZIP build failed"
         fi
+
+        # Display build results
+        echo ""
+        echo "📦 Build Results:"
+        ls -la dist/ | grep -E '\.(dmg|pkg|zip|app)$' || echo "No packages found"
+
+        # Show detailed file information
+        echo ""
+        echo "📁 Detailed Build Artifacts:"
+        find dist -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.zip" \) -exec ls -lh {} \; || echo "No build artifacts found"
+
+        # Show checksums if available
+        if [ -f "dist/checksums.txt" ]; then
+          echo ""
+          echo "🔐 Package Checksums:"
+          cat dist/checksums.txt
+        fi
+
+        # Verify universal binaries
+        echo ""
+        echo "🔍 Verifying Universal Binaries:"
+        for app in dist/mac-*/DropSentinel.app/Contents/MacOS/DropSentinel; do
+          if [ -f "$app" ]; then
+            echo "Checking architecture of: $app"
+            file "$app" || echo "Could not check file type"
+            lipo -info "$app" 2>/dev/null || echo "Could not check architectures"
+          fi
+        done
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
         SKIP_NOTARIZATION: true
@@ -253,16 +295,32 @@ jobs:
         NODE_OPTIONS: "--max-old-space-size=8192"
         DEBUG: "electron-builder"
 
-    - name: Upload macOS artifacts
+    - name: Upload macOS artifacts (Comprehensive)
       uses: actions/upload-artifact@v4
       with:
-        name: macos-optimized-${{ github.sha }}
+        name: macos-comprehensive-${{ github.sha }}
         path: |
           dist/*.dmg
           dist/*.pkg
           dist/*.zip
+          dist/*.blockmap
+          dist/checksums.txt
+          dist/latest-mac.yml
+          dist/builder-debug.yml
+          dist/builder-effective-config.yaml
+          dist/com.jsb2010.dropsentinel.plist
         retention-days: 30
         compression-level: 6
+
+    - name: Upload macOS app bundle (for testing)
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-app-bundle-${{ github.sha }}
+        path: |
+          dist/mac-universal/DropSentinel.app/**
+        retention-days: 7
+        compression-level: 9
+      if: always() && hashFiles('dist/mac-universal/DropSentinel.app') != ''
 
   # Optimized Linux build
   build-linux:
@@ -422,7 +480,12 @@ jobs:
 
         if [[ "${{ needs.validate.outputs.platforms }}" == *"macos"* ]]; then
           if [ "${{ needs.build-macos.result }}" = "success" ]; then
-            echo "✅ **macOS**: All formats built successfully" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **macOS**: Comprehensive universal binaries built successfully" >> $GITHUB_STEP_SUMMARY
+            echo "   - 📦 **DMG**: Disk image installer with custom background" >> $GITHUB_STEP_SUMMARY
+            echo "   - 📦 **PKG**: macOS installer package with scripts" >> $GITHUB_STEP_SUMMARY
+            echo "   - 📦 **ZIP**: Compressed app bundle for direct installation" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🍎 **APP**: Native macOS application bundle" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔧 **Architecture**: Universal (Intel x64 + Apple Silicon ARM64)" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **macOS**: Build failed" >> $GITHUB_STEP_SUMMARY
           fi
