@@ -44,14 +44,14 @@ jobs:
       - name: Create website directory structure
         run: |
           mkdir -p ./website-deploy
-          # Copy only the website files to root (this makes /website the homepage)
+          # Copy the website files to root, creating the structure users expect
           cp -r ./out/website/* ./website-deploy/
           # Copy necessary Next.js assets
           cp -r ./out/_next ./website-deploy/
           # Copy other assets if they exist
           if [ -d "./out/assets" ]; then cp -r ./out/assets ./website-deploy/; fi
-          # Copy custom 404.html for GitHub Pages client-side routing
-          cp ./public/404.html ./website-deploy/404.html
+          # Create simple 404.html that redirects to homepage (no client-side routing needed)
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/"></head><body><p>Redirecting to <a href="/">homepage</a>...</p></body></html>' > ./website-deploy/404.html
           # Create .nojekyll to prevent Jekyll processing
           touch ./website-deploy/.nojekyll
 

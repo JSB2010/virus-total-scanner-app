@@ -1,6 +1,5 @@
 import { Toaster } from '@/components/ui/sonner'
 import { ClientThemeProvider } from '@/components/website/client-theme-provider'
-import { GitHubPagesRouter } from '@/components/website/github-pages-router'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../globals.css'
@@ -81,7 +80,6 @@ export default function WebsiteLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GitHubPagesRouter />
           <div className="min-h-screen bg-background">
             {children}
           </div>
