@@ -480,12 +480,18 @@
       "packageCategory": "utils",
       "priority": "optional",
       "depends": [
-        "gconf2",
-        "gconf-service",
-        "libnotify4",
-        "libappindicator1",
+        "libgtk-3-0",
+        "libnotify4 | libnotify-bin",
+        "libnss3",
         "libxtst6",
-        "libnss3"
+        "libatspi2.0-0",
+        "libdrm2",
+        "libxcomposite1",
+        "libxdamage1",
+        "libxrandr2",
+        "libgbm1",
+        "libxss1",
+        "libasound2"
       ],
       "recommends": [
         "pulseaudio"
