@@ -481,19 +481,12 @@
       "priority": "optional",
       "depends": [
         "libgtk-3-0",
-        "libnotify4 | libnotify-bin",
         "libnss3",
         "libxtst6",
-        "libatspi2.0-0",
-        "libdrm2",
-        "libxcomposite1",
-        "libxdamage1",
-        "libxrandr2",
-        "libgbm1",
-        "libxss1",
         "libasound2"
       ],
       "recommends": [
+        "libnotify-bin",
         "pulseaudio"
       ],
       "afterInstall": "build/deb-postinstall.sh",

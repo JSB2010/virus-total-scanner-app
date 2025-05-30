@@ -297,31 +297,36 @@ jobs:
 
     - name: Install system dependencies (cached)
       run: |
+        echo "Checking Ubuntu version and available packages..."
+        lsb_release -a
+
+        echo "Updating package lists..."
         sudo apt-get update
-        sudo apt-get install -y \
-          libnss3-dev \
-          libatk-bridge2.0-dev \
-          libdrm2 \
-          libxcomposite1 \
-          libxdamage1 \
-          libxrandr2 \
-          libgbm1 \
-          libxss1 \
-          libasound2-dev \
-          libgtk-3-dev \
-          libgconf-2-4 \
-          libxtst6 \
-          libxrandr2 \
-          libasound2 \
-          libpangocairo-1.0-0 \
-          libatk1.0-0 \
-          libcairo-gobject2 \
-          libgtk-3-0 \
-          libgdk-pixbuf2.0-0 \
-          rpm \
-          fakeroot \
-          dpkg \
-          build-essential
+
+        echo "Installing essential build dependencies..."
+        # Install packages one by one to identify problematic ones
+        packages=(
+          "libnss3-dev"
+          "libgtk-3-dev"
+          "libasound2-dev"
+          "libxtst6"
+          "libasound2"
+          "libgtk-3-0"
+          "rpm"
+          "fakeroot"
+          "build-essential"
+        )
+
+        for package in "${packages[@]}"; do
+          echo "Installing $package..."
+          if sudo apt-get install -y "$package"; then
+            echo "✅ $package installed successfully"
+          else
+            echo "❌ Failed to install $package, continuing..."
+          fi
+        done
+
+        echo "System dependencies installation completed"
 
     - name: Install dependencies (optimized)
       run: |
