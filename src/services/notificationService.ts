@@ -90,7 +90,7 @@ export class NotificationService {
    */
   public async notifyScanStart(fileName: string): Promise<void> {
     await this.showNotification({
-      title: 'Sentinel Guard - Scan Started',
+      title: 'DropSentinel - Scan Started',
       body: `Scanning ${fileName} for threats...`,
       urgency: 'normal'
     });
@@ -102,17 +102,17 @@ export class NotificationService {
   public async notifyScanComplete(fileName: string, result: 'clean' | 'threat' | 'error', details?: string): Promise<void> {
     const notifications = {
       clean: {
-        title: 'Sentinel Guard - File Clean',
+        title: 'DropSentinel - File Clean',
         body: `${fileName} is safe - no threats detected.`,
         urgency: 'low' as const
       },
       threat: {
-        title: 'Sentinel Guard - Threat Detected!',
+        title: 'DropSentinel - Threat Detected!',
         body: `⚠️ THREAT FOUND in ${fileName}${details ? `\n${details}` : ''}`,
         urgency: 'critical' as const
       },
       error: {
-        title: 'Sentinel Guard - Scan Error',
+        title: 'DropSentinel - Scan Error',
         body: `Failed to scan ${fileName}. Please try again.`,
         urgency: 'normal' as const
       }
@@ -127,7 +127,7 @@ export class NotificationService {
    */
   public async notifyThreatQuarantined(fileName: string): Promise<void> {
     await this.showNotification({
-      title: 'Sentinel Guard - Threat Quarantined',
+      title: 'DropSentinel - Threat Quarantined',
       body: `🛡️ ${fileName} has been safely quarantined.`,
       urgency: 'normal'
     });
@@ -138,7 +138,7 @@ export class NotificationService {
    */
   public async notifyMonitoringStatusChange(isActive: boolean): Promise<void> {
     await this.showNotification({
-      title: 'Sentinel Guard - Monitoring Status',
+      title: 'DropSentinel - Monitoring Status',
       body: isActive
         ? '🟢 Real-time file monitoring is now active'
         : '🔴 Real-time file monitoring has been paused',

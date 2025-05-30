@@ -24,7 +24,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
       <WebsiteHeader />
-      
+
       <main className="pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -71,7 +71,7 @@ export default function TermsPage() {
 
                     <h3>1. Acceptance of Terms</h3>
                     <p>
-                      By downloading, installing, or using DropSentinel, you agree to be bound by these Terms of Service. 
+                      By downloading, installing, or using DropSentinel, you agree to be bound by these Terms of Service.
                       If you do not agree to these terms, do not use the software.
                     </p>
 
@@ -147,7 +147,7 @@ export default function TermsPage() {
 
                     <h3>11. Contact Information</h3>
                     <p>
-                      For questions about these terms, please open an issue on our GitHub repository at: 
+                      For questions about these terms, please open an issue on our GitHub repository at:{' '}
                       <a href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                         https://github.com/JSB2010/virus-total-scanner-app
                       </a>
@@ -164,7 +164,7 @@ export default function TermsPage() {
           </div>
         </section>
       </main>
-      
+
       <WebsiteFooter />
     </div>
   )

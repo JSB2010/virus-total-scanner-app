@@ -470,7 +470,7 @@ function showAboutDialog() {
   aboutWindow.loadURL(`data:text/html;charset=utf-8,
     <html>
       <head>
-        <title>About Sentinel Guard</title>
+        <title>About DropSentinel</title>
         <style>
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -485,14 +485,14 @@ function showAboutDialog() {
       </head>
       <body>
         <div class="logo">🛡️</div>
-        <div class="title">Sentinel Guard</div>
+        <div class="title">DropSentinel</div>
         <div class="version">Version 1.0.0</div>
         <div class="description">
           Advanced file security with real-time protection.<br>
           Powered by VirusTotal's comprehensive threat detection.
         </div>
         <div class="footer">
-          © 2024 Sentinel Guard. All rights reserved.
+          © 2024 DropSentinel. All rights reserved.
         </div>
       </body>
     </html>
@@ -813,7 +813,7 @@ function showFileDetectedDialog(filePath) {
     } catch (error) {
       console.error(`[DETECTION] ❌ Error showing dialog:`, error)
       // Fallback to notification only
-      showNotification("File Detected", `New file detected: ${fileName}. Open Sentinel Guard to scan manually.`)
+      showNotification("File Detected", `New file detected: ${fileName}. Open DropSentinel to scan manually.`)
     }
   } catch (error) {
     console.error(`[DETECTION] ❌ Error in showFileDetectedDialog:`, error)
@@ -828,7 +828,7 @@ function showNativeFileDialog(filePath, fileName, fileSize) {
     // Ensure main window exists and is ready
     if (!mainWindow || mainWindow.isDestroyed()) {
       console.log(`[DIALOG] ⚠️ Main window not available, showing notification instead`)
-      showNotification("File Detected", `New file detected: ${fileName}. Open Sentinel Guard to scan.`)
+      showNotification("File Detected", `New file detected: ${fileName}. Open DropSentinel to scan.`)
       return
     }
 
@@ -839,7 +839,7 @@ function showNativeFileDialog(filePath, fileName, fileSize) {
       type: 'question',
       buttons: ['Scan File', 'Ignore'],
       defaultId: 0,
-      title: 'New File Detected - Sentinel Guard',
+      title: 'New File Detected - DropSentinel',
       message: `A new file has been downloaded: ${fileName}`,
       detail: `File size: ${formatFileSize(fileSize)}\n\nWould you like to scan this file for threats?`,
       noLink: true
@@ -865,7 +865,7 @@ function showNativeFileDialog(filePath, fileName, fileSize) {
   } catch (error) {
     console.error(`[DIALOG] ❌ Error showing file dialog:`, error)
     // Fallback to notification
-    showNotification("File Detected", `New file detected: ${fileName}. Open Sentinel Guard to scan.`)
+    showNotification("File Detected", `New file detected: ${fileName}. Open DropSentinel to scan.`)
   }
 }
 
@@ -1247,7 +1247,7 @@ ipcMain.handle("show-file-detection-dialog", async (event, options) => {
       buttons: options.buttons || ['Scan Now', 'Skip'],
       defaultId: options.defaultId || 0,
       cancelId: options.cancelId || 1,
-      title: options.title || 'New File Detected - Sentinel Guard',
+      title: options.title || 'New File Detected - DropSentinel',
       message: options.message,
       detail: 'Would you like to scan this file for threats?',
       icon: options.icon ? path.join(__dirname, options.icon) : getIconPath("app-icon.png") || undefined,

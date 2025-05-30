@@ -125,8 +125,8 @@ This document provides a complete summary of all enhancements, optimizations, an
 npm install @jsb2010/dropsentinel
 
 # Run with Docker
-docker pull ghcr.io/jsb2010/virus-total-scanner-app:latest
-docker run -p 3000:3000 ghcr.io/jsb2010/virus-total-scanner-app:latest
+docker pull ghcr.io/jsb2010/dropsentinel:latest
+docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest
 ```
 
 ---

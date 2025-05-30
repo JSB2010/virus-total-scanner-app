@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Sentinel Guard Development Setup Script
-# This script sets up the development environment for Sentinel Guard
+# DropSentinel Development Setup Script
+# This script sets up the development environment for DropSentinel
 
 set -e
 
-echo "🛡️  Setting up Sentinel Guard Development Environment..."
+echo "🛡️  Setting up DropSentinel Development Environment..."
 
 # Detect platform
 PLATFORM="unknown"

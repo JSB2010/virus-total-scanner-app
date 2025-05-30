@@ -36,6 +36,7 @@ global.window.electronAPI = {
   cleanupQuarantine: jest.fn(),
   isQuarantineAvailable: jest.fn(),
   openExternal: jest.fn(),
+  logError: jest.fn(),
   getFilesInFolder: jest.fn(),
   clearAllData: jest.fn(),
 }

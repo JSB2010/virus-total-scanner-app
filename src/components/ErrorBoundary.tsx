@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
-    
+
     this.setState({
       error,
       errorInfo
@@ -90,9 +90,9 @@ ${errorDetails.component}
 - User Agent: ${navigator.userAgent}
 
 **Steps to Reproduce:**
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Expected Behavior:**
 
@@ -140,7 +140,7 @@ ${errorDetails.component}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
+                <Button
                   onClick={this.handleReload}
                   className="flex-1"
                   size="lg"
@@ -148,7 +148,7 @@ ${errorDetails.component}
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Restart Application
                 </Button>
-                <Button 
+                <Button
                   onClick={this.handleReportBug}
                   variant="outline"
                   className="flex-1"
@@ -162,7 +162,8 @@ ${errorDetails.component}
               <div className="text-center text-sm text-muted-foreground">
                 <p>
                   If this problem persists, please{' '}
-                  <button 
+                  <button
+                    type="button"
                     onClick={this.handleReportBug}
                     className="text-primary hover:underline"
                   >

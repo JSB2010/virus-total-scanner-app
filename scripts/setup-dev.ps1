@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
 
-# Sentinel Guard Development Setup Script
-# This script sets up the development environment for Sentinel Guard
+# DropSentinel Development Setup Script
+# This script sets up the development environment for DropSentinel
 
-Write-Host "🛡️  Setting up Sentinel Guard Development Environment for Windows..." -ForegroundColor Green
+Write-Host "🛡️  Setting up DropSentinel Development Environment for Windows..." -ForegroundColor Green
 
 # Windows-specific setup information
 Write-Host "🪟 Detected platform: Windows" -ForegroundColor Cyan

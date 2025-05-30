@@ -215,7 +215,7 @@ export function SettingsDialog({ open, onOpenChange }: Readonly<SettingsDialogPr
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold text-white">
-                Sentinel Guard Settings
+                DropSentinel Settings
               </DialogTitle>
               <DialogDescription className="text-white/90 text-base">
                 Configure your security preferences and monitoring options

@@ -48,8 +48,8 @@ If you prefer to avoid the SmartScreen warning entirely:
 
 ### Option 1: Build from Source
 ```bash
-git clone https://github.com/JSB2010/virus-total-scanner-app.git
-cd virus-total-scanner-app
+git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+cd dropsentinel
 npm install
 npm run build
 npm run dist:win

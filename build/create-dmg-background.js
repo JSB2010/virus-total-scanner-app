@@ -21,47 +21,47 @@ const dmgBackgroundSVG = `<?xml version="1.0" encoding="UTF-8"?>
       <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:0.1" />
     </linearGradient>
   </defs>
-  
+
   <!-- Background -->
   <rect width="600" height="420" fill="url(#backgroundGradient)"/>
-  
+
   <!-- Accent stripe -->
   <rect x="0" y="0" width="600" height="80" fill="url(#accentGradient)"/>
-  
+
   <!-- Header text -->
-  <text x="300" y="40" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="300" y="40" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="24" font-weight="600" fill="#1f2937">
     DropSentinel
   </text>
-  <text x="300" y="65" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="300" y="65" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="14" font-weight="400" fill="#6b7280">
     Advanced File Security Scanner
   </text>
-  
+
   <!-- Installation instruction -->
-  <text x="300" y="320" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="300" y="320" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="16" font-weight="500" fill="#374151">
     Drag DropSentinel to Applications to install
   </text>
-  
+
   <!-- Arrow pointing from app to Applications -->
-  <path d="M 200 240 Q 300 200 400 240" stroke="#3b82f6" stroke-width="3" 
+  <path d="M 200 240 Q 300 200 400 240" stroke="#3b82f6" stroke-width="3"
         fill="none" stroke-dasharray="5,5" opacity="0.7"/>
   <polygon points="390,235 400,240 390,245" fill="#3b82f6" opacity="0.7"/>
-  
+
   <!-- Security badge -->
   <circle cx="500" cy="350" r="30" fill="#10b981" opacity="0.1"/>
-  <text x="500" y="345" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="500" y="345" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="20" fill="#10b981">🛡️</text>
-  <text x="500" y="365" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="500" y="365" text-anchor="middle" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="10" font-weight="500" fill="#059669">
     SECURE
   </text>
-  
+
   <!-- Version info -->
-  <text x="50" y="400" font-family="SF Pro Display, -apple-system, sans-serif" 
+  <text x="50" y="400" font-family="SF Pro Display, -apple-system, sans-serif"
         font-size="12" font-weight="400" fill="#9ca3af">
-    Version 1.0.0 • Sentinel Guard
+    Version 1.0.0 • DropSentinel
   </text>
 </svg>`;
 

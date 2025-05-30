@@ -126,7 +126,7 @@
 - **Documentation:** [README.md](README.md)
 - **Issues:** [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
-- **Email:** support@dropsentinel.dev
+- **Email:** support@dropsentinel.com
 
 ## 🙏 Acknowledgments
 

@@ -64,16 +64,16 @@ DropSentinel is designed to work seamlessly across all major operating systems:
 
 **For macOS and Linux:**
 ```bash
-git clone https://github.com/JSB2010/virus-total-scanner-app.git
-cd virus-total-scanner-app
+git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+cd dropsentinel
 chmod +x scripts/setup-dev.sh
 ./scripts/setup-dev.sh
 ```
 
 **For Windows (PowerShell):**
 ```powershell
-git clone https://github.com/JSB2010/virus-total-scanner-app.git
-cd virus-total-scanner-app
+git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+cd dropsentinel
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\scripts\setup-dev.ps1
 ```
@@ -82,8 +82,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/JSB2010/virus-total-scanner-app.git
-   cd virus-total-scanner-app
+   git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+   cd dropsentinel
    ```
 
 2. **Install dependencies**
@@ -234,7 +234,7 @@ For security concerns, please see our [Security Policy](SECURITY.md).
 
 ## 📞 Support
 
-- 📧 **Email**: support@dropsentinel.dev
+- 📧 **Email**: support@dropsentinel.com
 - 🐛 **Issues**: [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
 

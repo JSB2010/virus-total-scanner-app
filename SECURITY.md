@@ -125,7 +125,7 @@ If you're contributing to DropSentinel, please ensure:
 ## 📞 Contact Information
 
 - **Security Email**: security@dropsentinel.dev
-- **General Contact**: support@dropsentinel.dev
+- **General Contact**: support@dropsentinel.com
 - **GitHub Issues**: For non-security related issues only
 
 ## 📄 Legal

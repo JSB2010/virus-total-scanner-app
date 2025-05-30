@@ -60,7 +60,7 @@ Enhancement suggestions are welcome! Please provide:
 1. **Clone your fork**
    ```bash
    git clone https://github.com/JSB2010/virus-total-scanner-app.git
-   cd virus-total-scanner-app
+   cd dropsentinel
    ```
 
 2. **Install dependencies**
