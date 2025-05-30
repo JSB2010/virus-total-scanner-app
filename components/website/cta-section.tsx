@@ -1,8 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Download, Github, ArrowRight, Shield, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
+import { ArrowRight, Download, Github, Shield, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 const fadeInUp = {
@@ -25,7 +25,7 @@ export function CTASection() {
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/20 dark:via-purple-950/20 dark:to-pink-950/20" />
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      
+
       {/* Floating Elements */}
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -45,7 +45,7 @@ export function CTASection() {
             </div>
           </motion.div>
 
-          <motion.h2 
+          <motion.h2
             variants={fadeInUp}
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
           >
@@ -55,33 +55,33 @@ export function CTASection() {
             </span>
           </motion.h2>
 
-          <motion.p 
+          <motion.p
             variants={fadeInUp}
             className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto"
           >
-            Join thousands of users who trust DropSentinel for real-time file protection. 
+            Join thousands of users who trust DropSentinel for real-time file protection.
             Download now and experience next-generation security.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             variants={fadeInUp}
             className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
           >
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               asChild
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 group text-lg px-8 py-6"
             >
-              <Link href="/website/download">
+              <Link href="/download">
                 <Download className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
                 Download Free
                 <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
 
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               asChild
               className="border-2 hover:bg-muted/50 group text-lg px-8 py-6"
             >
@@ -92,7 +92,7 @@ export function CTASection() {
             </Button>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={fadeInUp}
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto"
           >
@@ -126,7 +126,7 @@ export function CTASection() {
             })}
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={fadeInUp}
             className="mt-12 text-center"
           >

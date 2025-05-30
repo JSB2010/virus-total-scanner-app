@@ -20,19 +20,19 @@ export function WebsiteFooter() {
     community: FooterLink[]
   } = {
     product: [
-      { name: 'Features', href: '/website#features' },
-      { name: 'Download', href: '/website/download' },
-      { name: 'Documentation', href: '/website/docs' },
-      { name: 'Changelog', href: '/website/changelog' },
+      { name: 'Features', href: '/#features' },
+      { name: 'Download', href: '/download' },
+      { name: 'Documentation', href: '/docs' },
+      { name: 'Changelog', href: '/changelog' },
     ],
     support: [
-      { name: 'Documentation', href: '/website/docs' },
+      { name: 'Documentation', href: '/docs' },
       { name: 'GitHub Issues', href: 'https://github.com/JSB2010/virus-total-scanner-app/issues', external: true },
       { name: 'GitHub Discussions', href: 'https://github.com/JSB2010/virus-total-scanner-app/discussions', external: true },
     ],
     legal: [
-      { name: 'Privacy Policy', href: '/website/privacy' },
-      { name: 'Terms of Service', href: '/website/terms' },
+      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Terms of Service', href: '/terms' },
       { name: 'License (MIT)', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/LICENSE', external: true },
       { name: 'Security Policy', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/SECURITY.md', external: true },
     ],
@@ -50,7 +50,7 @@ export function WebsiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link href="/website" className="flex items-center space-x-2 mb-4">
+            <Link href="/" className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
@@ -139,11 +139,11 @@ export function WebsiteFooter() {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>© {currentYear} DropSentinel. All rights reserved.</span>
               <span>•</span>
-              <Link href="/website/privacy" className="hover:text-foreground transition-colors">
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
                 Privacy
               </Link>
               <span>•</span>
-              <Link href="/website/terms" className="hover:text-foreground transition-colors">
+              <Link href="/terms" className="hover:text-foreground transition-colors">
                 Terms
               </Link>
             </div>

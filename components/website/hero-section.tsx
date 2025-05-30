@@ -105,7 +105,7 @@ export function HeroSection() {
                 asChild
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
               >
-                <Link href="/website/download">
+                <Link href="/download">
                   <Download className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                   Download Free
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />

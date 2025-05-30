@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Menu, X, Github, Download, Moon, Sun, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useTheme } from 'next-themes'
-import Link from 'next/link'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Download, Github, Menu, Monitor, Moon, Shield, Sun, X } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export function WebsiteHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -27,11 +27,11 @@ export function WebsiteHeader() {
   }, [])
 
   const navigation = [
-    { name: 'Home', href: '/website' },
-    { name: 'Features', href: '/website#features' },
-    { name: 'Download', href: '/website/download' },
-    { name: 'Docs', href: '/website/docs' },
-    { name: 'Support', href: '/website/support' },
+    { name: 'Home', href: '/' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Download', href: '/download' },
+    { name: 'Docs', href: '/docs' },
+    { name: 'Support', href: '/support' },
   ]
 
   return (
@@ -39,16 +39,15 @@ export function WebsiteHeader() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm' 
-          : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm'
+        : 'bg-transparent'
+        }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/website" className="flex items-center space-x-2 group">
+          <Link href="/" className="flex items-center space-x-2 group">
             <div className="relative">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <Shield className="w-5 h-5 text-white" />
@@ -110,7 +109,7 @@ export function WebsiteHeader() {
 
             {/* Download Button */}
             <Button asChild className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-              <Link href="/website/download">
+              <Link href="/download">
                 <Download className="w-4 h-4 mr-2" />
                 Download
               </Link>
@@ -157,7 +156,7 @@ export function WebsiteHeader() {
                     </Link>
                   </Button>
                   <Button asChild className="bg-gradient-to-r from-blue-500 to-purple-600">
-                    <Link href="/website/download">
+                    <Link href="/download">
                       <Download className="w-4 h-4 mr-2" />
                       Download
                     </Link>
