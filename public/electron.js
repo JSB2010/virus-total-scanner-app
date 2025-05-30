@@ -5,13 +5,8 @@ const chokidar = require("chokidar")
 const os = require("os")
 const fs = require("fs")
 
-// Auto-start functionality for Windows
+// Cross-platform auto-start functionality
 function setAutoStart(enable) {
-  if (process.platform !== 'win32') {
-    console.log('[AUTO-START] Auto-start only supported on Windows')
-    return { success: false, error: 'Auto-start only supported on Windows' }
-  }
-
   // Don't allow auto-start in development mode
   if (isDev) {
     console.log('[AUTO-START] Auto-start disabled in development mode')
@@ -20,25 +15,38 @@ function setAutoStart(enable) {
 
   try {
     if (enable) {
-      // Add to Windows startup registry
-      app.setLoginItemSettings({
+      // Cross-platform login item settings
+      const loginSettings = {
         openAtLogin: true,
         openAsHidden: true,
-        path: process.execPath,
-        args: ['--hidden']
-      })
+      }
+
+      // Platform-specific configurations
+      if (process.platform === 'win32') {
+        loginSettings.path = process.execPath
+        loginSettings.args = ['--hidden']
+      } else if (process.platform === 'darwin') {
+        // macOS: Use app bundle path and set as background app
+        loginSettings.path = process.execPath
+        loginSettings.args = ['--hidden', '--background']
+      }
+
+      app.setLoginItemSettings(loginSettings)
 
       // Verify the setting was applied
       const verification = app.getLoginItemSettings()
       if (verification.openAtLogin) {
-        console.log('[AUTO-START] ✅ Auto-start enabled successfully')
+        console.log(`[AUTO-START] ✅ Auto-start enabled successfully for ${process.platform}`)
         return { success: true }
       } else {
         console.log('[AUTO-START] ⚠️ Auto-start setting may not have been applied')
-        return { success: false, error: 'Auto-start setting could not be verified. Try running as administrator.' }
+        const errorMsg = process.platform === 'win32'
+          ? 'Auto-start setting could not be verified. Try running as administrator.'
+          : 'Auto-start setting could not be verified. Check System Preferences > Users & Groups > Login Items.'
+        return { success: false, error: errorMsg }
       }
     } else {
-      // Remove from Windows startup
+      // Remove from startup
       app.setLoginItemSettings({
         openAtLogin: false
       })
@@ -47,18 +55,17 @@ function setAutoStart(enable) {
     }
   } catch (error) {
     console.error('[AUTO-START] Error setting auto-start:', error)
+    const errorMsg = process.platform === 'win32'
+      ? `Failed to modify startup settings: ${error.message}. Try running as administrator.`
+      : `Failed to modify login items: ${error.message}. Check System Preferences permissions.`
     return {
       success: false,
-      error: `Failed to modify startup settings: ${error.message}. Try running as administrator.`
+      error: errorMsg
     }
   }
 }
 
 function getAutoStartStatus() {
-  if (process.platform !== 'win32') {
-    return false
-  }
-
   try {
     const settings = app.getLoginItemSettings()
     return settings.openAtLogin
@@ -71,6 +78,356 @@ function getAutoStartStatus() {
 let Store
 let store
 let fileWatcher
+let isBackgroundMode = false
+
+// macOS-specific app behavior management
+function setMacOSAppBehavior(backgroundMode = false) {
+  if (process.platform !== 'darwin') {
+    return
+  }
+
+  isBackgroundMode = backgroundMode
+
+  if (backgroundMode) {
+    // Hide from dock when in background mode
+    if (app.dock) {
+      app.dock.hide()
+    }
+    console.log('[MACOS] App set to background mode - hidden from dock')
+  } else {
+    // Show in dock when window is visible
+    if (app.dock) {
+      app.dock.show()
+    }
+    console.log('[MACOS] App set to foreground mode - visible in dock')
+  }
+}
+
+function getMacOSAppBehavior() {
+  return isBackgroundMode
+}
+
+// Helper function for auto-start menu label
+function getAutoStartMenuLabel(autoStartEnabled) {
+  if (process.platform === 'win32') {
+    return autoStartEnabled ? "Disable Auto-Start" : "Enable Auto-Start"
+  } else if (process.platform === 'darwin') {
+    return autoStartEnabled ? "Disable Auto-Start" : "Enable Auto-Start"
+  } else {
+    return "Auto-Start (Not Supported)"
+  }
+}
+
+// Enhanced notification function for macOS with interactive actions
+function showMacOSNotification(title, body, options = {}) {
+  if (process.platform !== 'darwin') {
+    return showNotification(title, body)
+  }
+
+  // Use native macOS notifications with enhanced options
+  const notification = new Notification({
+    title,
+    body,
+    icon: getIconPath("app-icon.png"),
+    sound: options.sound || 'default',
+    urgency: options.urgency || 'normal',
+    timeoutType: options.timeoutType || 'default',
+    actions: options.actions || [],
+    closeButtonText: options.closeButtonText || 'Close',
+    hasReply: options.hasReply || false,
+    replyPlaceholder: options.replyPlaceholder || '',
+    silent: options.silent || false
+  })
+
+  notification.on('click', () => {
+    // Show main window when notification is clicked
+    if (mainWindow) {
+      setMacOSAppBehavior(false) // Show in dock
+      mainWindow.show()
+      mainWindow.focus()
+    } else {
+      createWindow()
+    }
+  })
+
+  // Handle notification actions
+  notification.on('action', (index) => {
+    if (options.actionHandlers && options.actionHandlers[index]) {
+      options.actionHandlers[index]()
+    }
+  })
+
+  notification.show()
+  return notification
+}
+
+// Enhanced file detection notification with actions
+function showFileDetectionNotification(fileName, filePath) {
+  if (process.platform !== 'darwin') {
+    return showNotification("File Detected", `New file detected: ${fileName}`)
+  }
+
+  return showMacOSNotification(
+    "New File Detected",
+    `${fileName} was added to Downloads`,
+    {
+      actions: [
+        { type: 'button', text: 'Scan Now' },
+        { type: 'button', text: 'Ignore' }
+      ],
+      actionHandlers: [
+        () => {
+          // Scan action
+          if (mainWindow) {
+            setMacOSAppBehavior(false)
+            mainWindow.show()
+            mainWindow.focus()
+            mainWindow.webContents.send("file-detected", {
+              fileName,
+              filePath,
+              autoScan: true,
+              skipPrompt: true
+            })
+          }
+        },
+        () => {
+          // Ignore action - do nothing
+          console.log(`[NOTIFICATION] User ignored file: ${fileName}`)
+        }
+      ],
+      sound: 'default'
+    }
+  )
+}
+
+// macOS keyboard shortcuts setup
+function setupMacOSKeyboardShortcuts() {
+  if (process.platform !== 'darwin') return
+
+  const { globalShortcut } = require('electron')
+
+  // Register global shortcuts for macOS
+  try {
+    // Cmd+Shift+S - Quick Scan
+    globalShortcut.register('CommandOrControl+Shift+S', () => {
+      if (mainWindow) {
+        setMacOSAppBehavior(false)
+        mainWindow.show()
+        mainWindow.focus()
+        mainWindow.webContents.send("show-manual-scan")
+      } else {
+        createWindow()
+      }
+    })
+
+    // Cmd+Shift+D - Show Dashboard
+    globalShortcut.register('CommandOrControl+Shift+D', () => {
+      if (mainWindow) {
+        if (mainWindow.isVisible()) {
+          mainWindow.hide()
+          setMacOSAppBehavior(true)
+        } else {
+          setMacOSAppBehavior(false)
+          mainWindow.show()
+          mainWindow.focus()
+        }
+      } else {
+        createWindow()
+      }
+    })
+
+    // Cmd+Shift+M - Toggle Monitoring
+    globalShortcut.register('CommandOrControl+Shift+M', () => {
+      const currentStatus = store.get("isMonitoring", true)
+      const newStatus = !currentStatus
+      store.set("isMonitoring", newStatus)
+
+      if (newStatus) {
+        startFileWatcher()
+      } else {
+        stopFileWatcher()
+      }
+
+      showMacOSNotification(
+        "Monitoring Status",
+        `File monitoring ${newStatus ? "enabled" : "disabled"}`,
+        { silent: true }
+      )
+    })
+
+    console.log('[MACOS] Global keyboard shortcuts registered')
+  } catch (error) {
+    console.error('[MACOS] Failed to register global shortcuts:', error)
+  }
+}
+
+// macOS Spotlight integration
+function setupSpotlightIntegration() {
+  if (process.platform !== 'darwin') return
+
+  // Register URL scheme for Spotlight integration
+  app.setAsDefaultProtocolClient('dropsentinel')
+
+  // Handle protocol URLs (e.g., dropsentinel://scan)
+  app.on('open-url', (event, url) => {
+    event.preventDefault()
+    console.log('[SPOTLIGHT] Received URL:', url)
+
+    const urlObj = new URL(url)
+    const action = urlObj.pathname.replace('/', '')
+
+    switch (action) {
+      case 'scan':
+        if (mainWindow) {
+          setMacOSAppBehavior(false)
+          mainWindow.show()
+          mainWindow.focus()
+          mainWindow.webContents.send("show-manual-scan")
+        } else {
+          createWindow()
+        }
+        break
+      case 'dashboard':
+        if (mainWindow) {
+          setMacOSAppBehavior(false)
+          mainWindow.show()
+          mainWindow.focus()
+        } else {
+          createWindow()
+        }
+        break
+      default:
+        console.log('[SPOTLIGHT] Unknown action:', action)
+    }
+  })
+}
+
+// Enhanced macOS drag & drop functionality
+function setupMacOSDragDrop() {
+  if (process.platform !== 'darwin' || !mainWindow) return
+
+  // Enhanced drag & drop with visual feedback
+  mainWindow.webContents.on('dom-ready', () => {
+    mainWindow.webContents.executeJavaScript(`
+      // Enhanced drag & drop for macOS
+      const body = document.body;
+      let dragCounter = 0;
+
+      // Add macOS-style drag overlay
+      const createDragOverlay = () => {
+        const overlay = document.createElement('div');
+        overlay.id = 'macos-drag-overlay';
+        overlay.style.cssText = \`
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 122, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 3px dashed #007AFF;
+          border-radius: 12px;
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 24px;
+          font-weight: 600;
+          color: #007AFF;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        \`;
+        overlay.innerHTML = '🛡️ Drop files to scan with DropSentinel';
+        return overlay;
+      };
+
+      let dragOverlay = null;
+
+      body.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+
+        if (dragCounter === 1) {
+          dragOverlay = createDragOverlay();
+          body.appendChild(dragOverlay);
+          setTimeout(() => dragOverlay.style.opacity = '1', 10);
+        }
+      });
+
+      body.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragCounter--;
+
+        if (dragCounter === 0 && dragOverlay) {
+          dragOverlay.style.opacity = '0';
+          setTimeout(() => {
+            if (dragOverlay && dragOverlay.parentNode) {
+              dragOverlay.parentNode.removeChild(dragOverlay);
+            }
+            dragOverlay = null;
+          }, 200);
+        }
+      });
+
+      body.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      body.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+
+        if (dragOverlay) {
+          dragOverlay.style.opacity = '0';
+          setTimeout(() => {
+            if (dragOverlay && dragOverlay.parentNode) {
+              dragOverlay.parentNode.removeChild(dragOverlay);
+            }
+            dragOverlay = null;
+          }, 200);
+        }
+
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+          // Send files to main process for scanning
+          window.electronAPI?.handleDragDropFiles?.(files.map(f => f.path));
+        }
+      });
+    `)
+  })
+}
+
+// Enhanced macOS Notification Center integration
+function setupNotificationCenter() {
+  if (process.platform !== 'darwin') return
+
+  // Set app notification settings
+  app.setAppUserModelId('com.dropsentinel.app')
+
+  // Handle notification responses
+  app.on('notification-action', (event, notificationId, actionIndex) => {
+    console.log('[NOTIFICATION] Action clicked:', { notificationId, actionIndex })
+  })
+
+  app.on('notification-click', (event, notificationId) => {
+    console.log('[NOTIFICATION] Notification clicked:', notificationId)
+
+    // Show main window when notification is clicked
+    if (mainWindow) {
+      setMacOSAppBehavior(false)
+      mainWindow.show()
+      mainWindow.focus()
+    } else {
+      createWindow()
+    }
+  })
+
+  app.on('notification-reply', (event, notificationId, reply) => {
+    console.log('[NOTIFICATION] Notification reply:', { notificationId, reply })
+  })
+}
 
 // VirusTotal API functions
 async function uploadFileToVirusTotal(filePath, apiKey, progressCallback) {
@@ -296,9 +653,17 @@ function createTray() {
     if (mainWindow) {
       if (mainWindow.isVisible()) {
         mainWindow.hide()
+        // Hide from dock on macOS when hiding window
+        if (process.platform === 'darwin') {
+          setMacOSAppBehavior(true)
+        }
       } else {
         mainWindow.show()
         mainWindow.focus()
+        // Show in dock on macOS when showing window
+        if (process.platform === 'darwin') {
+          setMacOSAppBehavior(false)
+        }
       }
     } else {
       createWindow()
@@ -317,7 +682,8 @@ function updateTrayMenu() {
   const stats = store.get("dashboardStats", { totalScans: 0, threatsDetected: 0 })
   const autoStartEnabled = getAutoStartStatus()
 
-  const contextMenu = Menu.buildFromTemplate([
+  // Enhanced menu with better organization for macOS
+  const menuTemplate = [
     {
       label: "DropSentinel",
       enabled: false,
@@ -325,16 +691,9 @@ function updateTrayMenu() {
     },
     { type: "separator" },
     {
-      label: `Status: ${isMonitoring ? "🟢 Monitoring Active" : "🔴 Monitoring Paused"}`,
-      enabled: false
-    },
-    {
-      label: `Scans Today: ${stats.totalScans}`,
-      enabled: false
-    },
-    {
-      label: `Threats Detected: ${stats.threatsDetected}`,
-      enabled: false
+      label: `${isMonitoring ? "🟢 Active" : "🔴 Paused"} • ${stats.totalScans} scans • ${stats.threatsDetected} threats`,
+      enabled: false,
+      toolTip: `Monitoring: ${isMonitoring ? "Active" : "Paused"}\nScans Today: ${stats.totalScans}\nThreats Detected: ${stats.threatsDetected}`
     },
     { type: "separator" },
     {
@@ -344,6 +703,10 @@ function updateTrayMenu() {
           mainWindow.show()
           mainWindow.focus()
           mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
+          // Show in dock on macOS when showing window
+          if (process.platform === 'darwin') {
+            setMacOSAppBehavior(false)
+          }
         } else {
           createWindow()
         }
@@ -356,6 +719,10 @@ function updateTrayMenu() {
           mainWindow.show()
           mainWindow.focus()
           mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
+          // Show in dock on macOS when showing window
+          if (process.platform === 'darwin') {
+            setMacOSAppBehavior(false)
+          }
           mainWindow.webContents.send("show-manual-scan")
         } else {
           createWindow()
@@ -382,30 +749,45 @@ function updateTrayMenu() {
       },
     },
     {
-      label: process.platform === 'win32' ?
-        (autoStartEnabled ? "Disable Auto-Start" : "Enable Auto-Start") :
-        "Auto-Start (Windows Only)",
-      enabled: process.platform === 'win32',
+      label: getAutoStartMenuLabel(autoStartEnabled),
+      enabled: process.platform === 'win32' || process.platform === 'darwin',
       click: () => {
-        if (process.platform === 'win32') {
+        if (process.platform === 'win32' || process.platform === 'darwin') {
           const newStatus = !autoStartEnabled
           const result = setAutoStart(newStatus)
           if (result.success) {
             store.set("autoStartEnabled", newStatus)
             updateTrayMenu()
-            showNotification(
-              "Auto-Start",
-              `Auto-start ${newStatus ? "enabled" : "disabled"}. App will ${newStatus ? "start with Windows" : "not start automatically"}.`
-            )
+            const platformName = process.platform === 'darwin' ? 'macOS' : 'Windows'
+            const startAction = newStatus ? `start with ${platformName}` : "not start automatically"
+            const notificationBody = `Auto-start ${newStatus ? "enabled" : "disabled"}. App will ${startAction}.`
+
+            if (process.platform === 'darwin') {
+              showMacOSNotification("Auto-Start", notificationBody)
+            } else {
+              showNotification("Auto-Start", notificationBody)
+            }
+          } else if (process.platform === 'darwin') {
+            showMacOSNotification("Auto-Start Error", result.error || "Failed to change auto-start setting.")
           } else {
-            showNotification(
-              "Auto-Start Error",
-              result.error || "Failed to change auto-start setting."
-            )
+            showNotification("Auto-Start Error", result.error || "Failed to change auto-start setting.")
           }
         }
       },
     },
+    ...(process.platform === 'darwin' ? [{
+      label: isBackgroundMode ? "Show in Dock" : "Hide from Dock",
+      click: () => {
+        const newBackgroundMode = !isBackgroundMode
+        setMacOSAppBehavior(newBackgroundMode)
+        updateTrayMenu()
+
+        const message = newBackgroundMode
+          ? "App hidden from dock. Access via menu bar only."
+          : "App now visible in dock."
+        showMacOSNotification("Dock Visibility", message, { silent: true })
+      },
+    }] : []),
     {
       label: "Settings",
       click: () => {
@@ -413,6 +795,10 @@ function updateTrayMenu() {
           mainWindow.show()
           mainWindow.focus()
           mainWindow.setSkipTaskbar(false) // Show in taskbar when visible
+          // Show in dock on macOS when showing settings
+          if (process.platform === 'darwin') {
+            setMacOSAppBehavior(false)
+          }
           mainWindow.webContents.send("show-settings")
         } else {
           createWindow()
@@ -431,9 +817,23 @@ function updateTrayMenu() {
       click: () => {
         app.quit()
       },
+      accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q'
     },
-  ])
+  ]
 
+  // Add keyboard shortcuts submenu for macOS
+  if (process.platform === 'darwin') {
+    menuTemplate.splice(-2, 0, {
+      label: "Keyboard Shortcuts",
+      submenu: [
+        { label: "Quick Scan", accelerator: "Cmd+Shift+S", enabled: false },
+        { label: "Toggle Dashboard", accelerator: "Cmd+Shift+D", enabled: false },
+        { label: "Toggle Monitoring", accelerator: "Cmd+Shift+M", enabled: false }
+      ]
+    }, { type: "separator" })
+  }
+
+  const contextMenu = Menu.buildFromTemplate(menuTemplate)
   tray.setContextMenu(contextMenu)
 }
 
@@ -515,7 +915,18 @@ function createWindow(startHidden = false) {
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     show: false,
     skipTaskbar: startHidden, // Hide from taskbar if starting hidden
+    vibrancy: process.platform === "darwin" ? "under-window" : undefined, // macOS vibrancy effect
+    transparent: process.platform === "darwin", // Enable transparency for macOS
+    trafficLightPosition: process.platform === "darwin" ? { x: 20, y: 32 } : undefined, // macOS traffic lights
+    fullscreenWindowTitle: process.platform === "darwin", // macOS fullscreen title
   })
+
+  // Set up macOS-specific features
+  if (process.platform === 'darwin') {
+    setupMacOSKeyboardShortcuts()
+    setupMacOSDragDrop()
+    setupSpotlightIntegration()
+  }
 
   // Determine the correct path for the HTML file
   let startUrl
@@ -579,11 +990,17 @@ function createWindow(startHidden = false) {
   mainWindow.once("ready-to-show", () => {
     // Check if app was started with --hidden flag or should start hidden
     const shouldStartHidden = process.argv.includes('--hidden') ||
+      process.argv.includes('--background') ||
       store.get('startMinimized', false) ||
       startHidden
 
     if (!shouldStartHidden) {
       mainWindow.show()
+
+      // Show in dock on macOS when window is visible
+      if (process.platform === 'darwin') {
+        setMacOSAppBehavior(false)
+      }
 
       // Show welcome screen if first time
       if (!store.get("hasSeenWelcome")) {
@@ -591,6 +1008,12 @@ function createWindow(startHidden = false) {
       }
     } else {
       console.log('[WINDOW] Starting hidden - app running in background')
+
+      // Hide from dock on macOS when starting in background
+      if (process.platform === 'darwin') {
+        setMacOSAppBehavior(true)
+      }
+
       // Still send welcome screen event if needed, even when hidden
       if (!store.get("hasSeenWelcome")) {
         mainWindow.webContents.send("show-welcome")
@@ -608,8 +1031,16 @@ function createWindow(startHidden = false) {
       event.preventDefault()
       mainWindow.hide()
 
-      // Show notification that app is still running
-      if (process.platform === "win32") {
+      // Platform-specific behavior when hiding
+      if (process.platform === "darwin") {
+        // Hide from dock on macOS when window is closed
+        setMacOSAppBehavior(true)
+        showMacOSNotification(
+          "DropSentinel",
+          "App minimized to menu bar. File monitoring continues in background.",
+          { silent: true }
+        )
+      } else if (process.platform === "win32") {
         showNotification(
           "DropSentinel",
           "App minimized to system tray. File monitoring continues in background."
@@ -658,27 +1089,96 @@ function getDownloadsPath() {
   }
 }
 
+// Get all monitored folders (Downloads + custom folders)
+function getMonitoredFolders() {
+  const folders = [getDownloadsPath()] // Always include Downloads
+
+  // Add custom monitored folders from settings
+  const customFolders = store.get('monitoredFolders', [])
+  customFolders.forEach(folder => {
+    if (fs.existsSync(folder) && !folders.includes(folder)) {
+      folders.push(folder)
+    }
+  })
+
+  return folders
+}
+
+// Add/remove custom monitored folders
+function addMonitoredFolder(folderPath) {
+  if (!fs.existsSync(folderPath)) {
+    return { success: false, error: 'Folder does not exist' }
+  }
+
+  const customFolders = store.get('monitoredFolders', [])
+  if (!customFolders.includes(folderPath)) {
+    customFolders.push(folderPath)
+    store.set('monitoredFolders', customFolders)
+
+    // Restart file watcher to include new folder
+    if (store.get("isMonitoring", true)) {
+      startFileWatcher()
+    }
+
+    return { success: true }
+  }
+
+  return { success: false, error: 'Folder already monitored' }
+}
+
+function removeMonitoredFolder(folderPath) {
+  const customFolders = store.get('monitoredFolders', [])
+  const index = customFolders.indexOf(folderPath)
+
+  if (index > -1) {
+    customFolders.splice(index, 1)
+    store.set('monitoredFolders', customFolders)
+
+    // Restart file watcher to exclude removed folder
+    if (store.get("isMonitoring", true)) {
+      startFileWatcher()
+    }
+
+    return { success: true }
+  }
+
+  return { success: false, error: 'Folder not found in monitored list' }
+}
+
 function startFileWatcher() {
   if (fileWatcher) {
     fileWatcher.close()
   }
 
-  const downloadsPath = getDownloadsPath()
-  console.log(`[FILE WATCHER] Monitoring downloads folder: ${downloadsPath}`)
+  // Get monitored folders (Downloads + custom folders)
+  const monitoredFolders = getMonitoredFolders()
+  console.log(`[FILE WATCHER] Monitoring ${monitoredFolders.length} folders:`, monitoredFolders)
 
-  // Ensure the downloads directory exists
-  if (!fs.existsSync(downloadsPath)) {
-    console.log(`[FILE WATCHER] Downloads folder does not exist: ${downloadsPath}`)
-    try {
-      fs.mkdirSync(downloadsPath, { recursive: true })
-      console.log(`[FILE WATCHER] Created downloads folder: ${downloadsPath}`)
-    } catch (error) {
-      console.error(`[FILE WATCHER] Failed to create downloads folder:`, error)
-      return
+  // Ensure all monitored directories exist
+  const validFolders = []
+  for (const folderPath of monitoredFolders) {
+    if (!fs.existsSync(folderPath)) {
+      console.log(`[FILE WATCHER] Folder does not exist: ${folderPath}`)
+      if (folderPath === getDownloadsPath()) {
+        try {
+          fs.mkdirSync(folderPath, { recursive: true })
+          console.log(`[FILE WATCHER] Created downloads folder: ${folderPath}`)
+          validFolders.push(folderPath)
+        } catch (error) {
+          console.error(`[FILE WATCHER] Failed to create downloads folder:`, error)
+        }
+      }
+    } else {
+      validFolders.push(folderPath)
     }
   }
 
-  fileWatcher = chokidar.watch(downloadsPath, {
+  if (validFolders.length === 0) {
+    console.error('[FILE WATCHER] No valid folders to monitor')
+    return
+  }
+
+  fileWatcher = chokidar.watch(validFolders, {
     ignored: [
       /(^|[/\\])\../, // ignore dotfiles
       /node_modules/, // ignore node_modules
@@ -729,10 +1229,10 @@ function startFileWatcher() {
   })
 
   fileWatcher.on("ready", () => {
-    console.log(`[FILE WATCHER] File watcher is ready and monitoring Downloads folder`)
+    console.log(`[FILE WATCHER] File watcher is ready and monitoring ${validFolders.length} folders`)
   })
 
-  console.log(`[FILE WATCHER] Starting to watch Downloads folder: ${downloadsPath}`)
+  console.log(`[FILE WATCHER] Starting to watch ${validFolders.length} folders:`, validFolders)
 }
 
 function stopFileWatcher() {
@@ -789,6 +1289,11 @@ function showFileDetectedDialog(filePath) {
           mainWindow.focus()
           mainWindow.show()
           mainWindow.setAlwaysOnTop(true)
+
+          // Show in dock on macOS when showing window for scan
+          if (process.platform === 'darwin') {
+            setMacOSAppBehavior(false)
+          }
 
           // Reset always on top after a short delay
           setTimeout(() => {
@@ -1036,6 +1541,94 @@ ipcMain.handle("set-auto-start", (event, enable) => {
     store.set("autoStartEnabled", enable)
   }
   return result
+})
+
+// macOS-specific IPC handlers
+ipcMain.handle("get-macos-app-behavior", () => {
+  return getMacOSAppBehavior()
+})
+
+ipcMain.handle("set-macos-app-behavior", (event, backgroundMode) => {
+  if (process.platform === 'darwin') {
+    setMacOSAppBehavior(backgroundMode)
+    return true
+  }
+  return false
+})
+
+// Enhanced drag & drop handler
+ipcMain.handle("handle-drag-drop-files", async (event, filePaths) => {
+  console.log('[DRAG-DROP] Received files:', filePaths)
+
+  if (!filePaths || filePaths.length === 0) {
+    return { success: false, error: 'No files provided' }
+  }
+
+  try {
+    // Show app in dock when files are dropped
+    if (process.platform === 'darwin') {
+      setMacOSAppBehavior(false)
+    }
+
+    // Focus main window
+    if (mainWindow) {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+
+    // Process multiple files
+    const results = []
+    for (const filePath of filePaths) {
+      try {
+        const fileName = path.basename(filePath)
+        const fileStats = fs.statSync(filePath)
+
+        // Send file for scanning
+        mainWindow.webContents.send("file-detected", {
+          fileName,
+          filePath,
+          size: fileStats.size,
+          timestamp: new Date().toISOString(),
+          autoScan: true,
+          skipPrompt: true,
+          dragDrop: true
+        })
+
+        results.push({ filePath, success: true })
+      } catch (error) {
+        console.error('[DRAG-DROP] Error processing file:', filePath, error)
+        results.push({ filePath, success: false, error: error.message })
+      }
+    }
+
+    return { success: true, results }
+  } catch (error) {
+    console.error('[DRAG-DROP] Error handling drag & drop:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+// Custom folder monitoring IPC handlers
+ipcMain.handle("get-monitored-folders", () => {
+  return getMonitoredFolders()
+})
+
+ipcMain.handle("add-monitored-folder", async (event) => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory'],
+    title: 'Select Folder to Monitor'
+  })
+
+  if (!result.canceled && result.filePaths.length > 0) {
+    const folderPath = result.filePaths[0]
+    return addMonitoredFolder(folderPath)
+  }
+
+  return { success: false, error: 'No folder selected' }
+})
+
+ipcMain.handle("remove-monitored-folder", (event, folderPath) => {
+  return removeMonitoredFolder(folderPath)
 })
 
 ipcMain.handle("scan-file", async (event, filePath) => {
@@ -1842,9 +2435,15 @@ async function initializeApp() {
 
   // Check if app should start hidden
   const shouldStartHidden = process.argv.includes('--hidden') ||
+    process.argv.includes('--background') ||
     store.get('startMinimized', false)
 
   console.log(`[INIT] Starting app ${shouldStartHidden ? 'hidden' : 'visible'}`)
+
+  // Initialize macOS-specific features
+  if (process.platform === 'darwin') {
+    setupNotificationCenter()
+  }
 
   createTray()
   createWindow(shouldStartHidden)
@@ -1853,10 +2452,18 @@ async function initializeApp() {
   // Show startup notification if starting hidden
   if (shouldStartHidden) {
     setTimeout(() => {
-      showNotification(
-        "DropSentinel Started",
-        "File monitoring is active. App is running in the background."
-      )
+      if (process.platform === 'darwin') {
+        showMacOSNotification(
+          "DropSentinel Started",
+          "File monitoring is active. App is running in the menu bar.",
+          { silent: true }
+        )
+      } else {
+        showNotification(
+          "DropSentinel Started",
+          "File monitoring is active. App is running in the background."
+        )
+      }
     }, 2000) // Delay to ensure tray is ready
   }
 }
@@ -1865,9 +2472,10 @@ app.whenReady().then(initializeApp)
 
 app.on("window-all-closed", () => {
   // Don't quit the app when all windows are closed - keep running in background
-  // Only quit on macOS if explicitly requested
   if (process.platform === "darwin") {
-    // On macOS, keep the app running in the dock
+    // On macOS, hide from dock but keep running in menu bar
+    setMacOSAppBehavior(true)
+    console.log('[APP] All windows closed on macOS, continuing to run in menu bar')
     return
   }
   // On Windows/Linux, keep running in system tray
@@ -1875,8 +2483,13 @@ app.on("window-all-closed", () => {
 })
 
 app.on("activate", () => {
+  // On macOS, show window when app icon is clicked in dock (if visible)
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
+  } else if (mainWindow && process.platform === "darwin") {
+    // Show existing window and dock icon
+    mainWindow.show()
+    setMacOSAppBehavior(false)
   }
 })
 

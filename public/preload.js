@@ -51,6 +51,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getAutoStartStatus: () => ipcRenderer.invoke("get-auto-start-status"),
   setAutoStart: (enable) => ipcRenderer.invoke("set-auto-start", enable),
 
+  // macOS-specific methods
+  getMacOSAppBehavior: () => ipcRenderer.invoke("get-macos-app-behavior"),
+  setMacOSAppBehavior: (backgroundMode) => ipcRenderer.invoke("set-macos-app-behavior", backgroundMode),
+  handleDragDropFiles: (filePaths) => ipcRenderer.invoke("handle-drag-drop-files", filePaths),
+
+  // Custom folder monitoring
+  getMonitoredFolders: () => ipcRenderer.invoke("get-monitored-folders"),
+  addMonitoredFolder: () => ipcRenderer.invoke("add-monitored-folder"),
+  removeMonitoredFolder: (folderPath) => ipcRenderer.invoke("remove-monitored-folder", folderPath),
+
   // Event listeners
   onShowWelcome: (callback) => ipcRenderer.on("show-welcome", callback),
   onFileDetected: (callback) => ipcRenderer.on("file-detected", (event, data) => callback(data)),
