@@ -1,27 +1,23 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export function GitHubPagesRouter() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if we're on the client side and have a redirect parameter
+    // Check if we're on the client side and have a stored redirect path
     if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      const redirect = urlParams.get('/')
-      
-      if (redirect) {
-        // Clean up the redirect parameter and navigate to the intended path
-        const cleanPath = redirect.replace(/~and~/g, '&')
-        
-        // Remove the redirect parameter from the URL
-        const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname
-        window.history.replaceState({}, '', newUrl)
-        
-        // Navigate to the intended path
-        router.push('/' + cleanPath)
+      const redirectPath = sessionStorage.getItem('redirectPath')
+
+      if (redirectPath && redirectPath !== '/') {
+        // Clear the stored path
+        sessionStorage.removeItem('redirectPath')
+
+        // Navigate to the intended path within the website structure
+        // Since we're in the website layout, we need to navigate to the website route
+        router.push('/website' + redirectPath)
       }
     }
   }, [router])
