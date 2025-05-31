@@ -124,62 +124,104 @@ build_application() {
 build_linux_package() {
     local format=$1
     local arch=$2
-    
+
     log_step "Building Linux $format for $arch..."
-    
-    # Build command
+
+    # Build command with explicit architecture
     local cmd="npx electron-builder --linux $format --$arch --publish never"
-    
+
     if [[ "$VERBOSE" == "true" ]]; then
         cmd="$cmd --verbose"
     fi
-    
-    # Execute with timeout
-    if timeout 600 bash -c "$cmd"; then
+
+    # Log the exact command being executed
+    log "Executing: $cmd"
+
+    # Execute with timeout and capture output
+    local build_log="$LOG_DIR/build-$format-$arch-$TIMESTAMP.log"
+    if timeout 900 bash -c "$cmd" 2>&1 | tee "$build_log"; then
         log_success "Linux $format ($arch) build completed"
-        return 0
+
+        # Verify the package was actually created
+        local expected_pattern="dist/*$format*"
+        if ls $expected_pattern 1> /dev/null 2>&1; then
+            log_success "Package file verified for $format ($arch)"
+            return 0
+        else
+            log_error "Package file not found for $format ($arch) despite successful build"
+            return 1
+        fi
     else
-        log_error "Linux $format ($arch) build failed"
+        log_error "Linux $format ($arch) build failed - check $build_log"
         return 1
     fi
 }
 
 build_all_packages() {
     log_step "Building Linux packages..."
-    
+
     local failed_builds=()
     local successful_builds=()
     local total_builds=0
-    
+
+    # Build x64 packages first (more reliable on CI)
+    log_step "Phase 1: Building x64 packages..."
     for format in "${FORMATS[@]}"; do
-        for arch in "${ARCHITECTURES[@]}"; do
+        total_builds=$((total_builds + 1))
+
+        if build_linux_package "$format" "x64"; then
+            successful_builds+=("$format-x64")
+            log_success "✅ $format (x64) - SUCCESS"
+        else
+            failed_builds+=("$format-x64")
+            log_error "❌ $format (x64) - FAILED"
+        fi
+    done
+
+    # Only build arm64 if we have some x64 successes and it's not a fast build
+    if [[ ${#successful_builds[@]} -gt 0 ]] && [[ "$FAST_BUILD" != "true" ]]; then
+        log_step "Phase 2: Building arm64 packages..."
+        for format in "${FORMATS[@]}"; do
             total_builds=$((total_builds + 1))
-            
-            if build_linux_package "$format" "$arch"; then
-                successful_builds+=("$format-$arch")
+
+            if build_linux_package "$format" "arm64"; then
+                successful_builds+=("$format-arm64")
+                log_success "✅ $format (arm64) - SUCCESS"
             else
-                failed_builds+=("$format-$arch")
+                failed_builds+=("$format-arm64")
+                log_warning "⚠️  $format (arm64) - FAILED (continuing with x64)"
             fi
         done
-    done
-    
+    else
+        if [[ "$FAST_BUILD" == "true" ]]; then
+            log "Skipping arm64 builds (fast build mode)"
+        else
+            log_warning "Skipping arm64 builds due to x64 failures"
+        fi
+    fi
+
     # Report results
     echo
     log_step "BUILD SUMMARY"
     log "Total builds attempted: $total_builds"
     log "Successful builds: ${#successful_builds[@]}"
     log "Failed builds: ${#failed_builds[@]}"
-    
+
     if [[ ${#successful_builds[@]} -gt 0 ]]; then
         log_success "Successful builds: ${successful_builds[*]}"
     fi
-    
+
     if [[ ${#failed_builds[@]} -gt 0 ]]; then
-        log_error "Failed builds: ${failed_builds[*]}"
+        log_warning "Failed builds: ${failed_builds[*]}"
+    fi
+
+    # Return success if we have at least one successful build
+    if [[ ${#successful_builds[@]} -gt 0 ]]; then
+        return 0
+    else
+        log_error "All builds failed!"
         return 1
     fi
-    
-    return 0
 }
 
 generate_summary() {

@@ -457,18 +457,29 @@ jobs:
 
         echo "🏗️  Building optimized Linux packages using final build script..."
 
-        # Use our optimized build script
-        if ./scripts/build-linux-final.sh all --verbose; then
+        # Create logs directory
+        mkdir -p logs
+
+        # Use our optimized build script with enhanced error handling
+        echo "🚀 Starting comprehensive Linux build with all formats..."
+        if ./scripts/build-linux-final.sh all --verbose 2>&1 | tee logs/linux-build-comprehensive.log; then
           echo "✅ Optimized Linux build completed successfully"
         else
           echo "⚠️  Optimized build failed, trying individual builds..."
 
-          # Fallback to individual working formats
+          # Fallback to individual working formats with detailed logging
           echo "🔄 Building individual working package formats..."
-          npm run dist:linux:appimage --verbose || echo "❌ AppImage build failed"
-          npm run dist:linux:deb --verbose || echo "❌ DEB build failed"
-          npm run dist:linux:tar --verbose || echo "❌ TAR build failed"
-          npm run dist:linux:snap --verbose || echo "⚠️  Snap build failed (may fail on CI)"
+          echo "Building AppImage..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:appimage --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ AppImage build failed"
+
+          echo "Building DEB..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:deb --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ DEB build failed"
+
+          echo "Building TAR.GZ..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:tar --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ TAR build failed"
+
+          echo "Building Snap..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:snap --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "⚠️  Snap build failed (may fail on CI)"
         fi
 
         echo "📦 Final Build Results:"
