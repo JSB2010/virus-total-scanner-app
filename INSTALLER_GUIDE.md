@@ -215,6 +215,6 @@ sudo ln -sf /opt/dropsentinel/dropsentinel /usr/local/bin/dropsentinel
 ## 📞 Support
 
 For installation issues or questions:
-- **GitHub Issues**: [Report Installation Problems](https://github.com/JSB2010/virus-total-scanner-app/issues)
+- **GitHub Issues**: [Report Installation Problems](https://github.com/JSB2010/DropSentinel/issues)
 - **Documentation**: Check README.md for additional information
 - **Community**: Join discussions in GitHub Discussions

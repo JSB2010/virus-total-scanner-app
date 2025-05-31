@@ -2,8 +2,8 @@
 
 **Advanced file security scanner with drag-and-drop protection**
 
-[![CI](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/codeql.yml)
+[![CI](https://github.com/JSB2010/DropSentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/JSB2010/DropSentinel/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/JSB2010/DropSentinel/actions/workflows/codeql.yml/badge.svg)](https://github.com/JSB2010/DropSentinel/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -64,7 +64,7 @@ DropSentinel is designed to work seamlessly across all major operating systems:
 
 **For macOS and Linux:**
 ```bash
-git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+git clone https://github.com/JSB2010/DropSentinel.git dropsentinel
 cd dropsentinel
 chmod +x scripts/setup-dev.sh
 ./scripts/setup-dev.sh
@@ -72,7 +72,7 @@ chmod +x scripts/setup-dev.sh
 
 **For Windows (PowerShell):**
 ```powershell
-git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+git clone https://github.com/JSB2010/DropSentinel.git dropsentinel
 cd dropsentinel
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\scripts\setup-dev.ps1
@@ -82,7 +82,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/JSB2010/virus-total-scanner-app.git dropsentinel
+   git clone https://github.com/JSB2010/DropSentinel.git dropsentinel
    cd dropsentinel
    ```
 
@@ -124,9 +124,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## 📦 Download Pre-built Packages
 
-Pre-built packages for **Windows**, **macOS**, and **Linux** are automatically generated for every commit to the main branch. You can download them from the [GitHub Actions artifacts](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/optimized-build.yml) without waiting for a formal release.
+Pre-built packages for **Windows**, **macOS**, and **Linux** are automatically generated for every commit to the main branch. You can download them from the [GitHub Actions artifacts](https://github.com/JSB2010/DropSentinel/actions/workflows/optimized-build.yml) without waiting for a formal release.
 
-1. Go to the [Optimized Build workflow](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/optimized-build.yml)
+1. Go to the [Optimized Build workflow](https://github.com/JSB2010/DropSentinel/actions/workflows/optimized-build.yml)
 2. Click on the latest successful run
 3. Download the artifact for your platform:
    - `windows-comprehensive-*` for Windows (EXE, MSI, ZIP, Portable)
@@ -271,9 +271,9 @@ For security concerns, please see our [Security Policy](SECURITY.md).
 
 ## 📞 Support
 
-- 📧 **Email**: support@dropsentinel.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
+- 🌐 **Website**: [dropsentinel.com](https://dropsentinel.com)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/JSB2010/DropSentinel/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/JSB2010/DropSentinel/discussions)
 
 ## 🙏 Acknowledgments
 

@@ -2407,6 +2407,33 @@ ipcMain.handle("get-files-in-folder", async (event, folderPath) => {
   }
 })
 
+ipcMain.handle("clear-scan-history", async () => {
+  try {
+    store.delete("recentScans")
+
+    // Update dashboard stats to reset scan count
+    const currentStats = store.get("dashboardStats", {
+      totalScans: 0,
+      threatsDetected: 0,
+      filesQuarantined: 0,
+      lastScan: null,
+    })
+
+    const updatedStats = {
+      ...currentStats,
+      totalScans: 0,
+      threatsDetected: 0,
+      lastScan: null
+    }
+
+    store.set("dashboardStats", updatedStats)
+    return true
+  } catch (error) {
+    console.error("Failed to clear scan history:", error)
+    return false
+  }
+})
+
 ipcMain.handle("clear-all-data", async () => {
   try {
     store.delete("dashboardStats")

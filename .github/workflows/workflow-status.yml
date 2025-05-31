@@ -89,7 +89,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📋 Available Packages" >> $GITHUB_STEP_SUMMARY
         echo "- **NPM Package**: \`@jsb2010/dropsentinel\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Container Images**: \`ghcr.io/jsb2010/virus-total-scanner-app\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Container Images**: \`ghcr.io/jsb2010/dropsentinel\`" >> $GITHUB_STEP_SUMMARY
         echo "- **Binary Releases**: Available in GitHub Releases" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -99,7 +99,7 @@ jobs:
         echo "npm install @jsb2010/dropsentinel" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "# Run with Docker" >> $GITHUB_STEP_SUMMARY
-        echo "docker pull ghcr.io/jsb2010/virus-total-scanner-app:latest" >> $GITHUB_STEP_SUMMARY
+        echo "docker pull ghcr.io/jsb2010/dropsentinel:latest" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
 

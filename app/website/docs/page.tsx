@@ -1,24 +1,22 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { 
-  Book, 
-  Download, 
-  Settings, 
-  Shield, 
-  Play,
-  ExternalLink,
-  CheckCircle,
-  AlertTriangle,
-  Info
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { WebsiteHeader } from '@/components/website/header'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { WebsiteFooter } from '@/components/website/footer'
+import { WebsiteHeader } from '@/components/website/header'
+import { motion } from 'framer-motion'
+import {
+  AlertTriangle,
+  CheckCircle,
+  Download,
+  ExternalLink,
+  Info,
+  Settings,
+  Shield
+} from 'lucide-react'
+import Link from 'next/link'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -38,7 +36,7 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-background">
       <WebsiteHeader />
-      
+
       <main className="pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -99,7 +97,7 @@ export default function DocsPage() {
                     ]
                   },
                   {
-                    step: "2", 
+                    step: "2",
                     icon: Settings,
                     title: "Configure API Key",
                     description: "Set up your free VirusTotal API key for threat detection.",
@@ -257,7 +255,7 @@ export default function DocsPage() {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Windows SmartScreen Warning:</strong> Windows may show a warning when first installing DropSentinel. 
+                    <strong>Windows SmartScreen Warning:</strong> Windows may show a warning when first installing DropSentinel.
                     This is normal for new applications. Click "More info" then "Run anyway" to proceed with installation.
                   </AlertDescription>
                 </Alert>
@@ -265,7 +263,7 @@ export default function DocsPage() {
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>API Rate Limits:</strong> The free VirusTotal API allows 4 requests per minute. 
+                    <strong>API Rate Limits:</strong> The free VirusTotal API allows 4 requests per minute.
                     If you exceed this limit, scans will be queued automatically.
                   </AlertDescription>
                 </Alert>
@@ -273,7 +271,7 @@ export default function DocsPage() {
                 <Alert>
                   <Shield className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>False Positives:</strong> If a file is incorrectly flagged as malicious, 
+                    <strong>False Positives:</strong> If a file is incorrectly flagged as malicious,
                     you can restore it from quarantine and add it to your whitelist.
                   </AlertDescription>
                 </Alert>
@@ -283,13 +281,13 @@ export default function DocsPage() {
                 <h3 className="text-xl font-semibold mb-4">Need More Help?</h3>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="outline" asChild>
-                    <Link href="https://github.com/JSB2010/virus-total-scanner-app/issues" target="_blank">
+                    <Link href="https://github.com/JSB2010/DropSentinel/issues" target="_blank">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Report an Issue
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link href="https://github.com/JSB2010/virus-total-scanner-app/discussions" target="_blank">
+                    <Link href="https://github.com/JSB2010/DropSentinel/discussions" target="_blank">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Community Discussions
                     </Link>
@@ -300,7 +298,7 @@ export default function DocsPage() {
           </div>
         </section>
       </main>
-      
+
       <WebsiteFooter />
     </div>
   )

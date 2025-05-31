@@ -1,10 +1,10 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { WebsiteHeader } from '@/components/website/header'
 import { WebsiteFooter } from '@/components/website/footer'
+import { WebsiteHeader } from '@/components/website/header'
+import { motion } from 'framer-motion'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -148,8 +148,8 @@ export default function TermsPage() {
                     <h3>11. Contact Information</h3>
                     <p>
                       For questions about these terms, please open an issue on our GitHub repository at:{' '}
-                      <a href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        https://github.com/JSB2010/virus-total-scanner-app
+                      <a href="https://github.com/JSB2010/DropSentinel" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        https://github.com/JSB2010/DropSentinel
                       </a>
                     </p>
 

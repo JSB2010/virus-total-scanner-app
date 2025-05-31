@@ -63,7 +63,7 @@ jobs:
     - name: Update package.json for GitHub Packages
       run: |
         # Create a scoped package for GitHub Packages
-        jq '.name = "@jsb2010/dropsentinel" | .version = "${{ steps.version.outputs.version }}" | .repository.url = "git+https://github.com/JSB2010/virus-total-scanner-app.git"' package.json > package-gh.json
+        jq '.name = "@jsb2010/dropsentinel" | .version = "${{ steps.version.outputs.version }}" | .repository.url = "git+https://github.com/JSB2010/DropSentinel.git"' package.json > package-gh.json
         mv package-gh.json package.json
 
     - name: Build application
@@ -81,9 +81,9 @@ jobs:
           "name": "@jsb2010/dropsentinel",
           "version": "${{ steps.version.outputs.version }}",
           "description": "Advanced file security scanner with real-time protection",
-          "repository": "https://github.com/JSB2010/virus-total-scanner-app",
-          "homepage": "https://github.com/JSB2010/virus-total-scanner-app#readme",
-          "bugs": "https://github.com/JSB2010/virus-total-scanner-app/issues",
+          "repository": "https://github.com/JSB2010/DropSentinel",
+          "homepage": "https://github.com/JSB2010/DropSentinel#readme",
+          "bugs": "https://github.com/JSB2010/DropSentinel/issues",
           "license": "MIT",
           "author": "JSB2010",
           "keywords": ["security", "virus-scanner", "electron", "nextjs", "virustotal"],
@@ -218,11 +218,11 @@ jobs:
 
         ### Container Image (GitHub Container Registry)
         ```bash
-        docker pull ghcr.io/jsb2010/virus-total-scanner-app:latest
+        docker pull ghcr.io/jsb2010/dropsentinel:latest
         ```
 
         ### Binary Releases
-        Download platform-specific installers from the [Releases](https://github.com/JSB2010/virus-total-scanner-app/releases) page.
+        Download platform-specific installers from the [Releases](https://github.com/JSB2010/DropSentinel/releases) page.
 
         ## 🚀 Quick Start
 
@@ -235,18 +235,18 @@ jobs:
         ### Using Docker
         ```bash
         # Run development server
-        docker run -p 3000:3000 ghcr.io/jsb2010/virus-total-scanner-app:latest
+        docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest
 
         # Run with custom configuration
-        docker run -p 3000:3000 -v $(pwd)/config:/app/config ghcr.io/jsb2010/virus-total-scanner-app:latest
+        docker run -p 3000:3000 -v $(pwd)/config:/app/config ghcr.io/jsb2010/dropsentinel:latest
         ```
 
         ## 📋 Package Information
 
-        - **Repository**: https://github.com/JSB2010/virus-total-scanner-app
-        - **NPM Package**: https://github.com/JSB2010/virus-total-scanner-app/packages
-        - **Container Registry**: https://github.com/JSB2010/virus-total-scanner-app/pkgs/container/virus-total-scanner-app
-        - **Documentation**: https://github.com/JSB2010/virus-total-scanner-app#readme
+        - **Repository**: https://github.com/JSB2010/DropSentinel
+        - **NPM Package**: https://github.com/JSB2010/DropSentinel/packages
+        - **Container Registry**: https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel
+        - **Documentation**: https://github.com/JSB2010/DropSentinel#readme
 
         ## 🔐 Security
 
@@ -258,9 +258,9 @@ jobs:
 
         ## 📞 Support
 
-        - [Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
-        - [Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
-        - [Security Policy](https://github.com/JSB2010/virus-total-scanner-app/security/policy)
+        - [Issues](https://github.com/JSB2010/DropSentinel/issues)
+        - [Discussions](https://github.com/JSB2010/DropSentinel/discussions)
+        - [Security Policy](https://github.com/JSB2010/DropSentinel/security/policy)
         EOF
 
         # Create package.json for the index
@@ -272,7 +272,7 @@ jobs:
           "main": "index.js",
           "repository": {
             "type": "git",
-            "url": "git+https://github.com/JSB2010/virus-total-scanner-app.git"
+            "url": "git+https://github.com/JSB2010/DropSentinel.git"
           },
           "keywords": ["dropsentinel", "packages", "index"],
           "author": "JSB2010",
@@ -292,9 +292,9 @@ jobs:
         echo "## 📦 Packages Published" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "✅ **NPM Package**: \`@jsb2010/dropsentinel\`" >> $GITHUB_STEP_SUMMARY
-        echo "✅ **Container Image**: \`ghcr.io/jsb2010/virus-total-scanner-app\`" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Container Image**: \`ghcr.io/jsb2010/dropsentinel\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
-        echo "- [View NPM Package](https://github.com/JSB2010/virus-total-scanner-app/packages)" >> $GITHUB_STEP_SUMMARY
-        echo "- [View Container Images](https://github.com/JSB2010/virus-total-scanner-app/pkgs/container/virus-total-scanner-app)" >> $GITHUB_STEP_SUMMARY
-        echo "- [Download Binary Releases](https://github.com/JSB2010/virus-total-scanner-app/releases)" >> $GITHUB_STEP_SUMMARY
+        echo "- [View NPM Package](https://github.com/JSB2010/DropSentinel/packages)" >> $GITHUB_STEP_SUMMARY
+        echo "- [View Container Images](https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Download Binary Releases](https://github.com/JSB2010/DropSentinel/releases)" >> $GITHUB_STEP_SUMMARY

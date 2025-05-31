@@ -296,9 +296,9 @@ jobs:
 
         ## 📞 Support
 
-        - [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
-        - [Documentation](https://github.com/JSB2010/virus-total-scanner-app/blob/main/README.md)
-        - [Build Documentation](https://github.com/JSB2010/virus-total-scanner-app/blob/main/BUILD.md)
+        - [GitHub Issues](https://github.com/JSB2010/DropSentinel/issues)
+        - [Documentation](https://github.com/JSB2010/DropSentinel/blob/main/README.md)
+        - [Build Documentation](https://github.com/JSB2010/DropSentinel/blob/main/BUILD.md)
         EOF
 
     - name: Create Release
@@ -331,7 +331,7 @@ jobs:
         echo "## 🎉 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Version**: ${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Release URL**: https://github.com/JSB2010/virus-total-scanner-app/releases/tag/${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Release URL**: https://github.com/JSB2010/DropSentinel/releases/tag/${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📦 Available Downloads" >> $GITHUB_STEP_SUMMARY
         echo "- 🪟 **Windows**: NSIS Installer, MSI Package, Portable EXE" >> $GITHUB_STEP_SUMMARY

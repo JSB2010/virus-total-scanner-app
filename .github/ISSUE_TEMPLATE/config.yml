@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 Discussions
-    url: https://github.com/JSB2010/virus-total-scanner-app/discussions
+    url: https://github.com/JSB2010/DropSentinel/discussions
     about: Ask questions and discuss ideas with the community
   - name: 🔒 Security Issues
-    url: https://github.com/JSB2010/virus-total-scanner-app/security/advisories/new
+    url: https://github.com/JSB2010/DropSentinel/security/advisories/new
     about: Report security vulnerabilities privately

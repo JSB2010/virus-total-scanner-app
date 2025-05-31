@@ -59,7 +59,7 @@ Enhancement suggestions are welcome! Please provide:
 
 1. **Clone your fork**
    ```bash
-   git clone https://github.com/JSB2010/virus-total-scanner-app.git
+   git clone https://github.com/JSB2010/DropSentinel.git
    cd dropsentinel
    ```
 
@@ -173,8 +173,8 @@ We especially welcome contributions in these areas:
 
 If you need help with contributing:
 
-- Check existing [Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
-- Start a [Discussion](https://github.com/JSB2010/virus-total-scanner-app/discussions)
+- Check existing [Issues](https://github.com/JSB2010/DropSentinel/issues)
+- Start a [Discussion](https://github.com/JSB2010/DropSentinel/discussions)
 - Reach out to maintainers
 
 ## 📄 License

@@ -1,6 +1,6 @@
-# DropSentinel Build System
+# 🏗️ DropSentinel Build System
 
-This document describes the comprehensive build system for DropSentinel, which creates optimized installers for multiple platforms and formats.
+This document describes the comprehensive build system for DropSentinel, which creates optimized installers for multiple platforms and formats. Our build system supports Windows, macOS, and Linux with multiple package formats for each platform.
 
 ## 🎯 Supported Platforms & Formats
 

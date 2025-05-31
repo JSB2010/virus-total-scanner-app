@@ -1,8 +1,8 @@
 # 🎉 DropSentinel 1.0.0 Release Notes
 
-**Release Date:** January 27, 2025  
-**Version:** 1.0.0  
-**Platform:** Windows (x64, ARM64)
+**Release Date:** January 28, 2025
+**Version:** 1.0.0
+**Platforms:** Windows, macOS, Linux (x64, ARM64)
 
 ## 🌟 What's New in 1.0.0
 
@@ -115,7 +115,7 @@
 
 ## 🔗 Getting Started
 
-1. **Download** the installer from [GitHub Releases](https://github.com/JSB2010/virus-total-scanner-app/releases)
+1. **Download** the installer from [GitHub Releases](https://github.com/JSB2010/DropSentinel/releases)
 2. **Install** using the NSIS installer (recommended)
 3. **Setup** your VirusTotal API key (free at virustotal.com)
 4. **Configure** monitoring preferences in Settings
@@ -124,9 +124,8 @@
 ## 📞 Support & Feedback
 
 - **Documentation:** [README.md](README.md)
-- **Issues:** [GitHub Issues](https://github.com/JSB2010/virus-total-scanner-app/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/JSB2010/virus-total-scanner-app/discussions)
-- **Email:** support@dropsentinel.com
+- **Issues:** [GitHub Issues](https://github.com/JSB2010/DropSentinel/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/JSB2010/DropSentinel/discussions)
 
 ## 🙏 Acknowledgments
 
@@ -140,4 +139,4 @@
 
 **Built with ❤️ for digital security**
 
-*DropSentinel is open-source software. Star us on [GitHub](https://github.com/JSB2010/virus-total-scanner-app) to support development!*
+*DropSentinel is open-source software. Star us on [GitHub](https://github.com/JSB2010/DropSentinel) to support development!*

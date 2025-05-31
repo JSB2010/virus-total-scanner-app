@@ -1,9 +1,9 @@
 "use client"
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, RefreshCw, Bug, ExternalLink } from 'lucide-react'
+import { AlertTriangle, Bug, ExternalLink, RefreshCw } from 'lucide-react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
       timestamp: new Date().toISOString()
     }
 
-    const issueUrl = `https://github.com/JSB2010/virus-total-scanner-app/issues/new?title=Bug%20Report%3A%20${encodeURIComponent(errorDetails.error)}&body=${encodeURIComponent(`
+    const issueUrl = `https://github.com/JSB2010/DropSentinel/issues/new?title=Bug%20Report%3A%20${encodeURIComponent(errorDetails.error)}&body=${encodeURIComponent(`
 **Error Details:**
 - Message: ${errorDetails.error}
 - Timestamp: ${errorDetails.timestamp}

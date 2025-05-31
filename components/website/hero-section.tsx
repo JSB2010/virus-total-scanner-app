@@ -7,7 +7,7 @@ import {
   ArrowRight,
   CheckCircle,
   Download,
-  Github,
+  GitBranch,
   Shield,
   Sparkles,
   Star
@@ -118,8 +118,8 @@ export function HeroSection() {
                 asChild
                 className="border-2 hover:bg-muted/50 group"
               >
-                <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
-                  <Github className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
+                  <GitBranch className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                   View on GitHub
                   <Star className="w-4 h-4 ml-2" />
                 </Link>

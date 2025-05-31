@@ -85,7 +85,7 @@ export function CTASection() {
               asChild
               className="border-2 hover:bg-muted/50 group text-lg px-8 py-6"
             >
-              <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
+              <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
                 <Github className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
                 View Source Code
               </Link>

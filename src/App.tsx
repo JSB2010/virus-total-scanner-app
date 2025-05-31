@@ -37,6 +37,7 @@ declare global {
       selectFiles: () => Promise<any[]>
       selectFolder: () => Promise<string | null>
       getFilesInFolder: (folderPath: string) => Promise<any[]>
+      clearScanHistory: () => Promise<boolean>
       clearAllData: () => Promise<boolean>
 
       // Notification methods

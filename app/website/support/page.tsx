@@ -10,7 +10,6 @@ import {
   Book,
   Bug,
   ExternalLink,
-  Github,
   HelpCircle,
   Lightbulb,
   Users
@@ -96,7 +95,7 @@ export default function SupportPage() {
                     title: "Report a Bug",
                     description: "Found an issue? Report it on GitHub and our team will investigate and fix it promptly.",
                     action: "Report Issue",
-                    href: "https://github.com/JSB2010/virus-total-scanner-app/issues/new?template=bug_report.yml",
+                    href: "https://github.com/JSB2010/DropSentinel/issues/new?template=bug_report.yml",
                     external: true,
                     color: "from-red-500 to-red-600"
                   },
@@ -105,7 +104,7 @@ export default function SupportPage() {
                     title: "Feature Request",
                     description: "Have an idea for a new feature? We'd love to hear your suggestions for improving DropSentinel.",
                     action: "Suggest Feature",
-                    href: "https://github.com/JSB2010/virus-total-scanner-app/issues/new?template=feature_request.yml",
+                    href: "https://github.com/JSB2010/DropSentinel/issues/new?template=feature_request.yml",
                     external: true,
                     color: "from-yellow-500 to-orange-500"
                   },
@@ -114,7 +113,7 @@ export default function SupportPage() {
                     title: "Community Discussions",
                     description: "Join our community to ask questions, share tips, and connect with other DropSentinel users.",
                     action: "Join Discussion",
-                    href: "https://github.com/JSB2010/virus-total-scanner-app/discussions",
+                    href: "https://github.com/JSB2010/DropSentinel/discussions",
                     external: true,
                     color: "from-purple-500 to-purple-600"
                   }
@@ -227,13 +226,13 @@ export default function SupportPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <Card>
                     <CardContent className="p-6 text-center">
-                      <Github className="w-12 h-12 mx-auto mb-4 text-primary" />
+                      <GitBranch className="w-12 h-12 mx-auto mb-4 text-primary" />
                       <h3 className="font-semibold mb-2">Open Source</h3>
                       <p className="text-sm text-muted-foreground mb-4">
                         DropSentinel is completely open source. Review the code, contribute, or fork the project.
                       </p>
                       <Button variant="outline" asChild>
-                        <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
+                        <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
                           View Repository
                           <ExternalLink className="w-4 h-4 ml-2" />
                         </Link>

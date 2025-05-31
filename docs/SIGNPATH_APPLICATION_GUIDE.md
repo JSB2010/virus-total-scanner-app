@@ -35,7 +35,7 @@ I am writing to apply for free code signing services for DropSentinel, an open-s
 
 ## Project Overview
 - **Name**: DropSentinel
-- **Repository**: https://github.com/JSB2010/virus-total-scanner-app
+- **Repository**: https://github.com/JSB2010/DropSentinel
 - **License**: [MIT/Apache - specify your license]
 - **Primary Language**: JavaScript/TypeScript (Electron)
 - **Purpose**: Real-time file security scanning using VirusTotal API

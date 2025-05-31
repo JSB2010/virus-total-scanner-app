@@ -102,9 +102,14 @@ export function ScanHistoryListDialog({ open, onOpenChange, onViewScan }: ScanHi
   const clearHistory = async () => {
     if (confirm("Are you sure you want to clear all scan history? This action cannot be undone.")) {
       try {
-        // For now, just clear the local state - we'll implement proper clearing later
-        setScanHistory([])
-        // TODO: Implement proper scan history clearing in electron API
+        const success = await window.electronAPI.clearScanHistory()
+        if (success) {
+          setScanHistory([])
+          // Optionally show a success message
+          console.log("Scan history cleared successfully")
+        } else {
+          console.error("Failed to clear scan history")
+        }
       } catch (error) {
         console.error("Failed to clear scan history:", error)
       }

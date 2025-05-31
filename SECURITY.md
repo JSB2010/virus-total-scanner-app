@@ -10,7 +10,8 @@ We take the security of DropSentinel seriously. If you discover a security vulne
 - Attempt to exploit the vulnerability on systems you don't own
 
 ### ✅ Please DO:
-- Report the vulnerability privately via email to: **security@dropsentinel.dev**
+- Report the vulnerability privately via GitHub Security Advisories
+- Create a private security advisory at: https://github.com/JSB2010/DropSentinel/security/advisories
 - Provide detailed information about the vulnerability
 - Allow reasonable time for us to address the issue before public disclosure
 
@@ -78,8 +79,8 @@ We provide security updates for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | ✅ Yes             |
-| < 0.1   | ❌ No              |
+| 1.0.x   | ✅ Yes             |
+| < 1.0   | ❌ No              |
 
 ### Update Notifications
 - Security updates will be released as patch versions
@@ -124,9 +125,9 @@ If you're contributing to DropSentinel, please ensure:
 
 ## 📞 Contact Information
 
-- **Security Email**: security@dropsentinel.dev
-- **General Contact**: support@dropsentinel.com
-- **GitHub Issues**: For non-security related issues only
+- **Security Reports**: [GitHub Security Advisories](https://github.com/JSB2010/DropSentinel/security/advisories)
+- **General Issues**: [GitHub Issues](https://github.com/JSB2010/DropSentinel/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/JSB2010/DropSentinel/discussions)
 
 ## 📄 Legal
 

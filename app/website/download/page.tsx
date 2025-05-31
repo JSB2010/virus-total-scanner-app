@@ -1,23 +1,22 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { 
-  Download, 
-  Shield, 
-  CheckCircle, 
-  ExternalLink,
-  Github,
-  Package,
-  HardDrive,
-  Monitor
-} from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import Link from 'next/link'
-import { WebsiteHeader } from '@/components/website/header'
 import { WebsiteFooter } from '@/components/website/footer'
+import { WebsiteHeader } from '@/components/website/header'
+import { motion } from 'framer-motion'
+import {
+  CheckCircle,
+  Download,
+  ExternalLink,
+  HardDrive,
+  Monitor,
+  Package,
+  Shield
+} from 'lucide-react'
+import Link from 'next/link'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -45,21 +44,21 @@ const platforms = [
         description: "Recommended for most users",
         size: "~85 MB",
         format: ".exe",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-Setup-1.0.0-x64.exe"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-Setup-1.0.0-x64.exe"
       },
       {
         name: "MSI Package",
         description: "For enterprise deployment",
-        size: "~85 MB", 
+        size: "~85 MB",
         format: ".msi",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-Setup-1.0.0-x64.msi"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-Setup-1.0.0-x64.msi"
       },
       {
         name: "Portable",
         description: "No installation required",
         size: "~85 MB",
         format: ".exe",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-Portable-1.0.0-x64.exe"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-Portable-1.0.0-x64.exe"
       }
     ]
   },
@@ -74,14 +73,14 @@ const platforms = [
         description: "Recommended for most users",
         size: "~90 MB",
         format: ".dmg",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-1.0.0-x64.dmg"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-1.0.0-universal.dmg"
       },
       {
         name: "PKG Installer",
         description: "System-wide installation",
         size: "~90 MB",
-        format: ".pkg", 
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-1.0.0-x64.pkg"
+        format: ".pkg",
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-1.0.0-universal.pkg"
       }
     ]
   },
@@ -96,21 +95,21 @@ const platforms = [
         description: "Universal Linux package",
         size: "~95 MB",
         format: ".AppImage",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-1.0.0-x64.AppImage"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-1.0.0-x64.AppImage"
       },
       {
         name: "Debian Package",
         description: "For Debian/Ubuntu systems",
         size: "~85 MB",
         format: ".deb",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-1.0.0-x64.deb"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-1.0.0-x64.deb"
       },
       {
-        name: "RPM Package", 
+        name: "RPM Package",
         description: "For RHEL/CentOS/Fedora",
         size: "~85 MB",
         format: ".rpm",
-        href: "https://github.com/JSB2010/virus-total-scanner-app/releases/latest/download/DropSentinel-1.0.0-x64.rpm"
+        href: "https://github.com/JSB2010/DropSentinel/releases/latest/download/DropSentinel-1.0.0-x64.rpm"
       }
     ]
   }
@@ -120,7 +119,7 @@ export default function DownloadPage() {
   return (
     <div className="min-h-screen bg-background">
       <WebsiteHeader />
-      
+
       <main className="pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -228,7 +227,7 @@ export default function DownloadPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3 mb-4">
-                        <Github className="w-8 h-8 text-primary" />
+                        <GitBranch className="w-8 h-8 text-primary" />
                         <div>
                           <h3 className="font-semibold">GitHub Releases</h3>
                           <p className="text-sm text-muted-foreground">All versions and checksums</p>
@@ -238,7 +237,7 @@ export default function DownloadPage() {
                         Access all releases, pre-releases, and verify file integrity with SHA256 checksums.
                       </p>
                       <Button variant="outline" asChild className="w-full">
-                        <Link href="https://github.com/JSB2010/virus-total-scanner-app/releases" target="_blank">
+                        <Link href="https://github.com/JSB2010/DropSentinel/releases" target="_blank">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           View All Releases
                         </Link>
@@ -261,7 +260,7 @@ export default function DownloadPage() {
                         Clone the repository and build DropSentinel yourself for maximum security and customization.
                       </p>
                       <Button variant="outline" asChild className="w-full">
-                        <Link href="https://github.com/JSB2010/virus-total-scanner-app#building-for-production" target="_blank">
+                        <Link href="https://github.com/JSB2010/DropSentinel#building-for-production" target="_blank">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Build Instructions
                         </Link>
@@ -299,7 +298,7 @@ export default function DownloadPage() {
                       title: "Operating System",
                       requirements: [
                         "Windows 10 (1903) or later",
-                        "macOS 10.15 (Catalina) or later", 
+                        "macOS 10.15 (Catalina) or later",
                         "Ubuntu 18.04 LTS or equivalent"
                       ]
                     },
@@ -361,8 +360,8 @@ export default function DownloadPage() {
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  <strong>Security Notice:</strong> Always download DropSentinel from official sources. 
-                  Verify file integrity using the provided SHA256 checksums on our GitHub releases page. 
+                  <strong>Security Notice:</strong> Always download DropSentinel from official sources.
+                  Verify file integrity using the provided SHA256 checksums on our GitHub releases page.
                   Windows users may see a SmartScreen warning - this is normal for new applications and will disappear as our reputation builds.
                 </AlertDescription>
               </Alert>
@@ -370,7 +369,7 @@ export default function DownloadPage() {
           </div>
         </section>
       </main>
-      
+
       <WebsiteFooter />
     </div>
   )

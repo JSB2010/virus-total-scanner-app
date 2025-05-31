@@ -102,7 +102,7 @@ export function WebsiteHeader() {
 
             {/* GitHub */}
             <Button variant="ghost" size="sm" asChild>
-              <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
+              <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
                 <Github className="w-4 h-4" />
               </Link>
             </Button>
@@ -150,7 +150,7 @@ export function WebsiteHeader() {
                 ))}
                 <div className="px-4 pt-4 border-t border-border/50 flex items-center space-x-4">
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
+                    <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
                       <Github className="w-4 h-4 mr-2" />
                       GitHub
                     </Link>

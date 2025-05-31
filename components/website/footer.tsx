@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ExternalLink, Github, Heart, Shield } from 'lucide-react'
+import { ExternalLink, GitBranch, Heart, Shield } from 'lucide-react'
 import Link from 'next/link'
 
 type FooterLink = {
@@ -27,20 +27,20 @@ export function WebsiteFooter() {
     ],
     support: [
       { name: 'Documentation', href: '/docs' },
-      { name: 'GitHub Issues', href: 'https://github.com/JSB2010/virus-total-scanner-app/issues', external: true },
-      { name: 'GitHub Discussions', href: 'https://github.com/JSB2010/virus-total-scanner-app/discussions', external: true },
+      { name: 'GitHub Issues', href: 'https://github.com/JSB2010/DropSentinel/issues', external: true },
+      { name: 'GitHub Discussions', href: 'https://github.com/JSB2010/DropSentinel/discussions', external: true },
     ],
     legal: [
       { name: 'Privacy Policy', href: '/privacy' },
       { name: 'Terms of Service', href: '/terms' },
-      { name: 'License (MIT)', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/LICENSE', external: true },
-      { name: 'Security Policy', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/SECURITY.md', external: true },
+      { name: 'License (MIT)', href: 'https://github.com/JSB2010/DropSentinel/blob/main/LICENSE', external: true },
+      { name: 'Security Policy', href: 'https://github.com/JSB2010/DropSentinel/blob/main/SECURITY.md', external: true },
     ],
     community: [
-      { name: 'GitHub', href: 'https://github.com/JSB2010/virus-total-scanner-app', external: true },
-      { name: 'Releases', href: 'https://github.com/JSB2010/virus-total-scanner-app/releases', external: true },
-      { name: 'Contributing', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/CONTRIBUTING.md', external: true },
-      { name: 'Code of Conduct', href: 'https://github.com/JSB2010/virus-total-scanner-app/blob/main/CODE_OF_CONDUCT.md', external: true },
+      { name: 'GitHub', href: 'https://github.com/JSB2010/DropSentinel', external: true },
+      { name: 'Releases', href: 'https://github.com/JSB2010/DropSentinel/releases', external: true },
+      { name: 'Contributing', href: 'https://github.com/JSB2010/DropSentinel/blob/main/CONTRIBUTING.md', external: true },
+      { name: 'Code of Conduct', href: 'https://github.com/JSB2010/DropSentinel/blob/main/CODE_OF_CONDUCT.md', external: true },
     ]
   }
 
@@ -66,8 +66,8 @@ export function WebsiteFooter() {
 
             <div className="flex items-center space-x-4">
               <Button variant="outline" size="sm" asChild>
-                <Link href="https://github.com/JSB2010/virus-total-scanner-app" target="_blank">
-                  <Github className="w-4 h-4 mr-2" />
+                <Link href="https://github.com/JSB2010/DropSentinel" target="_blank">
+                  <GitBranch className="w-4 h-4 mr-2" />
                   Star on GitHub
                 </Link>
               </Button>

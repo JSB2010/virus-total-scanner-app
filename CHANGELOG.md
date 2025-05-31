@@ -8,17 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Jest testing framework with comprehensive test setup
-- Error boundary components for better error handling
-- Crash reporting system with detailed logging
-- Testing infrastructure for components and utilities
+- Comprehensive documentation updates for 1.0 release
+- User guide and installation documentation
+- Security policy and roadmap documentation
+- Proper scan history clearing functionality
 
 ### Changed
-- Updated version to 1.0.0 for stable release
-- Enhanced error handling throughout the application
-- Improved publisher name in Windows build configuration
+- Updated repository name from virus-total-scanner-app to DropSentinel
+- Fixed deprecated Github icon usage across website components
+- Enhanced documentation accuracy and completeness
+- Improved 1.0 release preparation
 
-## [1.0.0] - 2025-01-27
+## [1.0.0] - 2025-01-28
 
 ### Added
 - **Core Security Features**

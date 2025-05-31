@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   selectFiles: () => ipcRenderer.invoke("select-files"),
   selectFolder: () => ipcRenderer.invoke("select-folder"),
   getFilesInFolder: (folderPath) => ipcRenderer.invoke("get-files-in-folder", folderPath),
+  clearScanHistory: () => ipcRenderer.invoke("clear-scan-history"),
   clearAllData: () => ipcRenderer.invoke("clear-all-data"),
 
   // Native notification methods

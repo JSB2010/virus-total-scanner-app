@@ -147,7 +147,7 @@ Dear SignPath Foundation Team,
 I am writing to apply for free code signing services for DropSentinel, an open-source file security scanner.
 
 Project Details:
-- Repository: https://github.com/JSB2010/virus-total-scanner-app
+- Repository: https://github.com/JSB2010/DropSentinel
 - Description: Real-time file security scanner using VirusTotal API
 - Purpose: Protect users from malware in downloaded files
 - License: Open source (MIT/Apache)

@@ -1,11 +1,11 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { CheckCircle, Plus, Bug, Zap, Shield } from 'lucide-react'
-import { WebsiteHeader } from '@/components/website/header'
 import { WebsiteFooter } from '@/components/website/footer'
+import { WebsiteHeader } from '@/components/website/header'
+import { motion } from 'framer-motion'
+import { CheckCircle, Plus, Shield, Zap } from 'lucide-react'
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -24,9 +24,9 @@ const staggerContainer = {
 const releases = [
   {
     version: "1.0.0",
-    date: "2024-01-15",
+    date: "2025-01-28",
     type: "major",
-    description: "Initial release of DropSentinel with comprehensive file security features",
+    description: "Initial stable release of DropSentinel with comprehensive file security features",
     changes: [
       {
         type: "feature",
@@ -35,7 +35,7 @@ const releases = [
         description: "Automatic detection and scanning of new files in Downloads folder"
       },
       {
-        type: "feature", 
+        type: "feature",
         icon: Shield,
         title: "VirusTotal Integration",
         description: "Complete integration with VirusTotal API for comprehensive threat analysis"
@@ -72,7 +72,7 @@ export default function ChangelogPage() {
   return (
     <div className="min-h-screen bg-background">
       <WebsiteHeader />
-      
+
       <main className="pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -116,14 +116,13 @@ export default function ChangelogPage() {
                     <CardContent className="p-8">
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
-                          <Badge 
-                            className={`text-sm px-3 py-1 ${
-                              release.type === 'major' 
-                                ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' 
+                          <Badge
+                            className={`text-sm px-3 py-1 ${release.type === 'major'
+                                ? 'bg-blue-500/10 text-blue-600 border-blue-500/20'
                                 : release.type === 'minor'
-                                ? 'bg-green-500/10 text-green-600 border-green-500/20'
-                                : 'bg-orange-500/10 text-orange-600 border-orange-500/20'
-                            }`}
+                                  ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                                  : 'bg-orange-500/10 text-orange-600 border-orange-500/20'
+                              }`}
                           >
                             v{release.version}
                           </Badge>
@@ -151,13 +150,12 @@ export default function ChangelogPage() {
                             const IconComponent = change.icon
                             return (
                               <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                  change.type === 'feature' 
-                                    ? 'bg-green-500/10 text-green-600' 
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${change.type === 'feature'
+                                    ? 'bg-green-500/10 text-green-600'
                                     : change.type === 'improvement'
-                                    ? 'bg-blue-500/10 text-blue-600'
-                                    : 'bg-orange-500/10 text-orange-600'
-                                }`}>
+                                      ? 'bg-blue-500/10 text-blue-600'
+                                      : 'bg-orange-500/10 text-orange-600'
+                                  }`}>
                                   <IconComponent className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1">
@@ -195,7 +193,7 @@ export default function ChangelogPage() {
                 <p className="text-muted-foreground mb-8">
                   We're constantly working to improve DropSentinel. Here's what's planned for future releases:
                 </p>
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                   {[
                     {
@@ -237,7 +235,7 @@ export default function ChangelogPage() {
           </div>
         </section>
       </main>
-      
+
       <WebsiteFooter />
     </div>
   )
