@@ -153,34 +153,40 @@ jobs:
 
     - name: Install dependencies (optimized)
       run: |
-        echo "Installing dependencies..."
-        echo "Installing pnpm for package manager compatibility..."
+        Write-Host "Installing dependencies..."
+        Write-Host "Installing pnpm for package manager compatibility..."
         npm install -g pnpm
-        echo "Clearing npm cache..."
+        Write-Host "Clearing npm cache..."
         npm cache clean --force
-        echo "Installing dependencies with npm ci..."
+        Write-Host "Installing dependencies with npm ci..."
         npm ci --legacy-peer-deps --verbose
-        echo "Verifying Next.js installation..."
-        npx next --version || (
-          echo "Next.js not found, reinstalling..."
-          npm install next@latest --save
-        )
-        echo "Verifying pnpm installation..."
-        pnpm --version || (
-          echo "pnpm not found, reinstalling..."
+        Write-Host "Verifying Next.js installation..."
+        try {
+          npx next --version
+          Write-Host "Next.js is available"
+        } catch {
+          Write-Host "Next.js not found or missing dependencies, reinstalling..."
+          npm install next@latest styled-jsx --save
+        }
+        Write-Host "Verifying pnpm installation..."
+        try {
+          pnpm --version
+          Write-Host "pnpm is available"
+        } catch {
+          Write-Host "pnpm not found, reinstalling..."
           npm install -g pnpm
-        )
-        echo "Final verification..."
+        }
+        Write-Host "Final verification..."
         npx next --version
         pnpm --version
-        echo "Dependencies installation completed."
-      shell: cmd
+        Write-Host "Dependencies installation completed."
+      shell: pwsh
 
     - name: Build Windows packages
       run: |
-        echo "Starting Windows build process..."
+        Write-Host "Starting Windows build process..."
         npm run dist:win:all
-      shell: cmd
+      shell: pwsh
       env:
         CSC_IDENTITY_AUTO_DISCOVERY: false
         WIN_CSC_LINK: ""
