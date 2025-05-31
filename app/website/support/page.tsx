@@ -10,6 +10,7 @@ import {
   Book,
   Bug,
   ExternalLink,
+  GitBranch,
   HelpCircle,
   Lightbulb,
   Users

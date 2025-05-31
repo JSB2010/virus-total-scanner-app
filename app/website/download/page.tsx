@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Download,
   ExternalLink,
+  GitBranch,
   HardDrive,
   Monitor,
   Package,
