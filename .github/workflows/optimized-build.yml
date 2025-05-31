@@ -147,16 +147,33 @@ jobs:
           ~\.npm
           .next\cache
           node_modules
-        key: ${{ needs.validate.outputs.cache_key }}
+        key: Windows-optimized-${{ hashFiles('**/package-lock.json', 'src/**', 'public/**') }}
         restore-keys: |
-          ${{ runner.os }}-optimized-
+          Windows-optimized-
 
     - name: Install dependencies (optimized)
       run: |
         echo "Installing dependencies..."
         echo "Installing pnpm for package manager compatibility..."
         npm install -g pnpm
-        npm ci --legacy-peer-deps
+        echo "Clearing npm cache..."
+        npm cache clean --force
+        echo "Installing dependencies with npm ci..."
+        npm ci --legacy-peer-deps --verbose
+        echo "Verifying Next.js installation..."
+        npx next --version || (
+          echo "Next.js not found, reinstalling..."
+          npm install next@latest --save
+        )
+        echo "Verifying pnpm installation..."
+        pnpm --version || (
+          echo "pnpm not found, reinstalling..."
+          npm install -g pnpm
+        )
+        echo "Final verification..."
+        npx next --version
+        pnpm --version
+        echo "Dependencies installation completed."
       shell: cmd
 
     - name: Build Windows packages
@@ -210,9 +227,9 @@ jobs:
           ~/.npm
           .next/cache
           node_modules
-        key: ${{ needs.validate.outputs.cache_key }}
+        key: macOS-optimized-${{ hashFiles('**/package-lock.json', 'src/**', 'public/**') }}
         restore-keys: |
-          ${{ runner.os }}-optimized-
+          macOS-optimized-
 
     - name: Install dependencies (optimized)
       run: |
@@ -353,9 +370,9 @@ jobs:
           ~/.npm
           .next/cache
           node_modules
-        key: ${{ needs.validate.outputs.cache_key }}
+        key: Linux-optimized-${{ hashFiles('**/package-lock.json', 'src/**', 'public/**') }}
         restore-keys: |
-          ${{ runner.os }}-optimized-
+          Linux-optimized-
 
     - name: Install optimized system dependencies
       run: |
