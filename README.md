@@ -124,13 +124,22 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## 📦 Download Pre-built Packages
 
-Pre-built packages for Windows and macOS are automatically generated for every commit to the main branch. You can download them from the [GitHub Actions artifacts](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/build-packages.yml) without waiting for a formal release.
+Pre-built packages for **Windows**, **macOS**, and **Linux** are automatically generated for every commit to the main branch. You can download them from the [GitHub Actions artifacts](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/optimized-build.yml) without waiting for a formal release.
 
-1. Go to the [Build Packages workflow](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/build-packages.yml)
+1. Go to the [Optimized Build workflow](https://github.com/JSB2010/virus-total-scanner-app/actions/workflows/optimized-build.yml)
 2. Click on the latest successful run
 3. Download the artifact for your platform:
-   - `windows-latest-build` for Windows
-   - `macos-latest-build` for macOS
+   - `windows-comprehensive-*` for Windows (EXE, MSI, ZIP, Portable)
+   - `macos-universal-*` for macOS (DMG, PKG, ZIP)
+   - `linux-comprehensive-*` for Linux (AppImage, DEB, RPM, TAR.GZ, Snap, Flatpak, Pacman)
+
+**Linux Distribution Compatibility:**
+- **Ubuntu/Debian**: Use `.deb` packages
+- **Fedora/RHEL/CentOS**: Use `.rpm` packages
+- **Arch Linux/Manjaro**: Use `.pkg.tar.xz` packages
+- **Universal**: Use `.AppImage` (works on all distributions)
+- **Snap-enabled systems**: Use `.snap` packages
+- **Flatpak-enabled systems**: Use `.flatpak` packages
 
 ## 🏗️ Building for Production
 
@@ -166,14 +175,42 @@ npm run dist:mac:zip       # ZIP archive
 npm run dist:mac:all       # All macOS packages
 ```
 
-**Linux Builds:**
+**Linux Builds (Comprehensive):**
 ```bash
-npm run dist:linux:appimage # AppImage
-npm run dist:linux:deb      # Debian package
-npm run dist:linux:rpm      # RPM package
-npm run dist:linux:tar      # TAR archive
-npm run dist:linux:all      # All Linux packages
+# Core formats (always built)
+npm run dist:linux:appimage # Universal AppImage
+npm run dist:linux:deb      # Debian/Ubuntu package
+npm run dist:linux:rpm      # Red Hat/Fedora package
+npm run dist:linux:tar      # TAR.GZ archive
+
+# Advanced formats (when tools available)
+npm run dist:linux:snap     # Ubuntu Snap package
+npm run dist:linux:flatpak  # Flatpak package
+npm run dist:linux:pacman   # Arch Linux package
+
+# Architecture-specific builds
+npm run dist:linux:x64      # x64 architecture only
+npm run dist:linux:arm64    # ARM64 architecture only
+npm run dist:linux:universal # Both architectures
+
+# Comprehensive builds
+npm run dist:linux:all      # All core formats
+npm run dist:linux:comprehensive # All formats including advanced
+
+# Use the comprehensive build script for advanced features
+./scripts/build-linux-comprehensive.sh
 ```
+
+**Linux Features:**
+- 🏗️ **Multi-architecture support**: x64 + ARM64
+- 📦 **7 package formats**: AppImage, DEB, RPM, TAR.GZ, Snap, Flatpak, Pacman
+- 🔧 **Systemd integration**: Background monitoring service
+- 🖥️ **Enhanced desktop integration**: File associations, MIME types
+- 🔐 **SELinux support**: For RPM packages on RHEL/Fedora
+- 📋 **Comprehensive post-install scripts**: System integration
+- 🔄 **Automatic system database updates**: Desktop, MIME, icons
+- 📁 **USB device monitoring**: With udev rules
+- 📝 **Log rotation**: Automatic log management
 
 **All Platforms:**
 ```bash

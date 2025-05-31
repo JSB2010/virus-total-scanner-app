@@ -63,9 +63,15 @@
     "dist:linux": "npm run build && electron-builder --linux",
     "dist:linux:appimage": "npm run build && electron-builder --linux AppImage",
     "dist:linux:deb": "npm run build && electron-builder --linux deb",
-    "dist:linux:tar": "npm run build && electron-builder --linux tar.gz",
-    "dist:linux:all": "npm run build && electron-builder --linux AppImage tar.gz deb rpm --publish never",
     "dist:linux:rpm": "npm run build && electron-builder --linux rpm",
+    "dist:linux:tar": "npm run build && electron-builder --linux tar.gz",
+    "dist:linux:snap": "npm run build && electron-builder --linux snap",
+    "dist:linux:flatpak": "npm run build && electron-builder --linux flatpak",
+    "dist:linux:all": "npm run build && electron-builder --linux AppImage tar.gz deb rpm snap flatpak --publish never",
+    "dist:linux:comprehensive": "scripts/build-linux-comprehensive.sh",
+    "dist:linux:x64": "npm run build && electron-builder --linux --x64",
+    "dist:linux:arm64": "npm run build && electron-builder --linux --arm64",
+    "dist:linux:universal": "npm run build && electron-builder --linux --x64 --arm64",
     "dist:dir": "electron-builder --dir",
     "pack": "electron-builder --dir",
     "pack:mac": "electron-builder --mac --dir",
@@ -73,7 +79,7 @@
     "pack:linux": "electron-builder --linux --dir",
     "release": "scripts/build-comprehensive.sh --clean all",
     "release:draft": "npm run build && electron-builder --publish=onTagOrDraft",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "npx electron-builder install-app-deps",
     "build:report": "node scripts/build-all.js",
     "build:mac": "scripts/build-mac.sh",
     "build:win": "powershell -ExecutionPolicy Bypass -File scripts/build-win.ps1",
@@ -168,10 +174,11 @@
     "concurrently": "^9.1.0",
     "cross-env": "^7.0.3",
     "electron": "^32.2.7",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
     "gh-pages": "^6.1.1",
+    "ignore-loader": "^0.1.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
@@ -306,17 +313,7 @@
     },
     "win": {
       "icon": "public/assets/app-icon.ico",
-      "publisherName": "JSB2010",
       "verifyUpdateCodeSignature": false,
-      "certificateFile": null,
-      "certificatePassword": null,
-      "signingHashAlgorithms": [
-        "sha256"
-      ],
-      "signAndEditExecutable": false,
-      "signDlls": false,
-      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
-      "timeStampServer": "http://timestamp.digicert.com",
       "requestedExecutionLevel": "asInvoker",
       "legalTrademarks": "DropSentinel™",
       "fileAssociations": [
@@ -355,43 +352,101 @@
       ]
     },
     "linux": {
-      "icon": "public/assets/app-icon.png",
+      "icon": "public/assets/app-icon-512x512.png",
       "category": "Security",
       "description": "Advanced file security scanner with real-time protection and comprehensive threat detection",
       "synopsis": "Real-time file monitoring and virus scanning with VirusTotal integration",
       "maintainer": "DropSentinel <support@dropsentinel.com>",
       "vendor": "DropSentinel",
+      "executableName": "dropsentinel",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "desktop": {
-        "Name": "DropSentinel",
-        "Comment": "Advanced File Security Scanner",
-        "GenericName": "Security Scanner",
-        "Keywords": "security;virus;scanner;protection;monitoring;",
-        "Categories": "Security;Utility;System;",
-        "StartupNotify": "true"
+        "entry": {
+          "Name": "DropSentinel",
+          "Comment": "Advanced File Security Scanner",
+          "GenericName": "Security Scanner",
+          "Keywords": "security;virus;scanner;protection;monitoring;malware;antivirus;",
+          "Categories": "Security;Utility;System;Development;",
+          "StartupNotify": "true",
+          "Terminal": "false",
+          "Type": "Application",
+          "Icon": "dropsentinel",
+          "MimeType": "application/x-executable;application/x-ms-dos-executable;application/x-msdos-program;application/x-winexe;",
+          "Actions": "scan-file;scan-folder;",
+          "StartupWMClass": "DropSentinel"
+        }
       },
+      "fileAssociations": [
+        {
+          "ext": "exe",
+          "name": "Windows Executable",
+          "description": "Scan with DropSentinel",
+          "mimeType": "application/x-ms-dos-executable",
+          "role": "Viewer"
+        },
+        {
+          "ext": "msi",
+          "name": "Windows Installer",
+          "description": "Scan with DropSentinel",
+          "mimeType": "application/x-msi",
+          "role": "Viewer"
+        },
+        {
+          "ext": "zip",
+          "name": "ZIP Archive",
+          "description": "Scan with DropSentinel",
+          "mimeType": "application/zip",
+          "role": "Viewer"
+        },
+        {
+          "ext": "rar",
+          "name": "RAR Archive",
+          "description": "Scan with DropSentinel",
+          "mimeType": "application/x-rar-compressed",
+          "role": "Viewer"
+        }
+      ],
       "target": [
         {
           "target": "AppImage",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         },
         {
           "target": "tar.gz",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         },
         {
           "target": "deb",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         },
         {
           "target": "rpm",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "snap",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "flatpak",
+          "arch": [
+            "x64",
+            "arm64"
           ]
         }
       ]
@@ -489,29 +544,101 @@
     "deb": {
       "packageCategory": "utils",
       "priority": "optional",
+      "compression": "xz",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "depends": [
         "libgtk-3-0",
         "libnss3",
         "libxtst6",
-        "libasound2"
+        "libasound2",
+        "libxrandr2",
+        "libxss1",
+        "libgconf-2-4",
+        "libdrm2",
+        "libxcomposite1",
+        "libxdamage1",
+        "libxfixes3",
+        "libxkbcommon0",
+        "libatspi2.0-0"
       ],
       "recommends": [
         "libnotify-bin",
-        "pulseaudio"
+        "pulseaudio",
+        "xdg-utils",
+        "desktop-file-utils"
       ],
       "afterInstall": "build/deb-postinstall.sh",
       "afterRemove": "build/deb-postremove.sh"
     },
     "rpm": {
       "packageCategory": "Applications/System",
+      "compression": "xz",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "depends": [
         "libnotify",
-        "libappindicator",
+        "libappindicator-gtk3",
         "libXtst",
-        "nss"
+        "nss",
+        "gtk3",
+        "alsa-lib",
+        "libXrandr",
+        "libXScrnSaver",
+        "GConf2",
+        "libdrm",
+        "libXcomposite",
+        "libXdamage",
+        "libXfixes",
+        "libxkbcommon",
+        "at-spi2-atk"
       ],
       "afterInstall": "build/rpm-postinstall.sh",
       "afterRemove": "build/rpm-postremove.sh"
+    },
+    "snap": {
+      "summary": "Advanced file security scanner with real-time protection",
+      "description": "DropSentinel is an advanced file security scanner that provides real-time protection and comprehensive threat detection using VirusTotal integration. Monitor files, scan for malware, and protect your system with drag-and-drop scanning capabilities.",
+      "grade": "stable",
+      "confinement": "strict",
+      "base": "core22",
+      "compression": "xz",
+      "plugs": [
+        "desktop",
+        "desktop-legacy",
+        "home",
+        "x11",
+        "wayland",
+        "unity7",
+        "browser-support",
+        "network",
+        "gsettings",
+        "audio-playback",
+        "pulseaudio",
+        "opengl",
+        "removable-media",
+        "optical-drive"
+      ],
+      "environment": {
+        "DISABLE_WAYLAND": "1",
+        "TMPDIR": "$XDG_RUNTIME_DIR"
+      }
+    },
+    "flatpak": {
+      "baseVersion": "22.08",
+      "runtime": "org.freedesktop.Platform",
+      "runtimeVersion": "22.08",
+      "sdk": "org.freedesktop.Sdk",
+      "finishArgs": [
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--share=network",
+        "--device=dri",
+        "--filesystem=home",
+        "--filesystem=host",
+        "--talk-name=org.freedesktop.Notifications",
+        "--talk-name=org.kde.StatusNotifierWatcher"
+      ]
     }
   }
 }

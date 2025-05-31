@@ -27,6 +27,8 @@ const nextConfig = {
     distDir: 'out',
     basePath: '',
     assetPrefix: '',
+    // Exclude website pages from main app build
+    pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
     // Performance optimizations for main app
     experimental: {
       optimizePackageImports: ['lucide-react', '@radix-ui/react-icons']
@@ -35,6 +37,16 @@ const nextConfig = {
     compiler: {
       removeConsole: process.env.NODE_ENV === 'production',
       reactRemoveProperties: process.env.NODE_ENV === 'production'
+    },
+    // Exclude website directory from main app builds
+    webpack: (config, { isServer }) => {
+      // Exclude website pages
+      config.module.rules.push({
+        test: /app\/website\/.*\.(tsx?|jsx?)$/,
+        loader: 'ignore-loader'
+      });
+
+      return config;
     },
   }),
 
