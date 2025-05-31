@@ -44,7 +44,7 @@
     "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && npm run electron\"",
     "electron-pack": "next build && electron-builder",
     "build:all": "scripts/build-comprehensive.sh all",
-    "build:clean": "rimraf dist .next logs",
+    "build:clean": "npx rimraf dist .next logs",
     "prebuild": "npm run build:clean && node scripts/create-pkg-background.js",
     "dist": "npm run build && electron-builder",
     "dist:all": "npm run build && electron-builder",
