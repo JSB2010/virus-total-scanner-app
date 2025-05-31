@@ -154,6 +154,8 @@ jobs:
     - name: Install dependencies (optimized)
       run: |
         echo "Installing dependencies..."
+        echo "Installing pnpm for package manager compatibility..."
+        npm install -g pnpm
         npm ci --legacy-peer-deps
       shell: cmd
 
@@ -214,6 +216,8 @@ jobs:
 
     - name: Install dependencies (optimized)
       run: |
+        echo "Installing pnpm for package manager compatibility..."
+        npm install -g pnpm
         if [ -f "node_modules/.package-lock.json" ]; then
           echo "Using cached node_modules"
           npm ci --offline --legacy-peer-deps
@@ -379,17 +383,21 @@ jobs:
         sudo snap install snapcraft --classic || echo "Snapcraft installation failed, continuing..."
 
         echo "📚 Installing Electron dependencies..."
-        # Essential Electron runtime dependencies
+        # Essential Electron runtime dependencies (Ubuntu 24.04 compatible)
         sudo apt-get install -y \
           libnss3-dev \
           libgtk-3-dev \
           libasound2-dev \
           libxtst6 \
-          libasound2 \
           libgtk-3-0 \
           libxrandr2 \
-          libxss1 \
-          libgconf-2-4
+          libxss1 || echo "Some packages may not be available, continuing..."
+
+        # Install audio libraries with fallback for Ubuntu 24.04
+        sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2 || echo "Audio library installation failed, continuing..."
+
+        # Install GConf with fallback (not available in Ubuntu 24.04)
+        sudo apt-get install -y libgconf-2-4 || echo "GConf not available (expected on Ubuntu 24.04+), continuing..."
 
         echo "🎨 Installing desktop integration tools..."
         # Desktop integration
@@ -399,13 +407,12 @@ jobs:
           hicolor-icon-theme \
           xdg-utils
 
-        echo "📦 Installing pnpm for package manager compatibility..."
-        sudo npm install -g pnpm
-
         echo "✅ System dependencies installation completed"
 
     - name: Install dependencies (optimized)
       run: |
+        echo "📦 Installing pnpm for package manager compatibility..."
+        sudo npm install -g pnpm
         if [ -f "node_modules/.package-lock.json" ]; then
           echo "📦 Using cached node_modules"
           npm ci --offline --legacy-peer-deps
