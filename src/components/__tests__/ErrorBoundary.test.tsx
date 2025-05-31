@@ -1,6 +1,5 @@
-import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { ErrorBoundary } from '../ErrorBoundary'
 
 // Mock component that throws an error
@@ -26,7 +25,7 @@ describe('ErrorBoundary', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     // Suppress console.error for these tests
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => { })
   })
 
   afterEach(() => {
@@ -108,7 +107,7 @@ describe('ErrorBoundary', () => {
     fireEvent.click(reportButton)
 
     expect(mockElectronAPI.openExternal).toHaveBeenCalledWith(
-      expect.stringContaining('https://github.com/JSB2010/virus-total-scanner-app/issues/new')
+      expect.stringContaining('https://github.com/JSB2010/DropSentinel/issues/new')
     )
   })
 
