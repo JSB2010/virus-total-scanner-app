@@ -73,11 +73,14 @@ jobs:
 
     - name: Install dependencies (with cache optimization)
       run: |
-        if [ -d "node_modules" ] && [ -f "node_modules/.package-lock.json" ]; then
-          echo "Using cached node_modules"
-          npm ci --offline --legacy-peer-deps
-        else
-          npm ci --legacy-peer-deps
+        echo "Clearing npm cache to avoid offline cache issues..."
+        npm cache clean --force
+        echo "Installing dependencies with npm ci..."
+        npm ci --legacy-peer-deps --verbose
+        echo "Verifying Next.js installation..."
+        if ! npx next --version; then
+          echo "Next.js not found or missing dependencies, reinstalling..."
+          npm install next@latest styled-jsx --save
         fi
 
     - name: Determine build platforms
@@ -241,12 +244,24 @@ jobs:
       run: |
         echo "Installing pnpm for package manager compatibility..."
         npm install -g pnpm
-        if [ -f "node_modules/.package-lock.json" ]; then
-          echo "Using cached node_modules"
-          npm ci --offline --legacy-peer-deps
-        else
-          npm ci --legacy-peer-deps
+        echo "Clearing npm cache to avoid offline cache issues..."
+        npm cache clean --force
+        echo "Installing dependencies with npm ci..."
+        npm ci --legacy-peer-deps --verbose
+        echo "Verifying Next.js installation..."
+        if ! npx next --version; then
+          echo "Next.js not found or missing dependencies, reinstalling..."
+          npm install next@latest styled-jsx --save
         fi
+        echo "Verifying pnpm installation..."
+        if ! pnpm --version; then
+          echo "pnpm not found, reinstalling..."
+          npm install -g pnpm
+        fi
+        echo "Final verification..."
+        npx next --version
+        pnpm --version
+        echo "Dependencies installation completed."
 
     - name: Build macOS packages (Comprehensive)
       run: |
@@ -436,13 +451,24 @@ jobs:
       run: |
         echo "📦 Installing pnpm for package manager compatibility..."
         sudo npm install -g pnpm
-        if [ -f "node_modules/.package-lock.json" ]; then
-          echo "📦 Using cached node_modules"
-          npm ci --offline --legacy-peer-deps
-        else
-          echo "📦 Installing fresh dependencies"
-          npm ci --legacy-peer-deps
+        echo "📦 Clearing npm cache to avoid offline cache issues..."
+        npm cache clean --force
+        echo "📦 Installing dependencies with npm ci..."
+        npm ci --legacy-peer-deps --verbose
+        echo "📦 Verifying Next.js installation..."
+        if ! npx next --version; then
+          echo "Next.js not found or missing dependencies, reinstalling..."
+          npm install next@latest styled-jsx --save
         fi
+        echo "📦 Verifying pnpm installation..."
+        if ! pnpm --version; then
+          echo "pnpm not found, reinstalling..."
+          sudo npm install -g pnpm
+        fi
+        echo "📦 Final verification..."
+        npx next --version
+        pnpm --version
+        echo "📦 Dependencies installation completed."
 
     - name: Build optimized Linux packages
       run: |
