@@ -30,6 +30,10 @@ on:
 env:
   NODE_VERSION: '20'
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   detect-release:
     name: Detect Release Trigger
