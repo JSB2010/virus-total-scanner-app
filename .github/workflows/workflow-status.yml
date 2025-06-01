@@ -150,7 +150,7 @@ jobs:
               "ci.yml") status="✅ Active - Basic CI/CD" ;;
               "optimized-build.yml") status="🚀 Active - Optimized builds" ;;
               "release.yml") status="📦 Active - Release management" ;;
-              "publish-packages.yml") status="📤 Active - Package publishing" ;;
+              "release-analytics.yml") status="📊 Active - Release analytics" ;;
               "codeql.yml") status="🔒 Active - Security analysis" ;;
               "maintenance.yml") status="🔧 Active - Maintenance tasks" ;;
               "build-packages.yml") status="⚠️ Deprecated - Use optimized-build.yml" ;;

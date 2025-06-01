@@ -96,6 +96,7 @@
     "create-release": "node scripts/create-release.js",
     "verify-build": "node scripts/verify-build.js",
     "validate-release": "node scripts/validate-release.js",
+    "health-check": "node scripts/repo-health-check.js",
     "build:optimized": "node scripts/build-optimizer.js",
     "build:dashboard": "node scripts/build-analytics.js && start analytics/latest-dashboard.html",
     "build:maintenance": "scripts/optimize-maintenance.sh",

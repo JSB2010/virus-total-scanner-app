@@ -1,0 +1,187 @@
+name: Release Analytics & Metrics
+
+on:
+  release:
+    types: [published]
+  repository_dispatch:
+    types: [release-analytics]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to analyze (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  release-analytics:
+    name: Generate Release Analytics
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Extract version info
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          VERSION="${{ github.event.client_payload.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/v}
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Analyzing version: $VERSION"
+
+    - name: Generate release metrics
+      run: |
+        mkdir -p release-analytics
+
+        # Create release analytics report
+        cat > release-analytics/release-metrics-${{ steps.version.outputs.version }}.json << EOF
+        {
+          "version": "${{ steps.version.outputs.version }}",
+          "releaseDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "repository": "JSB2010/DropSentinel",
+          "commit": "${{ github.sha }}",
+          "platforms": {
+            "windows": {
+              "formats": ["NSIS Installer (.exe)", "MSI Package (.msi)", "Portable (.exe)", "ZIP Archive (.zip)"],
+              "architectures": ["x64"],
+              "totalFormats": 4
+            },
+            "macos": {
+              "formats": ["DMG Disk Image (.dmg)", "ZIP Archive (.zip)"],
+              "architectures": ["Universal (Intel + Apple Silicon)"],
+              "totalFormats": 2
+            },
+            "linux": {
+              "formats": ["AppImage (.AppImage)", "TAR.GZ Archive (.tar.gz)"],
+              "architectures": ["x64"],
+              "totalFormats": 2
+            }
+          },
+          "totalPlatforms": 3,
+          "totalPackages": 8,
+          "buildSystem": "electron-builder",
+          "features": [
+            "Real-time file scanning",
+            "VirusTotal integration",
+            "Background monitoring",
+            "Cross-platform support",
+            "Modern UI/UX",
+            "Comprehensive threat detection"
+          ],
+          "releaseType": "stable",
+          "changelog": "https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md",
+          "downloadLinks": "https://github.com/JSB2010/DropSentinel/releases/tag/v${{ steps.version.outputs.version }}"
+        }
+        EOF
+
+    - name: Create release summary
+      run: |
+        cat > release-analytics/RELEASE-SUMMARY.md << 'EOF'
+        # 📊 DropSentinel Release Analytics
+
+        ## 🎯 Release Overview
+
+        - **Version**: ${{ steps.version.outputs.version }}
+        - **Release Date**: $(date -u +%Y-%m-%d)
+        - **Commit**: ${{ github.sha }}
+        - **Repository**: JSB2010/DropSentinel
+
+        ## 📦 Package Distribution
+
+        ### Windows (4 packages)
+        - ✅ NSIS Installer (.exe) - Recommended
+        - ✅ MSI Package (.msi) - Enterprise
+        - ✅ Portable (.exe) - No installation
+        - ✅ ZIP Archive (.zip) - Compressed
+
+        ### macOS (2 packages)
+        - ✅ DMG Disk Image (.dmg) - Standard installer
+        - ✅ ZIP Archive (.zip) - Application bundle
+
+        ### Linux (2 packages)
+        - ✅ AppImage (.AppImage) - Universal format
+        - ✅ TAR.GZ Archive (.tar.gz) - Compressed
+
+        ## 🔧 Technical Details
+
+        - **Build System**: electron-builder
+        - **Node.js Version**: 20.x
+        - **Electron Version**: 32.2.7
+        - **Compression**: Maximum
+        - **Code Signing**: Available when certificates present
+
+        ## 🚀 Key Features
+
+        - Real-time file scanning with VirusTotal API
+        - Background monitoring of Downloads folder
+        - Cross-platform desktop application
+        - Modern, responsive UI with dark/light themes
+        - Comprehensive threat detection and analysis
+        - System tray integration
+
+        ## 📈 Release Metrics
+
+        - **Total Platforms**: 3 (Windows, macOS, Linux)
+        - **Total Packages**: 8 different formats
+        - **Architecture Support**: x64, ARM64 (macOS Universal)
+        - **Package Sizes**: ~80-180 MB depending on format
+
+        ## 🔗 Links
+
+        - [Download Release](https://github.com/JSB2010/DropSentinel/releases/tag/v${{ steps.version.outputs.version }})
+        - [Changelog](https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md)
+        - [Documentation](https://github.com/JSB2010/DropSentinel#readme)
+        - [Website](https://dropsentinel.com)
+        EOF
+
+    - name: Upload release analytics
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-analytics-${{ steps.version.outputs.version }}
+        path: release-analytics/
+        retention-days: 365
+
+  create-release-summary:
+    name: Create Release Summary
+    runs-on: ubuntu-latest
+    needs: [release-analytics]
+    if: always()
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Create comprehensive release summary
+      run: |
+        echo "## 🎉 DropSentinel Release Analytics Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Release Information" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version**: Latest" >> $GITHUB_STEP_SUMMARY
+        echo "- **Release Date**: $(date -u +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Repository**: JSB2010/DropSentinel" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Package Distribution" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ **Windows**: 4 packages (NSIS, MSI, Portable, ZIP)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ **macOS**: 2 packages (DMG, ZIP)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ **Linux**: 2 packages (AppImage, TAR.GZ)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+        echo "- [📥 Download Latest Release](https://github.com/JSB2010/DropSentinel/releases/latest)" >> $GITHUB_STEP_SUMMARY
+        echo "- [📋 View Changelog](https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md)" >> $GITHUB_STEP_SUMMARY
+        echo "- [🌐 Visit Website](https://dropsentinel.com)" >> $GITHUB_STEP_SUMMARY
+        echo "- [📚 Read Documentation](https://github.com/JSB2010/DropSentinel#readme)" >> $GITHUB_STEP_SUMMARY

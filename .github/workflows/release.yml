@@ -561,11 +561,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Trigger package publishing
+    - name: Trigger release analytics
       uses: peter-evans/repository-dispatch@v3
       with:
         token: ${{ secrets.GH_TOKEN }}
-        event-type: publish-packages
+        event-type: release-analytics
         client-payload: |
           {
             "version": "${{ needs.validate.outputs.version }}",
