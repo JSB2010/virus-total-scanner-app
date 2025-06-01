@@ -498,12 +498,12 @@ jobs:
         prerelease: ${{ needs.validate.outputs.release_type == 'prerelease' }}
         generate_release_notes: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Trigger package publishing
       uses: peter-evans/repository-dispatch@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GH_TOKEN }}
         event-type: publish-packages
         client-payload: |
           {
