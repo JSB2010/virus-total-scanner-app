@@ -28,8 +28,8 @@ function updateDownloadPage(version) {
   const badgeRegex = /v\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?\s+Latest Release/;
   const updatedContent = newContent.replace(badgeRegex, `v${version} Latest Release`);
 
-  // Update any hardcoded version references
-  const hardcodedVersionRegex = /1\.0\.0/g;
+  // Update any hardcoded version references (more comprehensive)
+  const hardcodedVersionRegex = /1\.0\.[0-2]/g;
   const finalContent = updatedContent.replace(hardcodedVersionRegex, version);
 
   fs.writeFileSync(downloadPagePath, finalContent, 'utf8');

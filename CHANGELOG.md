@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-06-01
+
+### Fixed
+- **Version Consistency Issues**
+  - Fixed buildVersion and bundleVersion inconsistencies in package.json
+  - Corrected artifact naming to properly reflect release version
+  - Updated all version references to maintain consistency
+- **Workflow Compatibility**
+  - Updated docker/build-push-action from v5 to v6 in publish-packages workflow
+  - Fixed workflow failures caused by version mismatches
+  - Enhanced workflow reliability and error handling
+- **Release Artifact Issues**
+  - Resolved v1.0.1 release having artifacts named with v1.0.0
+  - Ensured proper version propagation through build system
+  - Fixed package naming inconsistencies across all platforms
+
+### Technical
+- Comprehensive version synchronization across all configuration files
+- Enhanced build system reliability and consistency
+- Improved release workflow error handling and validation
+
 ## [1.0.1] - 2025-06-01
 
 ### Added

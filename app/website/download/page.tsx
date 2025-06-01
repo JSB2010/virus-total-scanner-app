@@ -48,28 +48,28 @@ const platforms = [
         description: "Recommended for most users",
         size: "~82 MB",
         format: ".exe",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.0-x64.exe`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.2-x64.exe`
       },
       {
         name: "MSI Package",
         description: "For enterprise deployment",
         size: "~92 MB",
         format: ".msi",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.0-x64.msi`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.2-x64.msi`
       },
       {
         name: "Portable",
         description: "No installation required",
         size: "~82 MB",
         format: ".exe",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Portable-1.0.0-x64.exe`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Portable-1.0.2-x64.exe`
       },
       {
         name: "ZIP Archive",
         description: "Compressed package",
         size: "~113 MB",
         format: ".zip",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.0-x64.zip`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-Setup-1.0.2-x64.zip`
       }
     ]
   },
@@ -84,21 +84,21 @@ const platforms = [
         description: "Recommended for most users",
         size: "~90 MB",
         format: ".dmg",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-universal.dmg`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-universal.dmg`
       },
       {
         name: "PKG Installer",
         description: "System-wide installation",
         size: "~90 MB",
         format: ".pkg",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-universal.pkg`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-universal.pkg`
       },
       {
         name: "ZIP Archive",
         description: "Compressed application bundle (Available Now)",
         size: "~97 MB",
         format: ".zip",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-arm64-mac.zip`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-mac.zip`
       }
     ]
   },
@@ -113,28 +113,28 @@ const platforms = [
         description: "Universal Linux package (Available Now)",
         size: "~86 MB",
         format: ".AppImage",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-x86_64.AppImage`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-x86_64.AppImage`
       },
       {
         name: "TAR.GZ Archive",
         description: "Compressed archive (Available Now)",
         size: "~106 MB",
         format: ".tar.gz",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-x64.tar.gz`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-x64.tar.gz`
       },
       {
         name: "Debian Package",
         description: "For Debian/Ubuntu systems",
         size: "~85 MB",
         format: ".deb",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-x64.deb`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-x64.deb`
       },
       {
         name: "RPM Package",
         description: "For RHEL/CentOS/Fedora",
         size: "~85 MB",
         format: ".rpm",
-        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.0-x64.rpm`
+        href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-x64.rpm`
       }
     ]
   }
@@ -157,7 +157,7 @@ export default function DownloadPage() {
             >
               <motion.div variants={fadeInUp}>
                 <Badge variant="outline" className="mb-4">
-                  v1.0.0 Latest Release
+                  v1.0.2 Latest Release
                 </Badge>
                 <h1 className="text-4xl md:text-5xl font-bold mb-6">
                   Download{' '}

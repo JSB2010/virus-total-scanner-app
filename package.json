@@ -1,6 +1,6 @@
 {
   "name": "dropsentinel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Advanced file security scanner with real-time protection and drag-and-drop scanning",
   "private": true,
   "author": {
@@ -95,6 +95,7 @@
     "test:macos-build": "node scripts/test-macos-build.js",
     "create-release": "node scripts/create-release.js",
     "verify-build": "node scripts/verify-build.js",
+    "validate-release": "node scripts/validate-release.js",
     "build:optimized": "node scripts/build-optimizer.js",
     "build:dashboard": "node scripts/build-analytics.js && start analytics/latest-dashboard.html",
     "build:maintenance": "scripts/optimize-maintenance.sh",
@@ -199,7 +200,7 @@
     "productName": "DropSentinel",
     "executableName": "DropSentinel",
     "copyright": "Copyright © 2024 JSB2010. All rights reserved.",
-    "buildVersion": "1.0.0",
+    "buildVersion": "1.0.2",
     "electronVersion": "32.2.7",
     "compression": "maximum",
     "removePackageScripts": true,
@@ -263,8 +264,8 @@
       "type": "distribution",
       "minimumSystemVersion": "10.15.0",
       "darkModeSupport": true,
-      "bundleVersion": "1.0.0",
-      "bundleShortVersion": "1.0.0",
+      "bundleVersion": "1.0.2",
+      "bundleShortVersion": "1.0.2",
       "helperBundleId": "com.jsb2010.dropsentinel.helper",
       "extendInfo": {
         "NSCameraUsageDescription": "This app does not use the camera.",
