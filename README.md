@@ -250,6 +250,51 @@ The built applications will be available in the `dist/` directory with platform-
 - Manage quarantined files safely
 - Export scan reports for analysis
 
+## 🛠️ Developer Tools
+
+DropSentinel includes comprehensive developer tools for building, testing, and releasing:
+
+### Release Management
+```bash
+# Create a new release (recommended)
+npm run create-release 1.0.1
+
+# Create a prerelease
+npm run create-release 1.1.0-beta.1 --prerelease
+
+# Update download links manually
+npm run update-download-links
+```
+
+### Build Verification
+```bash
+# Verify all build systems are working
+npm run verify-build
+
+# Test macOS builds specifically (macOS only)
+npm run test:macos-build
+```
+
+### Release Process
+1. **Simple Tag Method** (Recommended):
+   ```bash
+   git tag v1.0.1
+   git push origin v1.0.1
+   ```
+
+2. **Using Release Script**:
+   ```bash
+   npm run create-release 1.0.1
+   ```
+
+Both methods automatically:
+- Build packages for all platforms
+- Create GitHub release with artifacts
+- Update website download links
+- Publish to GitHub Packages
+
+See [RELEASE_GUIDE.md](RELEASE_GUIDE.md) for detailed instructions.
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.

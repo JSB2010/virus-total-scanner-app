@@ -7,17 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-06-01
+
 ### Added
-- Comprehensive documentation updates for 1.0 release
-- User guide and installation documentation
-- Security policy and roadmap documentation
-- Proper scan history clearing functionality
+- **Release System Overhaul**
+  - Comprehensive release automation with multiple trigger methods
+  - Automated download link updates for website
+  - Enhanced macOS build system with DMG/PKG creation
+  - Release creation scripts (`npm run create-release`)
+  - macOS build diagnostics and testing tools
+- **Build System Improvements**
+  - Enhanced error handling and logging across all platforms
+  - Improved artifact verification and build result reporting
+  - Better fallback strategies for failed builds
+  - Comprehensive build dependencies for macOS (create-dmg, Xcode tools)
+- **Developer Tools**
+  - Release guide documentation with step-by-step instructions
+  - Build diagnostic scripts for troubleshooting
+  - Automated version management and changelog updates
 
 ### Changed
-- Updated repository name from virus-total-scanner-app to DropSentinel
-- Fixed deprecated Github icon usage across website components
-- Enhanced documentation accuracy and completeness
-- Improved 1.0 release preparation
+- **Release Process Simplification**
+  - Streamlined release creation to simple Git tag workflow
+  - Enhanced release workflow reliability and error handling
+  - Improved GitHub token permissions for package publishing
+  - Updated website download links for accuracy and consistency
+- **Build System Enhancements**
+  - Better macOS build dependencies and tool installation
+  - Enhanced logging and debugging capabilities
+  - Improved cross-platform build reliability
+  - Optimized artifact handling and verification
+
+### Fixed
+- **Critical Release Issues**
+  - GitHub token permissions for package publishing (GH_TOKEN vs GITHUB_TOKEN)
+  - macOS build missing DMG and PKG packages
+  - Website download links pointing to incorrect file names
+  - Package naming inconsistencies across releases
+- **Build System Fixes**
+  - macOS build dependencies and tool availability
+  - Download link version synchronization
+  - Build artifact verification and error detection
+  - Workflow failure handling and recovery
+
+### Technical
+- Enhanced release workflow with comprehensive build logic
+- Improved error boundaries and crash reporting
+- Better artifact naming and version management
+- Streamlined CI/CD pipeline with enhanced reliability
 
 ## [1.0.0] - 2025-01-28
 

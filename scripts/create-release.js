@@ -13,8 +13,8 @@ const path = require('path');
 function runCommand(command, description) {
   console.log(`🔄 ${description}...`);
   try {
-    const output = execSync(command, { 
-      encoding: 'utf8', 
+    execSync(command, {
+      encoding: 'utf8',
       stdio: 'inherit',
       cwd: process.cwd()
     });
@@ -28,7 +28,44 @@ function runCommand(command, description) {
 
 function validateVersion(version) {
   const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
-  return semverRegex.test(version);
+  if (!semverRegex.test(version)) {
+    return false;
+  }
+
+  // Additional validation: ensure version is greater than current
+  const currentVersion = getCurrentVersion();
+  if (currentVersion) {
+    const current = parseVersion(currentVersion);
+    const new_ = parseVersion(version);
+
+    if (compareVersions(new_, current) <= 0) {
+      console.log(`❌ New version ${version} must be greater than current version ${currentVersion}`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function parseVersion(version) {
+  const [main, prerelease] = version.split('-');
+  const [major, minor, patch] = main.split('.').map(Number);
+  return { major, minor, patch, prerelease: prerelease || null };
+}
+
+function compareVersions(a, b) {
+  if (a.major !== b.major) return a.major - b.major;
+  if (a.minor !== b.minor) return a.minor - b.minor;
+  if (a.patch !== b.patch) return a.patch - b.patch;
+
+  // Handle prerelease comparison
+  if (a.prerelease && !b.prerelease) return -1;
+  if (!a.prerelease && b.prerelease) return 1;
+  if (a.prerelease && b.prerelease) {
+    return a.prerelease.localeCompare(b.prerelease);
+  }
+
+  return 0;
 }
 
 function getCurrentVersion() {
@@ -57,7 +94,7 @@ function updatePackageVersion(version) {
 
 function createReleaseNotes(version, isPrerelease) {
   const releaseNotesPath = path.join(process.cwd(), 'RELEASE.md');
-  
+
   const releaseNotes = `# Release ${version}
 
 ## 🚀 What's New in DropSentinel ${version}
@@ -123,7 +160,7 @@ Download the appropriate package for your platform:
 
 function main() {
   const args = process.argv.slice(2);
-  
+
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(`
 🚀 DropSentinel Release Creator
