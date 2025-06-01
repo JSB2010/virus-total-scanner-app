@@ -1,6 +1,6 @@
 {
   "name": "dropsentinel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Advanced file security scanner with real-time protection and drag-and-drop scanning",
   "private": true,
   "author": {
@@ -77,7 +77,7 @@
     "pack:mac": "electron-builder --mac --dir",
     "pack:win": "electron-builder --win --dir",
     "pack:linux": "electron-builder --linux --dir",
-    "release": "scripts/build-comprehensive.sh --clean all",
+    "release": "node scripts/release.js",
     "release:draft": "npm run build && electron-builder --publish=onTagOrDraft",
     "postinstall": "npx electron-builder install-app-deps",
     "build:report": "node scripts/build-all.js",
@@ -87,7 +87,6 @@
     "build:verbose": "scripts/build-comprehensive.sh --verbose",
     "build:clean-all": "scripts/build-comprehensive.sh --clean --verbose all",
     "test:build": "node scripts/test-build-system.js",
-    "release": "node scripts/release.js",
     "validate": "npm run test:build",
     "build:analytics": "node scripts/build-analytics.js",
     "build:optimize": "node scripts/optimize-build.js",
