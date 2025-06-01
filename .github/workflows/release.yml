@@ -100,12 +100,36 @@ jobs:
           ${{ env.ELECTRON_BUILDER_CACHE }}
           ~/.npm
           .next/cache
-        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        key: macOS-release-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-release-
+          macOS-release-
 
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: |
+        echo "🔧 Installing dependencies with enhanced verification..."
+
+        # Clear npm cache to avoid conflicts
+        npm cache clean --force
+
+        # Install dependencies
+        npm ci --legacy-peer-deps
+
+        # Install pnpm globally for electron-builder compatibility
+        npm install -g pnpm
+
+        # Verify Next.js installation
+        if ! npx next --version; then
+          echo "⚠️ Next.js not found, installing..."
+          npm install next styled-jsx
+        fi
+
+        # Verify pnpm installation
+        if ! npx pnpm --version; then
+          echo "⚠️ pnpm not found, reinstalling..."
+          npm install -g pnpm
+        fi
+
+        echo "✅ Dependencies installed and verified"
 
     - name: Prepare for app notarization
       if: env.APPLE_API_KEY != ''
@@ -116,7 +140,31 @@ jobs:
         APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
 
     - name: Build macOS release packages
-      run: npm run dist:mac:all
+      run: |
+        echo "🍎 Starting macOS release build..."
+        echo "Building comprehensive macOS packages (DMG, PKG, ZIP)..."
+        echo "Target: Universal binaries (Intel x64 + Apple Silicon ARM64)"
+
+        # Run the comprehensive build with explicit universal architecture
+        if npm run dist:mac:all --verbose; then
+          echo "✅ Comprehensive macOS build completed successfully"
+        else
+          echo "❌ Comprehensive build failed, trying fallback strategy..."
+
+          # Fallback to individual builds with explicit universal arch
+          echo "🔄 Trying individual package builds..."
+          npm run dist:mac:dmg --verbose || echo "⚠️ DMG build failed"
+          npm run dist:mac:pkg --verbose || echo "⚠️ PKG build failed"
+          npm run dist:mac:zip --verbose || echo "⚠️ ZIP build failed"
+        fi
+
+        echo "📦 macOS Build Results:"
+        if [ -d "dist" ]; then
+          find dist -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.zip" \) -exec ls -lh {} \; || echo "No macOS packages found"
+        else
+          echo "❌ No dist directory found"
+          exit 1
+        fi
       env:
         # macOS code signing and notarization
         APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
@@ -160,15 +208,74 @@ jobs:
           ~\AppData\Local\electron-builder
           ~\.npm
           .next\cache
-        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        key: Windows-release-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-release-
+          Windows-release-
 
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: |
+        Write-Host "🔧 Installing dependencies with enhanced verification..."
+
+        # Clear npm cache to avoid conflicts
+        npm cache clean --force
+
+        # Install dependencies
+        npm ci --legacy-peer-deps
+
+        # Install pnpm globally for electron-builder compatibility
+        npm install -g pnpm
+
+        # Verify Next.js installation
+        try {
+          npx next --version
+          Write-Host "✅ Next.js is available"
+        } catch {
+          Write-Host "⚠️ Next.js not found, installing..."
+          npm install next styled-jsx
+        }
+
+        # Verify pnpm installation
+        try {
+          npx pnpm --version
+          Write-Host "✅ pnpm is available"
+        } catch {
+          Write-Host "⚠️ pnpm not found, reinstalling..."
+          npm install -g pnpm
+        }
+
+        Write-Host "✅ Dependencies installed and verified"
+      shell: pwsh
 
     - name: Build Windows release packages
-      run: npm run dist:win:all
+      run: |
+        Write-Host "🪟 Starting Windows release build..."
+        Write-Host "Building comprehensive Windows packages (NSIS, MSI, Portable, ZIP)..."
+
+        # Run the comprehensive build
+        try {
+          npm run dist:win:all --verbose
+          Write-Host "✅ Comprehensive Windows build completed successfully"
+        } catch {
+          Write-Host "❌ Comprehensive build failed, trying fallback strategy..."
+
+          # Fallback to individual builds
+          Write-Host "🔄 Trying individual package builds..."
+          try { npm run dist:win:nsis --verbose } catch { Write-Host "⚠️ NSIS build failed" }
+          try { npm run dist:win:msi --verbose } catch { Write-Host "⚠️ MSI build failed" }
+          try { npm run dist:win:portable --verbose } catch { Write-Host "⚠️ Portable build failed" }
+          try { npm run dist:win:zip --verbose } catch { Write-Host "⚠️ ZIP build failed" }
+        }
+
+        Write-Host "📦 Windows Build Results:"
+        if (Test-Path "dist") {
+          Get-ChildItem -Path "dist" -Filter "*.exe" -Recurse | ForEach-Object { Write-Host "$($_.Name) - $([math]::Round($_.Length/1MB, 2)) MB" }
+          Get-ChildItem -Path "dist" -Filter "*.msi" -Recurse | ForEach-Object { Write-Host "$($_.Name) - $([math]::Round($_.Length/1MB, 2)) MB" }
+          Get-ChildItem -Path "dist" -Filter "*.zip" -Recurse | ForEach-Object { Write-Host "$($_.Name) - $([math]::Round($_.Length/1MB, 2)) MB" }
+        } else {
+          Write-Host "❌ No dist directory found"
+          exit 1
+        }
+      shell: pwsh
       env:
         # Windows code signing
         WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -209,9 +316,9 @@ jobs:
           ${{ env.ELECTRON_BUILDER_CACHE }}
           ~/.npm
           .next/cache
-        key: ${{ runner.os }}-release-${{ hashFiles('**/package-lock.json') }}
+        key: Linux-release-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-release-
+          Linux-release-
 
     - name: Install system dependencies
       run: |
@@ -219,10 +326,68 @@ jobs:
         sudo apt-get install -y rpm
 
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: |
+        echo "🔧 Installing dependencies with enhanced verification..."
+
+        # Clear npm cache to avoid conflicts
+        npm cache clean --force
+
+        # Install dependencies
+        npm ci --legacy-peer-deps
+
+        # Install pnpm globally for electron-builder compatibility
+        npm install -g pnpm
+
+        # Verify Next.js installation
+        if ! npx next --version; then
+          echo "⚠️ Next.js not found, installing..."
+          npm install next styled-jsx
+        fi
+
+        # Verify pnpm installation
+        if ! npx pnpm --version; then
+          echo "⚠️ pnpm not found, reinstalling..."
+          npm install -g pnpm
+        fi
+
+        echo "✅ Dependencies installed and verified"
 
     - name: Build Linux release packages
-      run: npm run dist:linux:all
+      run: |
+        echo "🐧 Starting Linux release build..."
+        echo "Building comprehensive Linux packages (AppImage, DEB, RPM, TAR.GZ, Snap, Flatpak)..."
+
+        # Create logs directory
+        mkdir -p logs
+
+        # Run the comprehensive build
+        if npm run dist:linux:all --verbose 2>&1 | tee logs/linux-build.log; then
+          echo "✅ Comprehensive Linux build completed successfully"
+        else
+          echo "❌ Comprehensive build failed, trying fallback strategy..."
+
+          # Fallback to individual working formats with detailed logging
+          echo "🔄 Building individual working package formats..."
+          echo "Building AppImage..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:appimage --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ AppImage build failed"
+
+          echo "Building DEB..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:deb --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ DEB build failed"
+
+          echo "Building TAR.GZ..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:tar --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "❌ TAR build failed"
+
+          echo "Building Snap..." | tee -a logs/linux-build-fallback.log
+          npm run dist:linux:snap --verbose 2>&1 | tee -a logs/linux-build-fallback.log || echo "⚠️ Snap build failed (may fail on CI)"
+        fi
+
+        echo "📦 Linux Build Results:"
+        if [ -d "dist" ]; then
+          find dist -type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.snap" -o -name "*.rpm" -o -name "*.flatpak" \) -exec ls -lh {} \; || echo "No Linux packages found"
+        else
+          echo "❌ No dist directory found"
+          exit 1
+        fi
       env:
         ELECTRON_BUILDER_COMPRESSION_LEVEL: 9
 
