@@ -145,24 +145,57 @@ jobs:
         echo "Building comprehensive macOS packages (DMG, PKG, ZIP)..."
         echo "Target: Universal binaries (Intel x64 + Apple Silicon ARM64)"
 
-        # Run the comprehensive build with explicit universal architecture
-        if npm run dist:mac:all --verbose; then
+        # Create logs directory
+        mkdir -p logs
+
+        # First try the comprehensive build
+        echo "🔄 Attempting comprehensive macOS build..."
+        if npm run dist:mac:all --verbose 2>&1 | tee logs/macos-build.log; then
           echo "✅ Comprehensive macOS build completed successfully"
         else
-          echo "❌ Comprehensive build failed, trying fallback strategy..."
+          echo "❌ Comprehensive build failed, trying individual builds..."
 
-          # Fallback to individual builds with explicit universal arch
-          echo "🔄 Trying individual package builds..."
-          npm run dist:mac:dmg --verbose || echo "⚠️ DMG build failed"
-          npm run dist:mac:pkg --verbose || echo "⚠️ PKG build failed"
-          npm run dist:mac:zip --verbose || echo "⚠️ ZIP build failed"
+          # Try individual builds with detailed logging
+          echo "🔄 Building DMG..." | tee -a logs/macos-build-fallback.log
+          if npm run dist:mac:dmg --verbose 2>&1 | tee -a logs/macos-build-fallback.log; then
+            echo "✅ DMG build succeeded"
+          else
+            echo "❌ DMG build failed"
+          fi
+
+          echo "🔄 Building PKG..." | tee -a logs/macos-build-fallback.log
+          if npm run dist:mac:pkg --verbose 2>&1 | tee -a logs/macos-build-fallback.log; then
+            echo "✅ PKG build succeeded"
+          else
+            echo "❌ PKG build failed"
+          fi
+
+          echo "🔄 Building ZIP..." | tee -a logs/macos-build-fallback.log
+          if npm run dist:mac:zip --verbose 2>&1 | tee -a logs/macos-build-fallback.log; then
+            echo "✅ ZIP build succeeded"
+          else
+            echo "❌ ZIP build failed"
+          fi
         fi
 
         echo "📦 macOS Build Results:"
         if [ -d "dist" ]; then
-          find dist -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.zip" \) -exec ls -lh {} \; || echo "No macOS packages found"
+          echo "Contents of dist directory:"
+          find dist -type f -exec ls -lh {} \;
+          echo ""
+          echo "macOS packages found:"
+          find dist -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.zip" \) -exec ls -lh {} \; || echo "❌ No macOS packages found"
         else
           echo "❌ No dist directory found"
+          exit 1
+        fi
+
+        # Verify at least one package was created
+        if ! find dist -type f \( -name "*.dmg" -o -name "*.pkg" -o -name "*.zip" \) | grep -q .; then
+          echo "❌ No macOS packages were created!"
+          echo "Build logs:"
+          cat logs/macos-build.log || echo "No build log found"
+          cat logs/macos-build-fallback.log || echo "No fallback log found"
           exit 1
         fi
       env:

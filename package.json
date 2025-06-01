@@ -92,6 +92,7 @@
     "build:analytics": "node scripts/build-analytics.js",
     "build:optimize": "node scripts/optimize-build.js",
     "build:enhanced": "node scripts/enhanced-build.js",
+    "update-download-links": "node scripts/update-download-links.js",
     "build:optimized": "node scripts/build-optimizer.js",
     "build:dashboard": "node scripts/build-analytics.js && start analytics/latest-dashboard.html",
     "build:maintenance": "scripts/optimize-maintenance.sh",

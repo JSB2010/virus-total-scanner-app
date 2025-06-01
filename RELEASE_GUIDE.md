@@ -4,73 +4,72 @@ This guide explains how to create releases for DropSentinel using the automated 
 
 ## 🚀 Release Methods
 
-### Method 1: Using the Release Script (Recommended)
+### Method 1: Git Tags (Recommended)
 
-The easiest way to create a release:
+The simplest and most reliable way to create a release:
 
 ```bash
-# Create a standard release
-npm run release 1.0.0
+# Create and push a new tag for the latest commit
+git tag v1.0.1
+git push origin v1.0.1
 
-# Create a prerelease
-npm run release 1.1.0-beta.1 --prerelease
-
-# Create and push immediately
-npm run release 1.0.1 --push
+# Or create a tag for a specific commit
+git tag v1.0.1 <commit-hash>
+git push origin v1.0.1
 ```
 
-### Method 2: Manual RELEASE.md File
+This will automatically:
+1. Trigger the release workflow
+2. Build all platform packages
+3. Create a GitHub release with auto-generated notes
+4. Upload all artifacts
 
-Create or update the `RELEASE.md` file with release information:
+### Method 2: Custom Release Notes
+
+To add custom release notes, create a `RELEASE.md` file before tagging:
 
 ```markdown
-# Release 1.0.0
+# Release 1.0.1
 
-Release description and changelog...
+## 🚀 New Features
+- Added new virus detection engine
+- Improved scanning performance
+
+## 🐛 Bug Fixes
+- Fixed memory leak in background monitoring
+- Resolved UI freezing issues
+
+## 🔧 Improvements
+- Enhanced error handling
+- Updated dependencies
 ```
 
-Then commit and push:
+Then create the tag:
 
 ```bash
 git add RELEASE.md
-git commit -m "Release 1.0.0"
+git commit -m "Add release notes for v1.0.1"
+git tag v1.0.1
 git push origin main
+git push origin v1.0.1
 ```
 
-### Method 3: Version Bump in package.json
+### Method 3: Update Version First (Optional)
 
-Update the version in `package.json`:
-
-```json
-{
-  "version": "1.0.0"
-}
-```
-
-Commit and push the change:
+If you want to update the version in package.json before releasing:
 
 ```bash
+# Update version in package.json
+npm version 1.0.1 --no-git-tag-version
+
+# Commit the version change
 git add package.json
-git commit -m "Bump version to 1.0.0"
+git commit -m "Bump version to 1.0.1"
+
+# Create and push the tag
+git tag v1.0.1
 git push origin main
-```
-
-### Method 4: Manual Workflow Trigger
-
-Use GitHub's workflow dispatch feature:
-
-1. Go to **Actions** → **Smart Release System**
-2. Click **Run workflow**
-3. Enter version and release type
-4. Click **Run workflow**
-
-### Method 5: Git Tags
-
-Create and push a Git tag:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
+git push origin v1.0.1
 ```
 
 ## 🔄 Release Workflow
@@ -104,21 +103,22 @@ When a release is triggered, the system:
 
 Each release includes packages for all platforms:
 
-### Windows
-- `DropSentinel-Setup-1.0.0.exe` (NSIS Installer)
-- `DropSentinel-1.0.0.msi` (MSI Package)
-- `DropSentinel-1.0.0-win.zip` (Portable)
+### Windows (x64)
+- `DropSentinel-Setup-1.0.0-x64.exe` (NSIS Installer) - ~82 MB
+- `DropSentinel-Setup-1.0.0-x64.msi` (MSI Package) - ~92 MB
+- `DropSentinel-Portable-1.0.0-x64.exe` (Portable) - ~82 MB
+- `DropSentinel-Setup-1.0.0-x64.zip` (ZIP Archive) - ~113 MB
 
-### macOS
-- `DropSentinel-1.0.0.dmg` (DMG Disk Image)
-- `DropSentinel-1.0.0.pkg` (PKG Installer)
-- `DropSentinel-1.0.0-mac.zip` (ZIP Archive)
+### macOS (Universal: Intel + Apple Silicon)
+- `DropSentinel-1.0.0-universal.dmg` (DMG Disk Image) - ~90 MB
+- `DropSentinel-1.0.0-universal.pkg` (PKG Installer) - ~90 MB
+- `DropSentinel-1.0.0-arm64-mac.zip` (ZIP Archive) - ~97 MB
 
-### Linux
-- `DropSentinel-1.0.0.AppImage` (AppImage)
-- `dropsentinel_1.0.0_amd64.deb` (DEB Package)
-- `dropsentinel-1.0.0.x86_64.rpm` (RPM Package)
-- `DropSentinel-1.0.0.tar.gz` (TAR.GZ Archive)
+### Linux (x64)
+- `DropSentinel-1.0.0-x86_64.AppImage` (AppImage) - ~86 MB
+- `DropSentinel-1.0.0-x64.tar.gz` (TAR.GZ Archive) - ~106 MB
+- `DropSentinel-1.0.0-x64.deb` (DEB Package) - ~85 MB
+- `DropSentinel-1.0.0-x64.rpm` (RPM Package) - ~85 MB
 
 ## 🔐 Security Features
 
