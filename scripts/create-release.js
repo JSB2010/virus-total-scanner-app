@@ -94,6 +94,7 @@ function updatePackageVersion(version) {
 
 function createReleaseNotes(version, isPrerelease) {
   const releaseNotesPath = path.join(process.cwd(), 'RELEASE.md');
+  const currentVersion = getCurrentVersion() || '1.0.0';
 
   const releaseNotes = `# Release ${version}
 
@@ -150,7 +151,7 @@ Download the appropriate package for your platform:
 
 ---
 
-**Full Changelog**: https://github.com/JSB2010/DropSentinel/compare/v${getCurrentVersion() || '1.0.0'}...v${version}
+**Full Changelog**: https://github.com/JSB2010/DropSentinel/compare/v${currentVersion}...v${version}
 `;
 
   fs.writeFileSync(releaseNotesPath, releaseNotes, 'utf8');
