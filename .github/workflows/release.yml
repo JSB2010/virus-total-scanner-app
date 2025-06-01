@@ -4,12 +4,23 @@ on:
   push:
     tags:
       - 'v*'
+  repository_dispatch:
+    types: [release-build]
   workflow_dispatch:
     inputs:
       tag:
         description: 'Release tag (e.g., v1.0.0)'
         required: true
         type: string
+      release_type:
+        description: 'Type of release'
+        required: false
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - prerelease
+          - draft
 
 env:
   NODE_VERSION: '20'
@@ -24,6 +35,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      release_type: ${{ steps.version.outputs.release_type }}
 
     steps:
     - name: Check out Git repository
@@ -44,16 +56,25 @@ jobs:
     - name: Extract version info
       id: version
       run: |
+        RELEASE_TYPE="release"
+
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           TAG="${{ github.event.inputs.tag }}"
+          RELEASE_TYPE="${{ github.event.inputs.release_type || 'release' }}"
+        elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          TAG="${{ github.event.client_payload.tag }}"
+          RELEASE_TYPE="${{ github.event.client_payload.release_type || 'release' }}"
         else
           TAG=${GITHUB_REF#refs/tags/}
         fi
+
         VERSION=${TAG#v}
         echo "tag=$TAG" >> $GITHUB_OUTPUT
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
         echo "Release tag: $TAG"
         echo "Version: $VERSION"
+        echo "Release type: $RELEASE_TYPE"
 
   # Build for macOS with code signing and notarization
   build-macos:
@@ -308,8 +329,8 @@ jobs:
         name: DropSentinel ${{ needs.validate.outputs.tag }}
         body_path: release-notes.md
         files: release-assets/*
-        draft: false
-        prerelease: false
+        draft: ${{ needs.validate.outputs.release_type == 'draft' }}
+        prerelease: ${{ needs.validate.outputs.release_type == 'prerelease' }}
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

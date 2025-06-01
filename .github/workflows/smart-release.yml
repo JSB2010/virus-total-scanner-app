@@ -1,0 +1,188 @@
+name: Smart Release System
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'RELEASE.md'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - prerelease
+          - draft
+      create_tag:
+        description: 'Create Git tag'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  detect-release:
+    name: Detect Release Trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.detect.outputs.should_release }}
+      version: ${{ steps.detect.outputs.version }}
+      release_type: ${{ steps.detect.outputs.release_type }}
+      tag_name: ${{ steps.detect.outputs.tag_name }}
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Detect release trigger
+      id: detect
+      run: |
+        SHOULD_RELEASE="false"
+        VERSION=""
+        RELEASE_TYPE="release"
+        TAG_NAME=""
+
+        # Check if triggered by workflow_dispatch
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "🚀 Manual release triggered"
+          SHOULD_RELEASE="true"
+          VERSION="${{ github.event.inputs.version }}"
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          TAG_NAME="v${VERSION}"
+        
+        # Check if RELEASE.md was modified
+        elif git diff --name-only HEAD~1 HEAD | grep -q "RELEASE.md"; then
+          echo "📝 RELEASE.md file detected"
+          if [ -f "RELEASE.md" ]; then
+            echo "✅ RELEASE.md exists, checking for release trigger"
+            
+            # Extract version from RELEASE.md
+            if grep -q "^# Release" RELEASE.md; then
+              VERSION=$(grep "^# Release" RELEASE.md | head -1 | sed 's/^# Release \([0-9.]*\).*/\1/')
+              if [ -n "$VERSION" ]; then
+                echo "📦 Found version in RELEASE.md: $VERSION"
+                SHOULD_RELEASE="true"
+                TAG_NAME="v${VERSION}"
+                
+                # Check if it's a prerelease
+                if grep -qi "prerelease\|beta\|alpha\|rc" RELEASE.md; then
+                  RELEASE_TYPE="prerelease"
+                fi
+              fi
+            fi
+          fi
+        
+        # Check if package.json version was bumped
+        elif git diff --name-only HEAD~1 HEAD | grep -q "package.json"; then
+          echo "📦 package.json modified, checking version bump"
+          
+          # Get current and previous version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          git checkout HEAD~1 -- package.json 2>/dev/null || true
+          PREVIOUS_VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "0.0.0")
+          git checkout HEAD -- package.json
+          
+          echo "Previous version: $PREVIOUS_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+          
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
+            echo "🔄 Version bump detected: $PREVIOUS_VERSION → $CURRENT_VERSION"
+            SHOULD_RELEASE="true"
+            VERSION="$CURRENT_VERSION"
+            TAG_NAME="v${VERSION}"
+          fi
+        fi
+
+        echo "should_release=$SHOULD_RELEASE" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+        echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+
+        echo "🎯 Release Detection Results:"
+        echo "  Should Release: $SHOULD_RELEASE"
+        echo "  Version: $VERSION"
+        echo "  Release Type: $RELEASE_TYPE"
+        echo "  Tag Name: $TAG_NAME"
+
+  create-tag:
+    name: Create Release Tag
+    runs-on: ubuntu-latest
+    needs: detect-release
+    if: needs.detect-release.outputs.should_release == 'true'
+    outputs:
+      tag_created: ${{ steps.tag.outputs.tag_created }}
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create and push tag
+      id: tag
+      run: |
+        TAG_NAME="${{ needs.detect-release.outputs.tag_name }}"
+        
+        # Check if tag already exists
+        if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+          echo "⚠️ Tag $TAG_NAME already exists"
+          echo "tag_created=false" >> $GITHUB_OUTPUT
+        else
+          echo "🏷️ Creating tag: $TAG_NAME"
+          
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create and push tag
+          git tag -a "$TAG_NAME" -m "Release ${{ needs.detect-release.outputs.version }}"
+          git push origin "$TAG_NAME"
+          
+          echo "✅ Tag $TAG_NAME created and pushed"
+          echo "tag_created=true" >> $GITHUB_OUTPUT
+        fi
+
+  trigger-release:
+    name: Trigger Release Build
+    runs-on: ubuntu-latest
+    needs: [detect-release, create-tag]
+    if: needs.detect-release.outputs.should_release == 'true'
+
+    steps:
+    - name: Trigger release workflow
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: release-build
+        client-payload: |
+          {
+            "version": "${{ needs.detect-release.outputs.version }}",
+            "tag": "${{ needs.detect-release.outputs.tag_name }}",
+            "release_type": "${{ needs.detect-release.outputs.release_type }}",
+            "triggered_by": "${{ github.event_name }}",
+            "commit_sha": "${{ github.sha }}"
+          }
+
+    - name: Summary
+      run: |
+        echo "## 🚀 Release Triggered!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Version**: ${{ needs.detect-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Tag**: ${{ needs.detect-release.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Type**: ${{ needs.detect-release.outputs.release_type }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The release workflow will start building packages for all platforms." >> $GITHUB_STEP_SUMMARY
+        echo "Check the [Actions tab](https://github.com/JSB2010/DropSentinel/actions) for progress." >> $GITHUB_STEP_SUMMARY
