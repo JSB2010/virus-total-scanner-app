@@ -107,7 +107,12 @@
     "website:dev": "cross-env BUILD_WEBSITE=true npm run dev",
     "website:build": "cross-env BUILD_WEBSITE=true npm run build",
     "website:export": "cross-env BUILD_WEBSITE=true next build && next export",
-    "website:deploy": "npm run website:export && gh-pages -d out -b gh-pages"
+    "website:deploy": "npm run website:export && gh-pages -d out -b gh-pages",
+    "docker:build": "docker build -t dropsentinel:local .",
+    "docker:run": "docker run -p 3000:3000 dropsentinel:local",
+    "docker:dev": "docker run -p 3000:3000 -v $(pwd):/app dropsentinel:local",
+    "docker:pull": "docker pull ghcr.io/jsb2010/dropsentinel:latest",
+    "docker:run-remote": "docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

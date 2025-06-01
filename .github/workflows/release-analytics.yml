@@ -1,6 +1,13 @@
 name: Container & Analytics
 
 on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
   release:
     types: [published]
   repository_dispatch:
@@ -46,43 +53,65 @@ jobs:
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+        labels: |
+          org.opencontainers.image.title=DropSentinel Development Environment
+          org.opencontainers.image.description=Advanced file security scanner with real-time protection and VirusTotal integration
+          org.opencontainers.image.vendor=DropSentinel
+          org.opencontainers.image.licenses=MIT
 
     - name: Create Dockerfile for development environment
       run: |
         cat > Dockerfile << 'EOF'
         FROM node:20-alpine
 
-        # Install system dependencies
+        # Install system dependencies for building native modules
         RUN apk add --no-cache \
             git \
             python3 \
             make \
             g++ \
-            curl
+            curl \
+            bash \
+            ca-certificates
+
+        # Create app user for security
+        RUN addgroup -g 1001 -S nodejs && \
+            adduser -S nextjs -u 1001
 
         # Set working directory
         WORKDIR /app
 
-        # Copy package files
+        # Copy package files first for better caching
         COPY package*.json ./
+        COPY .npmrc* ./
 
         # Install dependencies
-        RUN npm ci --legacy-peer-deps
+        RUN npm ci --legacy-peer-deps --only=production && \
+            npm cache clean --force
 
         # Copy source code
-        COPY . .
+        COPY --chown=nextjs:nodejs . .
 
         # Build application
         RUN npm run build
 
+        # Switch to non-root user
+        USER nextjs
+
         # Expose port
         EXPOSE 3000
 
+        # Set environment variables
+        ENV NODE_ENV=production
+        ENV NEXT_TELEMETRY_DISABLED=1
+        ENV PORT=3000
+
         # Health check
-        HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+        HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
           CMD curl -f http://localhost:3000/api/health || exit 1
 
-        # Start application in development mode
+        # Start application
         CMD ["npm", "start"]
         EOF
 

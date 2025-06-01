@@ -137,6 +137,28 @@ const platforms = [
         href: `${GITHUB_RELEASES_BASE}/DropSentinel-1.0.2-x64.rpm`
       }
     ]
+  },
+  {
+    name: "Docker Container",
+    icon: "🐳",
+    version: "Development Environment",
+    architectures: ["amd64"],
+    downloads: [
+      {
+        name: "Latest Container",
+        description: "Latest development build",
+        size: "~200 MB",
+        format: "docker",
+        href: "https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel"
+      },
+      {
+        name: "Stable Release",
+        description: "Latest stable version (1.0.2)",
+        size: "~200 MB",
+        format: "docker",
+        href: "https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel"
+      }
+    ]
   }
 ]
 
@@ -215,10 +237,21 @@ export default function DownloadPage() {
                               <Button size="sm" asChild>
                                 <Link href={download.href} target="_blank">
                                   <Download className="w-4 h-4 mr-2" />
-                                  Download
+                                  {platform.name === "Docker Container" ? "View Registry" : "Download"}
                                 </Link>
                               </Button>
                             </div>
+                            {platform.name === "Docker Container" && (
+                              <div className="mt-4 p-3 bg-muted/50 rounded-md">
+                                <p className="text-xs text-muted-foreground mb-2">Quick Start:</p>
+                                <code className="text-xs bg-background px-2 py-1 rounded block">
+                                  docker pull ghcr.io/jsb2010/dropsentinel:latest
+                                </code>
+                                <code className="text-xs bg-background px-2 py-1 rounded block mt-1">
+                                  docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest
+                                </code>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -247,7 +280,7 @@ export default function DownloadPage() {
                 </p>
               </motion.div>
 
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <motion.div variants={fadeInUp}>
                   <Card>
                     <CardContent className="p-6">
@@ -288,6 +321,29 @@ export default function DownloadPage() {
                         <Link href="https://github.com/JSB2010/DropSentinel#building-for-production" target="_blank">
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Build Instructions
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div variants={fadeInUp}>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="text-2xl">🐳</div>
+                        <div>
+                          <h3 className="font-semibold">Docker Development</h3>
+                          <p className="text-sm text-muted-foreground">Containerized environment</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Use our pre-configured Docker container for development, testing, or CI/CD pipelines.
+                      </p>
+                      <Button variant="outline" asChild className="w-full">
+                        <Link href="https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel" target="_blank">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Container Registry
                         </Link>
                       </Button>
                     </CardContent>
