@@ -1,6 +1,6 @@
 {
   "name": "dropsentinel",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Advanced file security scanner with real-time protection and drag-and-drop scanning",
   "private": true,
   "author": {
