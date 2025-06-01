@@ -170,8 +170,25 @@ CHANGELOG.md
 LICENSE
 docs/
 
-# Scripts (not needed in container)
-scripts/
+# Scripts (exclude most but keep build-essential ones)
+scripts/build-*.js
+scripts/build-*.sh
+scripts/build-*.ps1
+scripts/create-release.js
+scripts/release.js
+scripts/setup-*.ps1
+scripts/setup-*.sh
+scripts/test-*.js
+scripts/test-*.sh
+scripts/optimize-*.js
+scripts/optimize-*.sh
+scripts/enhanced-build.js
+scripts/fix-electron-paths.js
+scripts/verify-build.js
+scripts/validate-release.js
+scripts/update-download-links.js
+scripts/repo-health-check.js
+scripts/create-self-signed-cert.ps1
 .github/
 
 # Electron specific (not needed for web container)
