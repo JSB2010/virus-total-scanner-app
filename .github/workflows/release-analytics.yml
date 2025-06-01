@@ -86,8 +86,8 @@ jobs:
         COPY package*.json ./
         COPY .npmrc* ./
 
-        # Install dependencies
-        RUN npm ci --legacy-peer-deps --only=production && \
+        # Install dependencies (including dev dependencies for build)
+        RUN npm ci --legacy-peer-deps && \
             npm cache clean --force
 
         # Copy source code
@@ -95,6 +95,10 @@ jobs:
 
         # Build application
         RUN npm run build
+
+        # Remove dev dependencies after build to reduce image size
+        RUN npm prune --production && \
+            npm cache clean --force
 
         # Switch to non-root user
         USER nextjs
@@ -150,8 +154,11 @@ jobs:
           VERSION="${{ github.event.inputs.version }}"
         elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
           VERSION="${{ github.event.client_payload.version }}"
-        else
+        elif [ "${{ github.event_name }}" = "release" ]; then
           VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          # For push events, extract version from package.json
+          VERSION=$(node -p "require('./package.json').version")
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Analyzing version: $VERSION"
@@ -160,8 +167,18 @@ jobs:
       run: |
         mkdir -p release-analytics
 
+        # Validate version format
+        if [[ ! "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Warning: Version format may be invalid: ${{ steps.version.outputs.version }}"
+          echo "Using sanitized filename..."
+          SAFE_VERSION=$(echo "${{ steps.version.outputs.version }}" | sed 's/[^a-zA-Z0-9.-]/_/g')
+        else
+          SAFE_VERSION="${{ steps.version.outputs.version }}"
+        fi
+        echo "Using safe version: $SAFE_VERSION"
+
         # Create release analytics report
-        cat > release-analytics/release-metrics-${{ steps.version.outputs.version }}.json << EOF
+        cat > release-analytics/release-metrics-${SAFE_VERSION}.json << EOF
         {
           "version": "${{ steps.version.outputs.version }}",
           "releaseDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
@@ -294,6 +311,7 @@ jobs:
         name: release-analytics-${{ steps.version.outputs.version }}
         path: release-analytics/
         retention-days: 365
+      if: always()
 
   create-release-summary:
     name: Create Release Summary
