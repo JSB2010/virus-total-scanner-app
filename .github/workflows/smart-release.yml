@@ -138,33 +138,54 @@ jobs:
       id: tag
       run: |
         TAG_NAME="${{ needs.detect-release.outputs.tag_name }}"
-        
-        # Check if tag already exists
+
+        # Check if tag already exists locally
         if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-          echo "⚠️ Tag $TAG_NAME already exists"
+          echo "⚠️ Tag $TAG_NAME already exists locally"
           echo "tag_created=false" >> $GITHUB_OUTPUT
         else
-          echo "🏷️ Creating tag: $TAG_NAME"
-          
-          # Configure git
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Create and push tag
-          git tag -a "$TAG_NAME" -m "Release ${{ needs.detect-release.outputs.version }}"
-          git push origin "$TAG_NAME"
-          
-          echo "✅ Tag $TAG_NAME created and pushed"
-          echo "tag_created=true" >> $GITHUB_OUTPUT
+          # Check if tag exists on remote
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME$"; then
+            echo "⚠️ Tag $TAG_NAME already exists on remote"
+            echo "ℹ️ This is normal if the tag was created manually or by another workflow"
+            echo "tag_created=false" >> $GITHUB_OUTPUT
+          else
+            echo "🏷️ Creating tag: $TAG_NAME"
+
+            # Configure git
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Create and push tag
+            git tag -a "$TAG_NAME" -m "Release ${{ needs.detect-release.outputs.version }}"
+            git push origin "$TAG_NAME"
+
+            echo "✅ Tag $TAG_NAME created and pushed"
+            echo "tag_created=true" >> $GITHUB_OUTPUT
+          fi
         fi
 
   trigger-release:
     name: Trigger Release Build
     runs-on: ubuntu-latest
     needs: [detect-release, create-tag]
-    if: needs.detect-release.outputs.should_release == 'true'
+    if: needs.detect-release.outputs.should_release == 'true' && always()
 
     steps:
+    - name: Check release status
+      id: status
+      run: |
+        TAG_CREATED="${{ needs.create-tag.outputs.tag_created }}"
+        TAG_NAME="${{ needs.detect-release.outputs.tag_name }}"
+
+        if [ "$TAG_CREATED" = "true" ]; then
+          echo "✅ Tag $TAG_NAME was created by this workflow"
+          echo "status=created" >> $GITHUB_OUTPUT
+        else
+          echo "ℹ️ Tag $TAG_NAME already exists (created manually or by another workflow)"
+          echo "status=exists" >> $GITHUB_OUTPUT
+        fi
+
     - name: Trigger release workflow
       uses: peter-evans/repository-dispatch@v3
       with:
@@ -176,17 +197,27 @@ jobs:
             "tag": "${{ needs.detect-release.outputs.tag_name }}",
             "release_type": "${{ needs.detect-release.outputs.release_type }}",
             "triggered_by": "${{ github.event_name }}",
-            "commit_sha": "${{ github.sha }}"
+            "commit_sha": "${{ github.sha }}",
+            "tag_created": "${{ needs.create-tag.outputs.tag_created }}"
           }
 
     - name: Summary
       run: |
-        echo "## 🚀 Release Triggered!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
+        TAG_STATUS="${{ steps.status.outputs.status }}"
+
+        if [ "$TAG_STATUS" = "created" ]; then
+          echo "## 🚀 Release Triggered!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ✅ New tag created and release triggered" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ℹ️ Release Detected!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ⚠️ Tag already exists, but release workflows are already running" >> $GITHUB_STEP_SUMMARY
+        fi
+
         echo "**Version**: ${{ needs.detect-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
         echo "**Tag**: ${{ needs.detect-release.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
         echo "**Type**: ${{ needs.detect-release.outputs.release_type }}" >> $GITHUB_STEP_SUMMARY
         echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "The release workflow will start building packages for all platforms." >> $GITHUB_STEP_SUMMARY
-        echo "Check the [Actions tab](https://github.com/JSB2010/DropSentinel/actions) for progress." >> $GITHUB_STEP_SUMMARY
+        echo "Check the [Actions tab](https://github.com/JSB2010/DropSentinel/actions) for release progress." >> $GITHUB_STEP_SUMMARY
