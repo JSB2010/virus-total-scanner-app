@@ -92,6 +92,34 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
+    - name: Install macOS build dependencies
+      run: |
+        echo "🔧 Installing macOS build dependencies..."
+
+        # Install create-dmg for better DMG creation (if not already available)
+        if ! command -v create-dmg &> /dev/null; then
+          echo "Installing create-dmg..."
+          brew install create-dmg
+        else
+          echo "create-dmg already available"
+        fi
+
+        # Ensure Xcode command line tools are available
+        if ! xcode-select -p &> /dev/null; then
+          echo "Installing Xcode command line tools..."
+          xcode-select --install || echo "Xcode tools installation initiated"
+        else
+          echo "Xcode command line tools already available"
+        fi
+
+        # Check for required tools
+        echo "Checking build tools availability:"
+        which hdiutil || echo "⚠️ hdiutil not found"
+        which pkgbuild || echo "⚠️ pkgbuild not found"
+        which productbuild || echo "⚠️ productbuild not found"
+
+        echo "✅ macOS build dependencies setup complete"
+
     - name: Setup build cache
       uses: actions/cache@v4
       with:
@@ -545,6 +573,30 @@ jobs:
             "prerelease": false
           }
 
+    - name: Update download links
+      run: |
+        echo "🔄 Updating website download links for version ${{ needs.validate.outputs.version }}..."
+
+        # Install Node.js dependencies if needed
+        if [ ! -d "node_modules" ]; then
+          npm ci --legacy-peer-deps
+        fi
+
+        # Update download links to match new version
+        npm run update-download-links
+
+        # Check if there are changes to commit
+        if ! git diff --quiet; then
+          echo "📝 Committing updated download links..."
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add app/website/download/page.tsx app/website/page.tsx
+          git commit -m "chore: Update download links for release ${{ needs.validate.outputs.tag }}" || echo "No changes to commit"
+          git push origin main || echo "Failed to push changes"
+        else
+          echo "✅ Download links are already up to date"
+        fi
+
     - name: Update package registry
       run: |
         echo "## 🎉 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
@@ -553,11 +605,12 @@ jobs:
         echo "**Release URL**: https://github.com/JSB2010/DropSentinel/releases/tag/${{ needs.validate.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📦 Available Downloads" >> $GITHUB_STEP_SUMMARY
-        echo "- 🪟 **Windows**: NSIS Installer, MSI Package, Portable EXE" >> $GITHUB_STEP_SUMMARY
-        echo "- 🍎 **macOS**: DMG Disk Image, PKG Installer" >> $GITHUB_STEP_SUMMARY
-        echo "- 🐧 **Linux**: AppImage, DEB Package, RPM Package" >> $GITHUB_STEP_SUMMARY
+        echo "- 🪟 **Windows**: NSIS Installer, MSI Package, Portable EXE, ZIP Archive" >> $GITHUB_STEP_SUMMARY
+        echo "- 🍎 **macOS**: DMG Disk Image, PKG Installer, ZIP Archive" >> $GITHUB_STEP_SUMMARY
+        echo "- 🐧 **Linux**: AppImage, TAR.GZ Archive, DEB Package, RPM Package" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         echo "- Packages will be published to GitHub Packages automatically" >> $GITHUB_STEP_SUMMARY
+        echo "- Website download links have been updated automatically" >> $GITHUB_STEP_SUMMARY
         echo "- Container images will be available in GitHub Container Registry" >> $GITHUB_STEP_SUMMARY
         echo "- Update documentation and announce the release" >> $GITHUB_STEP_SUMMARY

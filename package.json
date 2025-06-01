@@ -93,6 +93,8 @@
     "build:optimize": "node scripts/optimize-build.js",
     "build:enhanced": "node scripts/enhanced-build.js",
     "update-download-links": "node scripts/update-download-links.js",
+    "test:macos-build": "node scripts/test-macos-build.js",
+    "create-release": "node scripts/create-release.js",
     "build:optimized": "node scripts/build-optimizer.js",
     "build:dashboard": "node scripts/build-analytics.js && start analytics/latest-dashboard.html",
     "build:maintenance": "scripts/optimize-maintenance.sh",
