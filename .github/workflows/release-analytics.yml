@@ -1,4 +1,4 @@
-name: Release Analytics & Metrics
+name: Container & Analytics
 
 on:
   release:
@@ -12,10 +12,93 @@ on:
         required: true
         type: string
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
+  publish-container:
+    name: Publish Development Container
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+
+    - name: Create Dockerfile for development environment
+      run: |
+        cat > Dockerfile << 'EOF'
+        FROM node:20-alpine
+
+        # Install system dependencies
+        RUN apk add --no-cache \
+            git \
+            python3 \
+            make \
+            g++ \
+            curl
+
+        # Set working directory
+        WORKDIR /app
+
+        # Copy package files
+        COPY package*.json ./
+
+        # Install dependencies
+        RUN npm ci --legacy-peer-deps
+
+        # Copy source code
+        COPY . .
+
+        # Build application
+        RUN npm run build
+
+        # Expose port
+        EXPOSE 3000
+
+        # Health check
+        HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+          CMD curl -f http://localhost:3000/api/health || exit 1
+
+        # Start application in development mode
+        CMD ["npm", "start"]
+        EOF
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
   release-analytics:
     name: Generate Release Analytics
     runs-on: ubuntu-latest
+    needs: [publish-container]
+    if: always()
     permissions:
       contents: read
 
@@ -70,22 +153,31 @@ jobs:
               "formats": ["AppImage (.AppImage)", "TAR.GZ Archive (.tar.gz)"],
               "architectures": ["x64"],
               "totalFormats": 2
+            },
+            "container": {
+              "registry": "ghcr.io/jsb2010/dropsentinel",
+              "formats": ["Docker Container"],
+              "architectures": ["amd64"],
+              "totalFormats": 1,
+              "purpose": "Development environment and testing"
             }
           },
-          "totalPlatforms": 3,
-          "totalPackages": 8,
-          "buildSystem": "electron-builder",
+          "totalPlatforms": 4,
+          "totalPackages": 9,
+          "buildSystem": "electron-builder + docker",
           "features": [
             "Real-time file scanning",
             "VirusTotal integration",
             "Background monitoring",
             "Cross-platform support",
             "Modern UI/UX",
-            "Comprehensive threat detection"
+            "Comprehensive threat detection",
+            "Development container support"
           ],
           "releaseType": "stable",
           "changelog": "https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md",
-          "downloadLinks": "https://github.com/JSB2010/DropSentinel/releases/tag/v${{ steps.version.outputs.version }}"
+          "downloadLinks": "https://github.com/JSB2010/DropSentinel/releases/tag/v${{ steps.version.outputs.version }}",
+          "containerRegistry": "https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel"
         }
         EOF
 
@@ -117,6 +209,9 @@ jobs:
         - ✅ AppImage (.AppImage) - Universal format
         - ✅ TAR.GZ Archive (.tar.gz) - Compressed
 
+        ### Container (1 package)
+        - ✅ Docker Container (ghcr.io/jsb2010/dropsentinel) - Development environment
+
         ## 🔧 Technical Details
 
         - **Build System**: electron-builder
@@ -136,17 +231,32 @@ jobs:
 
         ## 📈 Release Metrics
 
-        - **Total Platforms**: 3 (Windows, macOS, Linux)
-        - **Total Packages**: 8 different formats
-        - **Architecture Support**: x64, ARM64 (macOS Universal)
+        - **Total Platforms**: 4 (Windows, macOS, Linux, Container)
+        - **Total Packages**: 9 different formats
+        - **Architecture Support**: x64, ARM64 (macOS Universal), amd64 (Container)
         - **Package Sizes**: ~80-180 MB depending on format
+        - **Container Registry**: GitHub Container Registry (ghcr.io)
 
         ## 🔗 Links
 
         - [Download Release](https://github.com/JSB2010/DropSentinel/releases/tag/v${{ steps.version.outputs.version }})
+        - [Container Registry](https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel)
         - [Changelog](https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md)
         - [Documentation](https://github.com/JSB2010/DropSentinel#readme)
         - [Website](https://dropsentinel.com)
+
+        ## 🐳 Container Usage
+
+        ```bash
+        # Pull the latest development container
+        docker pull ghcr.io/jsb2010/dropsentinel:latest
+
+        # Run development environment
+        docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest
+
+        # Run specific version
+        docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:${{ steps.version.outputs.version }}
+        ```
         EOF
 
     - name: Upload release analytics
@@ -179,9 +289,11 @@ jobs:
         echo "- ✅ **Windows**: 4 packages (NSIS, MSI, Portable, ZIP)" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ **macOS**: 2 packages (DMG, ZIP)" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ **Linux**: 2 packages (AppImage, TAR.GZ)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ **Container**: 1 package (Docker development environment)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
         echo "- [📥 Download Latest Release](https://github.com/JSB2010/DropSentinel/releases/latest)" >> $GITHUB_STEP_SUMMARY
+        echo "- [🐳 Container Registry](https://github.com/JSB2010/DropSentinel/pkgs/container/dropsentinel)" >> $GITHUB_STEP_SUMMARY
         echo "- [📋 View Changelog](https://github.com/JSB2010/DropSentinel/blob/main/CHANGELOG.md)" >> $GITHUB_STEP_SUMMARY
         echo "- [🌐 Visit Website](https://dropsentinel.com)" >> $GITHUB_STEP_SUMMARY
         echo "- [📚 Read Documentation](https://github.com/JSB2010/DropSentinel#readme)" >> $GITHUB_STEP_SUMMARY

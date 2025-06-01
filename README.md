@@ -141,6 +141,35 @@ Pre-built packages for **Windows**, **macOS**, and **Linux** are automatically g
 - **Snap-enabled systems**: Use `.snap` packages
 - **Flatpak-enabled systems**: Use `.flatpak` packages
 
+## 🐳 Development Container
+
+For developers who prefer containerized environments, DropSentinel provides a Docker container with a pre-configured development environment:
+
+```bash
+# Pull the latest development container
+docker pull ghcr.io/jsb2010/dropsentinel:latest
+
+# Run development environment
+docker run -p 3000:3000 ghcr.io/jsb2010/dropsentinel:latest
+
+# Run with volume mounting for development
+docker run -p 3000:3000 -v $(pwd):/app ghcr.io/jsb2010/dropsentinel:latest
+```
+
+**Container Features:**
+- ✅ Pre-configured Node.js 20 environment
+- ✅ All dependencies pre-installed
+- ✅ Hot reload support for development
+- ✅ Health checks included
+- ✅ Automatic builds on every release
+
+**Available Tags:**
+- `latest` - Latest stable release
+- `main` - Latest development build
+- `1.0.2`, `1.0.1`, etc. - Specific version tags
+
+**Note**: The container version is designed for development and testing purposes. For production file scanning, use the desktop application which has full file system access.
+
 ## 🏗️ Building for Production
 
 ### Web Application
