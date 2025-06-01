@@ -183,7 +183,6 @@ scripts/test-*.sh
 scripts/optimize-*.js
 scripts/optimize-*.sh
 scripts/enhanced-build.js
-scripts/fix-electron-paths.js
 scripts/verify-build.js
 scripts/validate-release.js
 scripts/update-download-links.js
