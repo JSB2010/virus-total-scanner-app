@@ -145,7 +145,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "autoprefixer": "^10.4.20",
     "better-sqlite3": "^11.10.0",
-    "chokidar": "^3.6.0",
+    "chokidar": "^4.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
